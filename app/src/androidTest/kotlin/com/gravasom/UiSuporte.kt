@@ -27,12 +27,14 @@ object UiSuporte {
     val app: GravasomApplication get() = Suporte.contexto.applicationContext as GravasomApplication
 
     /** Esvazia biblioteca (arquivos + copia publicada + linhas) e eventos de uso: cada teste parte do zero. */
-    fun limparTudo() = runBlocking {
-        (app.repo.observeAll().first() + app.repo.observeTrash().first()).forEach { app.files.deleteForever(it) }
-        app.usageMetrics.clear()
-        app.preferences.setFormat(RecordingFormat.M4A)
-        app.preferences.setPrivateVault(false)
-        app.preferences.setTelemetryOptIn(false)
+    fun limparTudo() {
+        runBlocking {
+            (app.repo.observeAll().first() + app.repo.observeTrash().first()).forEach { app.files.deleteForever(it) }
+            app.usageMetrics.clear()
+            app.preferences.setFormat(RecordingFormat.M4A)
+            app.preferences.setPrivateVault(false)
+            app.preferences.setTelemetryOptIn(false)
+        }
     }
 
     fun textos(rule: SemanticsNodeInteractionsProvider, tag: String): List<String> =
@@ -40,7 +42,9 @@ object UiSuporte {
             n.config.getOrNull(SemanticsProperties.Text)?.joinToString("") { it.text }.orEmpty()
         }
 
-    fun existe(rule: SemanticsNodeInteractionsProvider, tag: String) = rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+    /** False tambem quando nao ha hierarquia Compose ativa (ex.: dialogo do sistema por cima do app). */
+    fun existe(rule: SemanticsNodeInteractionsProvider, tag: String): Boolean =
+        runCatching { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
 
     fun aguardar(rule: RegraCompose, timeoutMs: Long = 15_000, condicao: () -> Boolean) = rule.waitUntil(timeoutMs) { condicao() }
 
