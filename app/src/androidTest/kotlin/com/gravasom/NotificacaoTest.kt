@@ -28,11 +28,7 @@ class NotificacaoTest {
     @Before
     fun preparar() = UiSuporte.limparTudo()
 
-    /** Rotulo no idioma do aparelho (o emulador de CI roda em ingles). */
-    private fun rotulo(nome: String): String {
-        val ctx = Suporte.contexto
-        return ctx.getString(ctx.resources.getIdentifier(nome, "string", ctx.packageName))
-    }
+    private fun rotulo(nome: String) = UiSuporte.rotulo(nome)
 
     private fun acoes(): List<android.app.Notification.Action> {
         val nm = Suporte.contexto.getSystemService(NotificationManager::class.java)

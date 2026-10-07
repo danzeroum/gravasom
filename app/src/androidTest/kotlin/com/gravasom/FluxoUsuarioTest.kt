@@ -97,8 +97,9 @@ class FluxoUsuarioTest {
         compose.onNodeWithTag("mais_acoes").performClick()
         compose.onNodeWithTag("menu_excluir").performClick()
         UiSuporte.aguardar(compose) { !UiSuporte.existe(compose, "item_gravacao") }
-        UiSuporte.aguardar(compose) { compose.onAllNodesWithText("DESFAZER").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("DESFAZER").performClick()
+        val desfazer = UiSuporte.rotulo("library_undo")
+        UiSuporte.aguardar(compose) { compose.onAllNodesWithText(desfazer).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText(desfazer).performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "item_gravacao") }
     }
 }

@@ -26,6 +26,12 @@ typealias RegraCompose = AndroidComposeTestRule<ActivityScenarioRule<MainActivit
 /** Atalhos dos testes de UI: acesso aos servicos do app, biblioteca limpa e o fluxo "gravar pela tela". */
 object UiSuporte {
 
+    /** Texto de recurso no idioma do aparelho (o emulador de CI roda em ingles). */
+    fun rotulo(nome: String): String {
+        val ctx = Suporte.contexto
+        return ctx.getString(ctx.resources.getIdentifier(nome, "string", ctx.packageName))
+    }
+
     val app: GravasomApplication get() = Suporte.contexto.applicationContext as GravasomApplication
 
     /** Esvazia biblioteca (arquivos + copia publicada + linhas) e eventos de uso: cada teste parte do zero. */
