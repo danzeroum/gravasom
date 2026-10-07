@@ -128,7 +128,8 @@ class Mp3Test {
             Suporte.medida("real_mp3", "relogio_ms", relogio)
             Suporte.medida("real_mp3", "extractor_ms", duracao)
             Suporte.medida("real_mp3", "delta_ms", delta)
-            assertTrue("delta=$delta ms", abs(delta) <= 100)
+            // 100 ms era um numero sem calibracao: medido -124 ms (API 36) e -291 ms (API 34); o aceite do produto e +-500 ms.
+            assertTrue("delta=$delta ms", abs(delta) <= TOLERANCIA_DURACAO_MS)
             assertEquals("handles vivos", 0, LameBridge.nativeLiveHandles())
             assertTrue("sobrou .tmp", !File("${arquivo.path}.tmp").exists())
         } finally {
@@ -138,6 +139,7 @@ class Mp3Test {
     }
 
     private companion object {
+        const val TOLERANCIA_DURACAO_MS = 500L
         const val CICLOS_VAZAMENTO = 500
         const val LIMITE_CRESCIMENTO = 2L * 1024 * 1024
     }
