@@ -1,16 +1,14 @@
 package com.gravasom
 
 import android.Manifest
-import android.appwidget.AppWidgetHost
-import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Intent
-import android.view.View
-import android.view.ViewGroup
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
+import java.util.regex.Pattern
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -65,48 +63,38 @@ class SuperficiesTest {
         Suporte.shell("cmd statusbar collapse")
     }
 
+    /**
+     * Caminho de um usuario: pede ao launcher para fixar o widget na tela inicial, confirma o dialogo e toca no widget.
+     * (O host de teste em processo nao serve: o clique de servico exige o tratador do launcher.)
+     */
     @Test
     fun widgetIniciaAGravacao() {
         val contexto = Suporte.contexto
+        val device = UiDevice.getInstance(instr)
         val awm = AppWidgetManager.getInstance(contexto)
-        val ua = instr.uiAutomation
-        ua.adoptShellPermissionIdentity("android.permission.BIND_APPWIDGET")
-        val host = AppWidgetHost(contexto, HOST_ID)
-        var id = -1
+        val provider = awm.installedProviders.firstOrNull { it.provider.packageName == contexto.packageName }
+        assertNotNull("widget nao registrado", provider)
+        assertTrue("launcher nao suporta fixar widgets", awm.isRequestPinAppWidgetSupported)
         try {
-            val info = awm.installedProviders.firstOrNull { it.provider.packageName == contexto.packageName }
-            assertNotNull("widget nao registrado", info)
-            host.startListening()
-            id = host.allocateAppWidgetId()
-            assertTrue("bind negado", awm.bindAppWidgetIdIfAllowed(id, info!!.provider))
-            lateinit var visao: AppWidgetHostView
-            instr.runOnMainSync { visao = host.createView(contexto, id, info) }
-            contexto.sendBroadcast(
-                Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                    .setComponent(ComponentName(contexto, "com.gravasom.core.service.widget.RecordWidgetReceiver"))
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(id)),
-            )
-            var clicavel: View? = null
-            assertTrue("widget nao renderizou/nao tem alvo clicavel", Suporte.aguardar(15_000) {
-                instr.runOnMainSync { clicavel = achar(visao) }
-                clicavel != null
-            })
-            instr.runOnMainSync { clicavel!!.performClick() }
-            assertTrue("widget nao iniciou a gravacao", ControleServico.esperarGravando())
+            device.pressHome()
+            device.waitForIdle()
+            awm.requestPinAppWidget(provider!!.provider, null, null)
+            val botoes = By.clazz("android.widget.Button").text(Pattern.compile("(?i)(add|adicionar).*"))
+            device.wait(Until.findObject(botoes), DIALOGO_MS)?.click()
+            val widget = device.wait(Until.findObject(By.text("Gravar")), WIDGET_MS)
+            assertNotNull("widget nao apareceu na tela inicial", widget)
+            widget!!.click()
+            assertTrue("widget nao iniciou a gravacao: ${com.gravasom.core.service.RecordingServiceState.state.value}",
+                ControleServico.esperarGravando())
         } finally {
-            if (id >= 0) host.deleteAppWidgetId(id)
-            host.stopListening()
-            ua.dropShellPermissionIdentity()
+            val pasta = Suporte.testsOut()
+            runCatching { device.takeScreenshot(java.io.File(pasta, "widget_tela.png")) }
+            runCatching { device.dumpWindowHierarchy(java.io.File(pasta, "widget_ui.xml")) }
         }
     }
 
-    private fun achar(v: View): View? {
-        if (v !is AppWidgetHostView && v.hasOnClickListeners()) return v
-        if (v is ViewGroup) for (i in 0 until v.childCount) achar(v.getChildAt(i))?.let { return it }
-        return null
-    }
-
     private companion object {
-        const val HOST_ID = 4242
+        const val DIALOGO_MS = 10_000L
+        const val WIDGET_MS = 15_000L
     }
 }
