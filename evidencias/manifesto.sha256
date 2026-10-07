@@ -24,14 +24,18 @@ aec6d903bfbd8a5109c94b22f592dff5ac1a3fd866a8bf5b2d5c50f32c6ec779  ./core/audio-e
 8517ac6b86fb1d71115e44d8af978ef894e44ac98626aa0bd667e4a7768a2506  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingState.kt
 9e97dcbadae0bde657692bc882dce5493fb3b8ae207ffb9963aa657f1cfaf916  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingStateMachine.kt
 f480f73f7b5aa793697b82b372fa1cdb7bdbbc0a0c06c41473e9c129b4d44c68  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/TransitionResult.kt
+3f98054bbfeb36275ffa53fcd5afcfefaf60b51fa136e4779810b6f4736c2919  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/TrimRange.kt
 35c530a845aabca9d3db3a6ff94339ee065c28db223957497a5ac1db3e6a9d36  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavHeaderWriter.kt
 a759891da79d1b240740937aa283d99750aeea55a4b64fb99577af8430183171  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavRepair.kt
+0ab7b7c0a5afd31c6a979f76283b297373eff7358b2cc4ad810b2488fe125bda  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavTrimmer.kt
 9518b40cfd4e73258261ff9e2317034c9f6cbbe35c9e864d56894cde30c93796  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/LevelMeterTest.kt
 7446c0a7e330c46599e7acafd67e7c79f10441f7ed7893263caa0ca49ac7c5db  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineCoverageTest.kt
 01bebbc1bf84a53ab7af5115910b5adf57aa6cc542e7f787f93048dab9e76fa0  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineTest.kt
+9ac735462f9ff039b14575ec42bc1abfcafcfac8596a8a008ea3e85adb325e80  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/TrimRangeTest.kt
 c8e312949993e9f61e314061110381aff05437d00d706ef32e2ca4fbe952d5a3  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavEdgeCasesTest.kt
 d335e3402dd0888590a50314d86c66252568bbb188de0f4ab9997e1363964a63  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavHeaderWriterTest.kt
 3ad39548bd618c2ab139bef13027e55e4add574e98dc7f1fbe73d50e0709055b  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavRepairTest.kt
+08b05701c4e2efdd3c35ea22f8d10cf88dfb6dbb15415c6e652da251bbb8f14a  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavTrimmerTest.kt
 978bdac52b0d09bbfccbe5ef8f3a73f488b88fc1c8c35bd0ade751e2d0e0c366  ./core/data/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./core/data/src/main/AndroidManifest.xml
 53524bbb941d139fadc15d0d47756415654e7a6a4f07e8edb0f2eaa0f50bb7f6  ./core/data/src/main/kotlin/com/gravasom/core/data/db/GravasomDatabase.kt
@@ -91,6 +95,8 @@ fddd4cc5edc073bdf148df602086cf2cb1ed062967bd055f5943e2afb3de41e7  ./evidencias/0
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./feature/library/src/main/AndroidManifest.xml
 8243dc324309798fd2832437f3ba7ee1abc8a08c3be3469749eda1ce4f19fd99  ./feature/player/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./feature/player/src/main/AndroidManifest.xml
+df1bcb4ba1da386d7086e01c3cd61ddb0284ed03ab33cdadaba5dc0d5bd59737  ./feature/player/src/main/kotlin/com/gravasom/feature/player/PlayerController.kt
+86958fb9a43a1d943a5da8581079e8c881e7235ce2aa7764f5a08303dccabcf5  ./feature/player/src/main/kotlin/com/gravasom/feature/player/PlayerScreen.kt
 0fdeac2a9cfddc3bd869e200dcb5788e38ead60af207ca902b62b3414a896a7d  ./feature/record/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./feature/record/src/main/AndroidManifest.xml
 d6fd13270846d6851ca52724ccd84d31e140de6801dc4546c6a0666c9f4c389d  ./feature/settings/build.gradle.kts
