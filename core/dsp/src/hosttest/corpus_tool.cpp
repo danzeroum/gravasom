@@ -250,6 +250,26 @@ Sig CtrlPitch(const Sig& x, double cents) {  // reamostragem (interp. cubica) ma
   }
   return y;
 }
+// Supressao agressiva: gate por quadro de 10 ms que silencia tudo abaixo de 60% do RMS global (corta consoantes e
+// finais de palavra) e ainda atenua o resto em 3 dB; transicoes suavizadas para nao gerar cliques.
+Sig CtrlSupressaoAgressiva(const Sig& x) {
+  const size_t q = kRate / 100;
+  const double limiar = 0.6 * Rms(x);
+  Sig y(x.size());
+  double g = 1.0;
+  const double alvo_aberto = std::pow(10.0, -3.0 / 20.0);
+  for (size_t i = 0; i < x.size(); i += q) {
+    const size_t n = std::min(q, x.size() - i);
+    double e = 0;
+    for (size_t k = 0; k < n; ++k) e += double(x[i + k]) * x[i + k];
+    const double alvo = std::sqrt(e / n) < limiar ? 0.0 : alvo_aberto;
+    for (size_t k = 0; k < n; ++k) {
+      g += 0.02 * (alvo - g);
+      y[i + k] = static_cast<float>(x[i + k] * g);
+    }
+  }
+  return y;
+}
 Sig CtrlCliques(const Sig& x, int n) {  // n impulsos isolados de +-0.6 em posicoes deterministicas
   Sig y = x;
   Rng r(77);
@@ -306,6 +326,7 @@ int main(int argc, char** argv) {
     out((n + "__ctrl_pitch_mais50c").c_str(), CtrlPitch(b.x, 50.0));
     out((n + "__ctrl_corte50ms").c_str(), CtrlCorte(b.x, 50.0));
     out((n + "__ctrl_cliques").c_str(), CtrlCliques(b.x, 40));
+    out((n + "__ctrl_supressao_agressiva").c_str(), CtrlSupressaoAgressiva(b.x));
     out((n + "__ctrl_ruido_reinjetado").c_str(), MisturaSnr(b.x, rosa, 15.0));  // ruido de volta a 15 dB SNR
   }
   FILE* lista = std::fopen((d + "/bases_sinteticas.txt").c_str(), "w");

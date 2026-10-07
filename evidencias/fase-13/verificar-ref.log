@@ -1,0 +1,2 @@
+BOM      stoi_limpa pior=0.9996 teto_min=0.9909 ok
+CONTROLE stoi_limpa melhor=0.9823 < 0.9909 pegou

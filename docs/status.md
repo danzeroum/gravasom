@@ -21,11 +21,11 @@ Estados:
 | 4 — Serviço | APROVADA-PARCIAL | 100 ciclos e foreground medidos; "kill" é simulado por snapshot truncado do `.tmp` (não `kill -9` real) |
 | 5 — Biblioteca | APROVADA-PARCIAL | Room/DAO só compilam; falta teste instrumentado de Room |
 | 6 — Player/edição | APROVADA | Player Media3 tocar/buscar/pausar medido em emulador |
-| 7 — Superfícies | APROVADA-PARCIAL | Tile medido (API 34 e 36); widget: ver Fase 11 |
+| 7 — Superfícies | APROVADA | Tile e widget acionam a gravação em emulador (API 34 e 36) |
 | 8 — Privacidade | APROVADA-PARCIAL | Cofre/PrivacyManager só compilam; MobSF PENDENTE-CI |
 | 9 — Endurecimento | APROVADA-PARCIAL | Baseline Profile/Test Lab/Play/Accessibility Scanner pendentes |
 | 10 — Retomada | APROVADA | — |
-| 11 — CI com emulador | APROVADA-PARCIAL | Widget (ver abaixo) |
+| 11 — CI com emulador | APROVADA | Play, MobSF com credencial e Test Lab seguem PENDENTE-CI |
 | 12 — MP3 | APROVADA | Gate de true peak do MP3 decodificado pelo audio-suite entra com o harness (Fase 13) |
 | 13 — Fundação DSP + harness | **BLOQUEADA — TETO_NAO_DISCRIMINA** | Gate de inteligibilidade; ver evidencias/fase-13/CALIBRACAO.md |
 
@@ -129,8 +129,8 @@ Estados:
 
 ## Fase 11 — CI com emulador (medido)
 
-Run de referência: https://github.com/danzeroum/gravasom/actions/runs/37629777729 (commit ab2bd85). 12 de 13 testes
-instrumentados verdes em **API 34 e API 36**; o widget foi corrigido depois (ver abaixo).
+Run de referência: https://github.com/danzeroum/gravasom/actions/runs/37629777729 (commit ab2bd85). 13 de 13 testes
+instrumentados verdes em **API 34 e API 36** no run final https://github.com/danzeroum/gravasom/actions/runs/37635418641 (commit b927eb9).
 
 | Gate | Estado | Medida |
 | --- | --- | --- |
@@ -142,7 +142,7 @@ instrumentados verdes em **API 34 e API 36**; o widget foi corrigido depois (ver
 | Serviço microphone sobrevive a rotação e background | APROVADA | `types=0x80` e `isForeground=true` após iniciar, rotacionar e ir ao Home |
 | Player Media3 tocar/buscar/pausar | APROVADA | verde em API 34 e 36 |
 | Tile aciona a gravação | APROVADA | API 34: 1ª tentativa; API 36: 2ª tentativa (QS aberto) |
-| Widget aciona a gravação | PENDENTE-CI | defeito real corrigido (cores como `Color`); teste reescrito para fixar no launcher e tocar |
+| Widget aciona a gravação | APROVADA | fixado no launcher e tocado, verde em API 34 e 36 (run 37635418641, commit b927eb9) |
 | Play, MobSF com credencial, Firebase Test Lab | PENDENTE-CI | exigem credencial/serviço pago |
 
 Defeitos reais encontrados pelos testes e corrigidos: widget nunca renderizava (`Resource ID #0xff12151a`);

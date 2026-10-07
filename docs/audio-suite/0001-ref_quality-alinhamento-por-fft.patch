@@ -1,0 +1,117 @@
+diff --git a/audio_suite/analyzers/ref_quality.py b/audio_suite/analyzers/ref_quality.py
+index aff1da3..a21775d 100755
+--- a/audio_suite/analyzers/ref_quality.py
++++ b/audio_suite/analyzers/ref_quality.py
+@@ -24,15 +24,28 @@ from . import register
+ from .base import AudioAnalyzer
+ 
+ 
+-def _align(ref: np.ndarray, deg: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray]:
+-    """Cross-correlation alignment (sample-level)."""
++#: Atraso maximo procurado no alinhamento (segundos). Limita o custo e evita alinhar com lixo distante.
++_MAX_LAG_S = 1.0
++
++
++def _align(ref: np.ndarray, deg: np.ndarray, sr: int, max_lag_s: float = _MAX_LAG_S) -> tuple[np.ndarray, np.ndarray]:
++    """Alinhamento por correlacao cruzada via FFT, O(n log n), com atraso limitado a ``max_lag_s``.
++
++    Antes: ``np.correlate(mode="full")`` direto, O(n^2): ~48 s para 4 s de audio a 8 kHz e minutos em 10 s a 48 kHz.
++    Semantica mantida: lag = argmax |corr|; lag > 0 => ref adiantada em relacao a deg.
++    """
++    from scipy.signal import fftconvolve
++
+     n = min(len(ref), len(deg))
+     ref = ref[:n]
+     deg = deg[:n]
+     if n == 0:
+         return ref, deg
+-    corr = np.correlate(ref, deg, mode="full")
+-    lag = int(np.argmax(np.abs(corr)) - (len(deg) - 1))
++    max_lag = n - 1 if sr <= 0 else min(n - 1, int(max_lag_s * sr))
++    corr = fftconvolve(ref, deg[::-1], mode="full")  # mesmo indice que np.correlate(ref, deg, "full")
++    centro = len(deg) - 1
++    janela = corr[centro - max_lag : centro + max_lag + 1]
++    lag = int(np.argmax(np.abs(janela)) - max_lag)
+     if lag > 0:
+         ref = ref[lag:]
+         deg = deg[: len(ref)]
+@@ -82,9 +95,9 @@ def _visqol_like(ref: np.ndarray, deg: np.ndarray, sr: int) -> float:
+     return float(1.0 + 4.0 * np.clip(nsim, 0.0, 1.0))
+ 
+ 
+-def _si_sdr(ref: np.ndarray, deg: np.ndarray) -> float:
++def _si_sdr(ref: np.ndarray, deg: np.ndarray, sr: int = 0) -> float:
+     """SI-SDR in dB (Le Roux et al.)."""
+-    ref, deg = _align(ref, deg, 0)
++    ref, deg = _align(ref, deg, sr)
+     n = min(len(ref), len(deg))
+     if n == 0:
+         return -100.0
+@@ -199,7 +212,7 @@ class RefQualityAnalyzer(AudioAnalyzer):
+             status = Status.PASS if score >= min_score else Status.WARNING
+             msg = f"ViSQOL proxy {score:.2f} MOS (min {min_score})"
+         elif mode == "source-sep-ref":
+-            score = _si_sdr(ref, deg)
++            score = _si_sdr(ref, deg, audio.sample_rate)
+             metric = "si_sdr_db"
+             unit = "dB"
+             min_score = float(params.get("min_score", 5.0))
+diff --git a/tests/unit/analyzers/test_ref_quality_align_fft.py b/tests/unit/analyzers/test_ref_quality_align_fft.py
+new file mode 100644
+index 0000000..9f35cee
+--- /dev/null
++++ b/tests/unit/analyzers/test_ref_quality_align_fft.py
+@@ -0,0 +1,53 @@
++"""Alinhamento do ref_quality por FFT: mesma resposta do metodo O(n^2) e custo sub-quadratico."""
++
++import time
++
++import numpy as np
++
++from audio_suite.analyzers.ref_quality import _align, _si_sdr, _stoi_like
++
++
++def _antigo(ref, deg):
++    n = min(len(ref), len(deg))
++    ref, deg = ref[:n], deg[:n]
++    corr = np.correlate(ref, deg, mode="full")
++    lag = int(np.argmax(np.abs(corr)) - (len(deg) - 1))
++    if lag > 0:
++        ref = ref[lag:]
++        deg = deg[: len(ref)]
++    elif lag < 0:
++        deg = deg[-lag:]
++        ref = ref[: len(deg)]
++    return ref, deg
++
++
++def test_fft_equivale_ao_metodo_direto_em_sinais_curtos():
++    rng = np.random.default_rng(0)
++    base = rng.standard_normal(4000)
++    for atraso in (-37, 0, 12, 250):
++        deg = np.roll(base, atraso) + 0.01 * rng.standard_normal(4000)
++        r1, d1 = _antigo(base, deg)
++        r2, d2 = _align(base, deg, sr=0)  # sr=0: sem limite alem do tamanho
++        assert len(r1) == len(r2) and len(d1) == len(d2)
++        np.testing.assert_allclose(r1, r2)
++        np.testing.assert_allclose(d1, d2)
++
++
++def test_si_sdr_e_stoi_de_4s_a_8khz_terminam_em_segundos():
++    rng = np.random.default_rng(1)
++    ref = rng.standard_normal(32000)
++    deg = ref + 0.3 * rng.standard_normal(32000)
++    t = time.time()
++    s = _si_sdr(ref, deg, 8000)
++    p = _stoi_like(ref, deg, 8000)
++    assert time.time() - t < 2.0  # antes: dezenas de segundos
++    assert 5.0 < s < 15.0 and 0.0 < p <= 1.0
++
++
++def test_atraso_limitado_pela_taxa():
++    rng = np.random.default_rng(2)
++    ref = rng.standard_normal(16000)
++    deg = np.concatenate([np.zeros(9000), ref])[:16000]  # atraso de 9000 amostras = 1,125 s a 8 kHz (> 1 s)
++    r, d = _align(ref, deg, sr=8000)
++    # o lag escolhido fica dentro de +-1 s (8000 amostras): sobra pelo menos n - 8000 amostras
++    assert len(r) == len(d) >= 16000 - 8000
