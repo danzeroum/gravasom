@@ -36,4 +36,12 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.timber)
     implementation(libs.profileinstaller)
+
+    androidTestImplementation(project(":core:audio-engine"))
+    androidTestImplementation(project(":core:audio-android"))
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.uiautomator)
 }

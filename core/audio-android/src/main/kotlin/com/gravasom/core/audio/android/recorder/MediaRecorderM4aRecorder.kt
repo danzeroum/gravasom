@@ -25,6 +25,7 @@ class MediaRecorderM4aRecorder : AudioRecorder {
     override suspend fun prepare(config: RecordingConfig, outputPath: String): Result<Unit> = runCatching {
         this.outputPath = outputPath
         File(outputPath).parentFile?.mkdirs()
+        File("$outputPath.tmp").delete()
         val r = MediaRecorder()
         r.setAudioSource(MediaRecorder.AudioSource.MIC)
         r.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -32,7 +33,7 @@ class MediaRecorderM4aRecorder : AudioRecorder {
         r.setAudioSamplingRate(config.sampleRateHz)
         r.setAudioChannels(config.channels)
         r.setAudioEncodingBitRate(config.bitrateKbps * 1000)
-        r.setOutputFile(outputPath)
+        r.setOutputFile("$outputPath.tmp")
         r.prepare()
         recorder = r
     }
@@ -53,6 +54,7 @@ class MediaRecorderM4aRecorder : AudioRecorder {
         recorder?.stop()
         recorder?.release()
         recorder = null
+        check(File("$outputPath.tmp").renameTo(File(outputPath))) { "falha ao finalizar $outputPath" }
         outputPath
     }
 

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import com.gravasom.core.audio.android.recorder.DefaultAudioRecorderFactory
 import com.gravasom.core.audio.engine.RecordingError
 import com.gravasom.core.audio.engine.RecordingEvent
 import com.gravasom.core.audio.engine.RecordingState
@@ -21,6 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Servico em primeiro plano (type=microphone). Detem a maquina de estados, o
@@ -42,9 +44,7 @@ class RecordingService : Service() {
         focus = AudioFocusController(
             context = this,
             onPause = { pause() },
-            onStopWithError = { msg ->
-                RecordingServiceState.error(RecordingError.MIC_IN_USE)
-            },
+            onStopWithError = { stopRecording(RecordingError.MIC_IN_USE) },
         )
     }
 
@@ -67,12 +67,13 @@ class RecordingService : Service() {
         focus?.request()
         startForegroundCompat()
         scope.launch {
-            val path = "/sdcard/Music/Recordings/gravacao_${System.currentTimeMillis()}.${format.extension}"
-            val rec = DefaultRecorderFactoryHolder.factory?.create(format) ?: return@launch
+            val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
+            val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
+            val rec = factory.create(format)
             recorder = rec
-            rec.prepare(RecordingConfig(format = format), path)
+            val started = rec.prepare(RecordingConfig(format = format), path).mapCatching { rec.start().getOrThrow() }
+            started
                 .onSuccess {
-                    rec.start()
                     machine.transition(RecordingEvent.Prepared)
                     RecordingServiceState.update(machine.state)
                     startedAtMillis = System.currentTimeMillis()
@@ -99,19 +100,34 @@ class RecordingService : Service() {
         }
     }
 
-    private fun stopRecording() {
-        machine.transition(RecordingEvent.Stop)
+    /** Para e finaliza o arquivo; com [cause], sinaliza o erro depois de preservar o que foi gravado. */
+    private fun stopRecording(cause: RecordingError? = null) {
+        if (machine.transition(RecordingEvent.Stop) !is TransitionResult.Ok) {
+            // Sem gravacao em curso (ex.: erro na partida): so desfaz o primeiro plano.
+            if (machine.state is RecordingState.Error || machine.state == RecordingState.Idle) teardown()
+            return
+        }
         RecordingServiceState.update(machine.state)
         scope.launch {
             val path: String = recorder?.stop()?.getOrNull() ?: ""
             recorder?.release()
             recorder = null
-            machine.transition(RecordingEvent.Saved(path))
+            if (cause != null) {
+                machine.transition(RecordingEvent.Fail(cause))
+            } else {
+                machine.transition(RecordingEvent.Saved(path))
+            }
             RecordingServiceState.update(machine.state)
-            focus?.abandon()
-            stopForegroundCompat()
-            stopSelf()
+            teardown()
         }
+    }
+
+    private fun teardown() {
+        recorder?.release()
+        recorder = null
+        focus?.abandon()
+        stopForegroundCompat()
+        stopSelf()
     }
 
     private fun observeLevel(rec: AudioRecorder) {
