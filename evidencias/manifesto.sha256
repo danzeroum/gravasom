@@ -31,6 +31,11 @@ c1a179c08fd33281d8acfc19219bf35d131c16ac122971d70dac3825661bcdf4  ./docs/adr/006
 4760645edb54a3d1b8785a4cb02282e446ed4d90d2cf51655399d7fc8bdf415b  ./docs/architecture/c4-contexto.md
 4e4b10741dcd76688e8ec1d9cf3431f7642bd423492a48f8b092752f24d87871  ./docs/architecture/sequencia-interrupcao.md
 25995ec2824fb88426a6621cbfc62245ac1825e4b577732a4b921a03acae8010  ./docs/status.md
+8ebf5681d5f3faf9bbd8fff9a230b0fd1dcd5579913216d5a38984a6f6f7cc57  ./docs/ux/01-personas.md
+8776a3e8cc0b672ba5b395352bcaa09bd0dd04da87f168323808fbc1a76b7e46  ./docs/ux/02-crazy-8s.md
+9bf3665e98eb1dc4ce239cd9401542d5785247c528b3d2182156bdce2cddfe7c  ./docs/ux/03-wireframes.md
+b596353ed7dcb3ca0d37ec64822f8c5a4cb9b7cf8a68773f2ad1a9bba4d108a4  ./docs/ux/04-navegacao.md
+291c3246748720d195c56112df3cc6fba480659e63f04168606905777fddac47  ./docs/ux/05-roteiro-teste.md
 37e3e6600168f5c45907bce8158fab2c0759968795e0a1c54a4864086ecae229  ./.editorconfig
 a019c423a1ecd422ca19a278f95e3d0dd752fbd2b35166fcac0ab1528506fbe0  ./evidencias/00-canal-lote.md
 fddd4cc5edc073bdf148df602086cf2cb1ed062967bd055f5943e2afb3de41e7  ./evidencias/00-diagnostico-gravacao.md
