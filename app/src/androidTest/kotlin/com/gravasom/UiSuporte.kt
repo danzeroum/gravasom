@@ -11,6 +11,8 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.gravasom.core.domain.audio.RecordingFormat
@@ -46,7 +48,18 @@ object UiSuporte {
     fun existe(rule: SemanticsNodeInteractionsProvider, tag: String): Boolean =
         runCatching { rule.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
 
-    fun aguardar(rule: RegraCompose, timeoutMs: Long = 15_000, condicao: () -> Boolean) = rule.waitUntil(timeoutMs) { condicao() }
+    /** Espera a condicao; no estouro, anexa a arvore de semantica ao erro para o log de CI mostrar o que havia na tela. */
+    fun aguardar(rule: RegraCompose, timeoutMs: Long = 15_000, condicao: () -> Boolean) {
+        try {
+            rule.waitUntil(timeoutMs) { condicao() }
+        } catch (e: androidx.compose.ui.test.ComposeTimeoutException) {
+            val arvore = runCatching { rule.onRoot(useUnmergedTree = true).printToString(maxDepth = 12) }.getOrDefault("(sem hierarquia)")
+            throw AssertionError("${e.message}\nArvore:\n${arvore.take(3_000)}", e)
+        }
+    }
+
+    /** Maior duracao possivel da ultima gravacao pela tela: do toque em Gravar ate o retorno do toque em Parar. */
+    @Volatile var ultimaJanelaMaxMs: Long = 0L
 
     /** Toca em Gravar, espera [segundos] reais e toca em Parar. Retorna (ms ate o estado Gravando, ms gravados medidos pelo relogio). */
     fun gravarPelaTela(rule: RegraCompose, segundos: Int): Pair<Long, Long> {
@@ -58,6 +71,7 @@ object UiSuporte {
         Thread.sleep(segundos * 1000L)
         val gravado = SystemClock.elapsedRealtime() - inicio
         rule.onNodeWithTag("botao_parar").performClick()
+        ultimaJanelaMaxMs = SystemClock.elapsedRealtime() - toque
         aguardar(rule, 15_000) { existe(rule, "botao_gravar") }
         return ateGravar to gravado
     }

@@ -62,12 +62,16 @@ class FluxoUsuarioTest {
     fun mp3GravadoFicaNoMediaStoreComDuracaoDentroDe500ms() {
         runBlocking { UiSuporte.app.preferences.setFormat(RecordingFormat.MP3) }
         val (_, gravadoMs) = UiSuporte.gravarPelaTela(compose, segundos = 4)
+        val janelaMaxMs = UiSuporte.ultimaJanelaMaxMs
         Thread.sleep(2_000)
         val pub = checkNotNull(UiSuporte.publicadoMaisRecente("mp3")) { "nenhum .mp3 no MediaStore" }
         Suporte.medida("mediastore_mp3", "relogio_ms", gravadoMs)
         Suporte.medida("mediastore_mp3", "duracao_ms", pub.duracaoMs)
+        Suporte.medida("mediastore_mp3", "janela_max_ms", janelaMaxMs)
         assertTrue(pub.nome.endsWith(".mp3"))
-        assertTrue("duracao ${pub.duracaoMs} ms x relogio $gravadoMs ms", kotlin.math.abs(pub.duracaoMs - gravadoMs) <= 500)
+        // O arquivo comeca quando o servico entra em Gravando (antes de a tela mostrar Parar) e termina quando o Parar e processado:
+        // a duracao tem de caber na janela [relogio visivel, toque em Gravar ate retorno do Parar] com +-500 ms de folga.
+        assertTrue("duracao ${pub.duracaoMs} ms fora de [$gravadoMs, $janelaMaxMs] +-500 ms", pub.duracaoMs in (gravadoMs - 500)..(janelaMaxMs + 500))
     }
 
     @Test
@@ -76,7 +80,8 @@ class FluxoUsuarioTest {
         UiSuporte.inserirGravacao("Ideia violao riff")
         var toques = 0
         compose.onNodeWithTag("aba_gravacoes").performClick(); toques++
-        UiSuporte.aguardar(compose) { UiSuporte.textos(compose, "titulo_item").size >= 20 }
+        // LazyColumn so compoe os itens visiveis: basta a lista ter aparecido.
+        UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "item_gravacao") }
         compose.onNodeWithTag("campo_busca").performClick(); toques++
         compose.onNodeWithTag("campo_busca").performTextInput("violao")
         UiSuporte.aguardar(compose) { UiSuporte.textos(compose, "titulo_item") == listOf("Ideia violao riff") }

@@ -43,6 +43,7 @@ class PlayerMedia3Test {
 
         main { player.pause() }
         assertTrue("nao pausou", Suporte.aguardar { !player.isPlaying.value })
+        Thread.sleep(300) // a pausa do ExoPlayer assenta em alguns ms: mede-se a posicao depois dela
         main { player.tick() }
         val parada = player.positionMillis.value
         Thread.sleep(800)
