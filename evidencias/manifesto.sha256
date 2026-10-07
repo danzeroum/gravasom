@@ -35,3 +35,10 @@ e8531a92840d7009948a452caef942888ddb4e384ff7ff5f5804acfee28dea9e  ./gradle/libs.
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.gradle/vcs-1/gc.properties
 09dbf4d1bc1233ce3ae89930648129913d5864c40f187f2bd8f059b4a1ebb151  ./Plano — Gravador de Áudio Android (Kotlin).md
 c869e51d856e55baf5b7e468a03a5cdd4e89171d21a196baacca2bcff47ecfa9  ./settings.gradle.kts
+1ed8679f1f31124d1a9764249de14f1e6ee4f1286623f9471d04f84f5cb9d0d4  docs/adr/001-formato-padrao-m4a.md
+925af9df8f641a554291647ea1e322b2c7f18d6814dba31275db54f89bc7b5aa  docs/adr/002-mp3-via-lame-ndk.md
+9fc94d351cc76fa0a8eafe2b846736072958035ff3eb58869fee74b0fe8bdb1a  docs/adr/003-armazenamento-mediastore.md
+2f6519970306e5f856a6289262971c7e16ac30d3652525d455e807ae47524878  docs/adr/004-estado-flow-mvi.md
+c49eff28a3074e3a26a7ac73372783bce9cd33d118afb1d7dd3bc8df1f603fa6  docs/adr/005-servico-primeiro-plano.md
+c1a179c08fd33281d8acfc19219bf35d131c16ac122971d70dac3825661bcdf4  docs/adr/006-maquina-estados-pura.md
+1990db4356fd64afcb861065d674458f7e5610821f59c0542bc7be3cb6f80703  evidencias/PROGRESSO.md
