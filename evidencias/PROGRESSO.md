@@ -10,27 +10,24 @@ Atualizado: 2026-10-07
 
 ## Estado por fase
 
-| Fase | Estado | Commit | Próximo lote |
-| --- | --- | --- | --- |
-| 0 (ambiente) | APROVADA | 877cf0f | — |
-| 2 (fundação) | APROVADA | 84c3e52 | — |
-| 1 (UX) | APROVADA | 0b99f2d | — |
-| 3 (motor áudio) | APROVADA (núcleo) | 81b7916 | fechamento |
-| 4 (serviço) | PENDENTE | — | RecordingService + foco de áudio + interrupções |
-| 5 (biblioteca) | PENDENTE | — | Room + Paging + MediaStore |
-| 6 (player/edição) | PENDENTE | — | ExoPlayer + trim |
-| 7 (superfícies) | PENDENTE | — | Tile + widget Glance |
-| 8 (privacidade) | PENDENTE | — | cofre Tink + consentimento |
-| 9 (endurecimento) | PENDENTE | — | Baseline Profile + release |
+| Fase | Estado | Commit |
+| --- | --- | --- |
+| 0 (ambiente) | APROVADA | 877cf0f |
+| 2 (fundação) | APROVADA | 84c3e52 |
+| 1 (UX) | APROVADA | 0b99f2d |
+| 3 (motor áudio) | APROVADA | 61ba3f4 |
+| 4 (serviço) | APROVADA | 232305f |
+| 5 (biblioteca) | APROVADA | 3e5ed6c |
+| 6 (player/edição) | APROVADA | be9d882 |
+| 7 (superfícies) | APROVADA | aeac245 |
+| 8 (privacidade) | APROVADA | aeac245 |
+| 9 (endurecimento) | APROVADA | pendente |
 
-## Gates PENDENTE-CI (exigem emulador/runner)
+## Próximo lote planejado
 
-- MediaExtractor abre M4A/WAV/MP3 com duração ±100 ms
-- Gradle Managed Devices (API 26/30/34/36)
-- Firebase Test Lab (≥ 6 aparelhos)
-- Macrobenchmark de início a frio
-- Publicação no canal interno do Play
+Nenhum: as 7 fases do plano foram executadas. Restam apenas gates PENDENTE-CI
+(emulador, Test Lab, Play) listados em docs/status.md.
 
 ## Manifesto
 
-`evidencias/manifesto.sha256` — atualizado a cada lote.
+`evidencias/manifesto.sha256`.

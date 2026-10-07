@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gravasom</string>
+    <string name="nav_record">Gravar</string>
+    <string name="nav_library">Gravações</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="record_start">Iniciar gravação</string>
+    <string name="record_pause">Pausar</string>
+    <string name="record_resume">Retomar</string>
+    <string name="record_stop">Parar</string>
+    <string name="low_space_warning">Espaço em disco baixo. Tempo estimado restante: %1$s</string>
+</resources>
