@@ -82,6 +82,7 @@ fun RecordScreen(
     modifier: Modifier = Modifier,
     autoStart: Boolean = false,
     onAutoStartHandled: () -> Unit = {},
+    onOpenLibrary: () -> Unit = {},
     viewModel: RecordViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -116,7 +117,7 @@ fun RecordScreen(
         callbacks = RecordCallbacks(
             onRecord = onRecord, onPause = viewModel::pause, onResume = viewModel::resume, onStop = viewModel::stop,
             onFormat = viewModel::selectFormat, onInput = viewModel::selectInput,
-            onOpenSettings = { openAppSettings(context) },
+            onOpenSettings = { openAppSettings(context) }, onOpenLibrary = onOpenLibrary,
         ),
         modifier = modifier,
     )
@@ -151,6 +152,7 @@ data class RecordCallbacks(
     val onFormat: (RecordingFormat) -> Unit,
     val onInput: (InputOption?) -> Unit,
     val onOpenSettings: () -> Unit,
+    val onOpenLibrary: () -> Unit = {},
 )
 
 /** Parte sem estado da tela (testavel isoladamente e previsivel para o TalkBack). */
@@ -173,6 +175,11 @@ fun RecordContent(
         if (state.status == RecordStatus.Recording || state.status == RecordStatus.Paused) LevelBar(state.levelDb)
         permissionNotice?.let { PermissionCard(it, callbacks.onOpenSettings) }
         Controls(state, callbacks)
+        if (state.justSaved && state.status == RecordStatus.Ready) {
+            OutlinedButton(onClick = callbacks.onOpenLibrary, modifier = Modifier.testTag("ver_gravacoes")) {
+                Text(stringResource(R.string.record_see_library))
+            }
+        }
         Text(
             text = stringResource(if (state.privateMode) R.string.record_where_private else R.string.record_where),
             style = MaterialTheme.typography.bodySmall,

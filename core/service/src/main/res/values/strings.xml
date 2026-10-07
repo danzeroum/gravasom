@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_channel_name">Gravação em andamento</string>
+    <string name="notif_channel_desc">Mostra a gravação ativa e seus controles</string>
+    <string name="notif_title_recording">Gravando</string>
+    <string name="notif_title_paused">Gravação pausada</string>
+    <string name="notif_action_pause">Pausar</string>
+    <string name="notif_action_resume">Retomar</string>
+    <string name="notif_action_stop">Parar</string>
+</resources>

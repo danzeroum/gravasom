@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -202,6 +203,7 @@ private fun MiniPlayer(recording: Recording, player: PlayerController) {
     val playing by player.isPlaying.collectAsStateWithLifecycle()
     val position by player.positionMillis.collectAsStateWithLifecycle()
     val duration by player.durationMillis.collectAsStateWithLifecycle()
+    var speed by remember(recording.id) { mutableStateOf(1f) }
     LaunchedEffect(recording.id) {
         while (true) {
             player.tick()
@@ -222,9 +224,19 @@ private fun MiniPlayer(recording: Recording, player: PlayerController) {
             }
             Column(Modifier.weight(1f)) {
                 Text(recording.title, style = MaterialTheme.typography.titleSmall)
-                val total = formatDuration(maxOf(duration, recording.durationMillis))
-                Text("${formatDuration(position)} / $total", style = MaterialTheme.typography.bodySmall)
+                val total = maxOf(duration, recording.durationMillis)
+                Text("${formatDuration(position)} / ${formatDuration(total)}", style = MaterialTheme.typography.bodySmall)
+                Slider(
+                    value = position.coerceAtMost(total).toFloat(),
+                    onValueChange = { player.seekTo(it.toLong()) },
+                    valueRange = 0f..maxOf(total, 1L).toFloat(),
+                    modifier = Modifier.testTag("mini_posicao"),
+                )
             }
+            TextButton(
+                onClick = { speed = Speeds[(Speeds.indexOf(speed) + 1) % Speeds.size]; player.setSpeed(speed) },
+                modifier = Modifier.testTag("mini_velocidade"),
+            ) { Text(stringResource(R.string.library_player_speed, speed.toString().removeSuffix(".0"))) }
         }
     }
 }
@@ -246,3 +258,4 @@ private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm:
 }
 
 private const val TICK_MS = 250L
+private val Speeds = listOf(1f, 1.5f, 2f, 0.5f)

@@ -30,4 +30,5 @@
     <string name="record_err_PERMISSION_DENIED">no microphone permission</string>
     <string name="record_err_ENCODER_FAILURE">audio encoding failed</string>
     <string name="record_err_UNKNOWN">unknown error</string>
+    <string name="record_see_library">See in Recordings</string>
 </resources>

@@ -25,6 +25,6 @@
     <string name="library_saved_fail">Não foi possível salvar o arquivo</string>
     <string name="library_player_play">Tocar</string>
     <string name="library_player_pause">Pausar</string>
-    <string name="library_player_speed">Velocidade %1$sx</string>
+    <string name="library_player_speed">%1$sx</string>
     <string name="library_published">Também em Músicas/Recordings</string>
 </resources>

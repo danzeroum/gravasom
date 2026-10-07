@@ -30,4 +30,5 @@
     <string name="record_err_PERMISSION_DENIED">sem permissão do microfone</string>
     <string name="record_err_ENCODER_FAILURE">falha ao codificar o áudio</string>
     <string name="record_err_UNKNOWN">erro desconhecido</string>
+    <string name="record_see_library">Ver em Gravações</string>
 </resources>

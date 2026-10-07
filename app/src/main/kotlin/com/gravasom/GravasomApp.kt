@@ -71,7 +71,10 @@ fun GravasomApp(
         },
     ) { padding ->
         NavHost(nav, startDestination = MainActivity.ROUTE_RECORD, modifier = Modifier.padding(padding)) {
-            composable(MainActivity.ROUTE_RECORD) { RecordScreen(autoStart = autoStart, onAutoStartHandled = onAutoStartHandled) }
+            composable(MainActivity.ROUTE_RECORD) { RecordScreen(
+                    autoStart = autoStart, onAutoStartHandled = onAutoStartHandled,
+                    onOpenLibrary = { nav.goTo(MainActivity.ROUTE_LIBRARY) },
+                ) }
             composable(MainActivity.ROUTE_LIBRARY) { LibraryScreen() }
             composable(MainActivity.ROUTE_SETTINGS) { SettingsScreen(onOpenNumbers = { nav.navigate(MainActivity.ROUTE_NUMBERS) }) }
             composable(MainActivity.ROUTE_NUMBERS) { NumbersScreen() }

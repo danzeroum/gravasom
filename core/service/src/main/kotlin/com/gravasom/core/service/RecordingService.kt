@@ -1,7 +1,10 @@
 package com.gravasom.core.service
 
 import android.Manifest
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
@@ -90,6 +93,7 @@ class RecordingService : Service() {
                     machine.transition(RecordingEvent.Prepared)
                     RecordingServiceState.update(machine.state)
                     startedAtMillis = System.currentTimeMillis()
+                    refreshNotification(paused = false)
                     observeLevel(rec)
                 }
                 .onFailure {
@@ -102,6 +106,7 @@ class RecordingService : Service() {
     private fun pause() {
         if (machine.transition(RecordingEvent.Pause) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            refreshNotification(paused = true)
             scope.launch { recorder?.pause() }
         }
     }
@@ -109,6 +114,7 @@ class RecordingService : Service() {
     private fun resume() {
         if (machine.transition(RecordingEvent.Resume) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            refreshNotification(paused = false)
             scope.launch { recorder?.resume() }
         }
     }
@@ -149,12 +155,7 @@ class RecordingService : Service() {
     }
 
     private fun startForegroundCompat() {
-        val notification = RecordingNotification.build(
-            context = this,
-            elapsedLabel = "00:00",
-            paused = false,
-            actions = NoopActions,
-        )
+        val notification = notification(paused = false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             startForeground(
                 RecordingNotification.NOTIFICATION_ID,
@@ -164,6 +165,14 @@ class RecordingService : Service() {
         } else {
             startForeground(RecordingNotification.NOTIFICATION_ID, notification)
         }
+    }
+
+    private fun notification(paused: Boolean) =
+        RecordingNotification.build(this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this))
+
+    /** Atualiza a notificacao quando o estado muda (pausa/retomada/inicio efetivo). */
+    private fun refreshNotification(paused: Boolean) {
+        getSystemService(NotificationManager::class.java).notify(RecordingNotification.NOTIFICATION_ID, notification(paused))
     }
 
     private fun stopForegroundCompat() {
@@ -192,15 +201,16 @@ object DefaultRecorderFactoryHolder {
     var factory: AudioRecorderFactory? = null
 }
 
-/** Acoes vazias enquanto a UI nao liga os PendingIntents reais. */
-private object NoopActions : NotificationActions {
-    override val openAppIntent: Intent = Intent()
-    override fun resumePendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 0, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun pausePendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 1, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun markerPendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 2, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun stopPendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 3, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
+/** Acoes reais da notificacao: cada botao reenvia a acao ao proprio servico; tocar na notificacao abre o app. */
+private class ServiceActions(private val context: Context) : NotificationActions {
+    override val openAppIntent: Intent =
+        context.packageManager.getLaunchIntentForPackage(context.packageName) ?: Intent()
+
+    private fun service(action: String, code: Int): PendingIntent = PendingIntent.getService(
+        context, code, Intent(context, RecordingService::class.java).setAction(action), PendingIntent.FLAG_IMMUTABLE,
+    )
+
+    override fun resumePendingIntent(context: Context) = service(RecordingService.ACTION_RESUME, 1)
+    override fun pausePendingIntent(context: Context) = service(RecordingService.ACTION_PAUSE, 2)
+    override fun stopPendingIntent(context: Context) = service(RecordingService.ACTION_STOP, 3)
 }
