@@ -9,3 +9,13 @@ plugins {
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.detekt) apply false
 }
+
+subprojects {
+    plugins.withId("io.gitlab.arturbosch.detekt") {
+        extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+            config.setFrom(rootProject.files("config/detekt/detekt.yml"))
+            buildUponDefaultConfig = true
+            parallel = true
+        }
+    }
+}

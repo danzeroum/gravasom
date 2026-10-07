@@ -1,0 +1,38 @@
+build:
+  maxIssues: 0
+
+complexity:
+  active: true
+  CyclomaticComplexMethod:
+    threshold: 10
+  LongMethod:
+    threshold: 60
+  LongParameterList:
+    functionThreshold: 6
+    constructorThreshold: 8
+  NestedBlockDepth:
+    threshold: 4
+
+style:
+  active: true
+  MagicNumber:
+    active: true
+    ignoreNumbers: ['-1', '0', '1', '2', '8', '10', '16', '44', '100']
+  MaxLineLength:
+    maxLineLength: 120
+  ReturnCount:
+    max: 3
+
+naming:
+  active: true
+
+potential-bugs:
+  active: true
+
+coroutines:
+  active: true
+
+formatting:
+  active: true
+  android: true
+  autoCorrect: false
