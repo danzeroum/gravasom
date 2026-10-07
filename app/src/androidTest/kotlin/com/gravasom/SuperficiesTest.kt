@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import com.gravasom.core.service.RecordingService
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -98,6 +97,5 @@ class SuperficiesTest {
 
     private companion object {
         const val HOST_ID = 4242
-        @Suppress("unused") val ACAO = RecordingService.ACTION_START
     }
 }
