@@ -1,4 +1,5 @@
 8694963aab6e3826f3b87afc9a94641f06f3233f94a6c172c8d92c5865563ab0  ./app/build.gradle.kts
+235c6b1e8262f3fe1af30d4d6eccd672e30e490a5118fa5062e106a48ed45f4a  ./app/proguard-rules.pro
 c7a7ede994940b2494e216e479b23d94122aeca183b0f3a9d8656c3ba15ffb57  ./build.gradle.kts
 c151ec8adbfdfd14397bd6e00d73b473513044dbf034d8e63cbaebb8ea5360a0  ./build-logic/build.gradle.kts
 560e6e0664b0a688e367115f50931c3591b475b2a63d0bd2fddf743542fe252d  ./build-logic/.gradle/buildOutputCleanup/cache.properties
@@ -32,4 +33,5 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.gradle/8.11
 e8531a92840d7009948a452caef942888ddb4e384ff7ff5f5804acfee28dea9e  ./gradle/libs.versions.toml
 527da235637683e642ac42f7201613bf3fa16a0a3e8d6a04fb9a7ec8139ace2d  ./gradle.properties
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.gradle/vcs-1/gc.properties
+09dbf4d1bc1233ce3ae89930648129913d5864c40f187f2bd8f059b4a1ebb151  ./Plano — Gravador de Áudio Android (Kotlin).md
 c869e51d856e55baf5b7e468a03a5cdd4e89171d21a196baacca2bcff47ecfa9  ./settings.gradle.kts
