@@ -7,24 +7,26 @@ Texto pronto para colar. Patch: `0001-ref_quality-alinhamento-por-fft.patch` (ap
 `ref_quality._align` usa `np.correlate(ref, deg, mode="full")` (O(n²)) sobre o sinal inteiro e `_si_sdr` o chama com
 `sr=0`. O resultado é correto, mas lento em arquivos longos e sem limite de atraso procurado.
 
-## Medidas (CI do Gravasom, mesma máquina, sem outro processo concorrente)
+## Medidas (mesma máquina, um processo por vez)
 
-Par: locução real do LibriSpeech (84-121123-0001) × a mesma com ruído rosa a 15 dB SNR.
+Par: locução real do LibriSpeech × versão processada, `--only ref_quality`.
 
 | Caso | Antes (`1e3fa85`) | Com o patch |
 | --- | --- | --- |
-| 10 s a 48 kHz, `speech-full-ref` | 4,0 s | 0,7 s |
-| 10 s a 48 kHz, `source-sep-ref` | 3,8 s | 0,7 s |
-| 4 s a 8 kHz, ambos os modos | 0,4–0,5 s | 0,7 s (inclui a partida do processo) |
-| Valores | SI-SDR 14,9966 dB; STOI-proxy 0,7258 | **idênticos** |
+| 12,5 s a 48 kHz (real_fala_5 × hp80), `speech-full-ref` | **46,1 s** | **1,1 s** |
+| 12,5 s a 48 kHz, `source-sep-ref` | **47,9 s** | **1,0 s** |
+| 10 s a 48 kHz (real_fala_1 × ruído) | 3,8–4,0 s | 0,7 s |
+| 4 s a 8 kHz | 0,4–0,5 s | 0,7 s (inclui a partida do processo) |
+| Valores | 0,7421 / 4,0766 e 0,7258 / 14,9966 | **idênticos** nos mesmos pares |
 
-O custo cresce com o quadrado da duração (arquivos de minutos ficam impraticáveis); com FFT cresce ~n log n.
+Perfil de CPU (cProfile) sem patch: 47,6 s dos 47,7 s estão em `np.correlate` dentro de `_align`. Custo ~O(n²): 42 pares do
+nosso corpus (4–12,5 s) levaram **23 min e 79 min de CPU**; com FFT cresce ~n log n.
 
-## Correção de uma observação anterior (nossa)
+## Sobre o `status=error`
 
-Numa primeira rodada reportamos 48–120 s por par e `status=error` no modo `source-sep-ref`. **Isso não se reproduz**:
-foi medido com outro processo pesado ainda rodando em segundo plano. Isolado, não há erro. Esta issue é de **desempenho**,
-não de defeito funcional.
+Numa rodada concorrente (outro processo pesado ativo) vimos `status=error` no `source-sep-ref` após ~86–120 s. **Não
+conseguimos reproduzir o `error` isolado**: isolado, o modo retorna valor (às vezes `warning`) sem erro. Num laço longo,
+um dos pares devolveu `value=None`; não identificamos a causa e **não** a atribuímos ao audio-suite. Esta issue é de desempenho.
 
 ## Mudança proposta
 

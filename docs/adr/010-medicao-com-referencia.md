@@ -42,5 +42,6 @@ Se a saída do redutor ficar abaixo do melhor controle, será nova parada `TETO_
 
 - O SI-SDR **não** serve para medir preservação por filtros que removem o grave que a fala real "limpa" contém (passa-altas 80 Hz:
   STOI 0,9997, SI-SDR ~7 dB). Por isso a preservação usa STOI e o SI-SDRi só vale com referência exata (misturas sintéticas).
-- Patch e issue para o audio-suite (alinhamento O(n log n)): `docs/audio-suite/`. Medido: 4,0 s → 0,7 s por par de 10 s a 48 kHz,
-  valores idênticos. Observação anterior de "48–120 s e erro" era contaminação da nossa medição e foi corrigida na issue.
+- Patch e issue para o audio-suite (alinhamento O(n log n)): `docs/audio-suite/`. Medido: 12,5 s a 48 kHz leva 46–48 s sem o patch e 1,1 s com ele, valores idênticos.
+  A segunda medida (`PERFIL_AS=<perfil> calibrar_ref.py calibrar`) é opt-in: só é prática com o audio-suite corrigido (o pin atual leva
+  ~23 min para o corpus). O `status=error` isolado não foi reproduzido (ver issue).

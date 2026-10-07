@@ -73,7 +73,11 @@ def segunda_medida(perfil, pasta):
             bons[b] = ref_quality_audio_suite(perfil, ref, os.path.join(pasta, f"{b}__hp80.wav"), modo)
             for c in CONTROLES_STOI:
                 ctrl[f"{b}:{c}"] = ref_quality_audio_suite(perfil, ref, os.path.join(pasta, f"{b}__{c}.wav"), modo)
-        out[nome] = {"pior_bom": min(bons.values()), "melhor_controle": max(ctrl.values()), "bons": bons, "controles": ctrl}
+        validos_b = [v for v in bons.values() if v is not None]
+        validos_c = [v for v in ctrl.values() if v is not None]
+        out[nome] = {"pior_bom": min(validos_b) if validos_b else float("nan"),
+                     "melhor_controle": max(validos_c) if validos_c else float("nan"),
+                     "sem_valor": len(bons) + len(ctrl) - len(validos_b) - len(validos_c), "bons": bons, "controles": ctrl}
     return out
 
 
@@ -106,7 +110,7 @@ def calibrar(pasta, tetos_json, md):
             f.write("| medida | pior bom (hp80) | melhor controle | separa? |\n|---|---|---|---|\n")
             sm = segunda_medida(perfil, pasta)
             for nome, v in sm.items():
-                f.write(f"| {nome} | {v['pior_bom']:.4f} | {v['melhor_controle']:.4f} | {'sim' if v['pior_bom'] > v['melhor_controle'] else 'NAO'} |\n")
+                f.write(f"| {nome} | {v['pior_bom']:.4f} | {v['melhor_controle']:.4f} | {'sim' if v['pior_bom'] > v['melhor_controle'] else 'NAO'}{' (' + str(v['sem_valor']) + ' pares sem valor)' if v['sem_valor'] else ''} |\n")
             f.write("\nObs.: o hp80 remove o grave que a fala real 'limpa' contem, por isso o SI-SDR do bom e baixo; "
                     "a referencia exata so existe nas misturas sinteticas (Fase 14).\n\n")
         f.write("## si_sdri\n\nAGUARDANDO_BONS: nao ha redutor de ruido ainda (Fase 14). Os controles "

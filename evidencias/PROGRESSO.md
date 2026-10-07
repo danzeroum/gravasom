@@ -20,8 +20,9 @@ Atualizado: 2026-10-07
   (real_fala_1 +0,016; real_fala_2 −0,018; real_fala_4 −0,045; nas outras a queda é 0,12–0,18). Nenhum teto foi afrouxado.
 - **Decisão**: ADR-010. Medidor próprio com referência (SI-SDR/SI-SDRi/STOI via pystoi) em venv separado; audio-suite fica com clipping,
   true peak, glitch, loudness, F0 e duração; STOI-proxy e descritores só observação nas bases reais + kit de escuta A/B.
-- **Correção de registro**: uma versão anterior deste arquivo dizia que o `ref_quality` do audio-suite levava 48–120 s e dava `error`.
-  Isso era contaminação de CPU da nossa medição; isolado, leva ~4 s por par (0,7 s com o patch) e não dá erro.
+- **Registro corrigido duas vezes**: (1) a lentidão do `ref_quality` do audio-suite é real e quadrática (12,5 s a 48 kHz: 46–48 s sem patch,
+  1,1 s com patch, valores idênticos); (2) o `status=error` visto numa rodada concorrente **não** se reproduz isolado. Detalhes em `docs/audio-suite/ISSUE.md`.
+  A segunda medida (full-ref do audio-suite) fica opt-in até o patch ser aplicado e o pin atualizado.
 - **Próximo passo**: Fase 14 (redutor de ruído), calibrando o SI-SDRi com a saída dele (gate hoje AGUARDANDO_BONS).
 
 ## Também calibrado (não são paradas)
