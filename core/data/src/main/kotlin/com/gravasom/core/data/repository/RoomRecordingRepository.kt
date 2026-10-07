@@ -33,6 +33,8 @@ class RoomRecordingRepository(private val dao: RecordingDao) : RecordingReposito
 
     override suspend fun restore(id: Long) = dao.restore(id)
 
+    override suspend fun setPublishedUri(id: Long, uri: String?) = dao.setPublishedUri(id, uri)
+
     override suspend fun deleteForever(id: Long) = dao.deleteForever(id)
 
     override suspend fun purgeTrash(olderThanMillis: Long, nowMillis: Long) =

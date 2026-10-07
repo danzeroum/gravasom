@@ -20,7 +20,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-/** Fase 13: projeto de edicao na Room (DAO, FK em cascata, migracao 1->2). */
+/** Fase 13: projeto de edicao na Room (DAO, FK em cascata, migracao 1->3). */
 class EdicaoRoomTest {
 
     private lateinit var db: GravasomDatabase
@@ -75,7 +75,7 @@ class EdicaoRoomTest {
             })
         }
         val novo = Room.databaseBuilder(Suporte.contexto, GravasomDatabase::class.java, arquivo.path)
-            .addMigrations(GravasomDatabase.MIGRATION_1_2).allowMainThreadQueries().build()
+            .addMigrations(GravasomDatabase.MIGRATION_1_2, GravasomDatabase.MIGRATION_2_3).allowMainThreadQueries().build()
         try {
             runBlocking {
                 val existente = novo.recordingDao().getById(1)

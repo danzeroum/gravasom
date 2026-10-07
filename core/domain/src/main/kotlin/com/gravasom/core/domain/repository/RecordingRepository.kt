@@ -15,6 +15,7 @@ interface RecordingRepository {
     suspend fun setFavorite(id: Long, favorite: Boolean)
     suspend fun moveToTrash(id: Long, nowMillis: Long)
     suspend fun restore(id: Long)
+    suspend fun setPublishedUri(id: Long, uri: String?)
     suspend fun deleteForever(id: Long)
     suspend fun purgeTrash(olderThanMillis: Long, nowMillis: Long)
 }

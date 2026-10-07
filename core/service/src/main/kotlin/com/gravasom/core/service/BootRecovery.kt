@@ -15,11 +15,14 @@ class BootRecovery(
     private val tempDir: File,
     private val isPlayable: (File) -> Boolean = { true },
     private val onUnrecoverable: (File) -> Unit = {},
+    /** Ignora temporarios modificados ha menos que isso: pode ser uma gravacao ao vivo (ex.: app aberto pelo Tile). */
+    private val minAgeMillis: Long = 0L,
     private val onRecovered: (File) -> Unit,
 ) {
 
     fun run() {
-        val temporaries = tempDir.listFiles { f -> f.name.endsWith(".tmp") } ?: return
+        val agora = System.currentTimeMillis()
+        val temporaries = tempDir.listFiles { f -> f.name.endsWith(".tmp") && agora - f.lastModified() >= minAgeMillis } ?: return
         for (tmp in temporaries) {
             val finalFile = File(tmp.parentFile, tmp.name.removeSuffix(".tmp"))
             when {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="record_status_ready">Ready to record</string>
+    <string name="record_status_preparing">Getting ready…</string>
+    <string name="record_status_recording">Recording — you can lock the screen</string>
+    <string name="record_status_paused">Paused</string>
+    <string name="record_status_saving">Saving…</string>
+    <string name="record_status_saved">Recording saved. See it in the Recordings tab.</string>
+    <string name="record_status_error">Could not record: %1$s</string>
+    <string name="record_btn_start">Record</string>
+    <string name="record_btn_pause">Pause</string>
+    <string name="record_btn_resume">Resume</string>
+    <string name="record_btn_stop">Stop</string>
+    <string name="record_input_label">Input: %1$s</string>
+    <string name="record_input_change">Change input</string>
+    <string name="record_input_auto">Automatic</string>
+    <string name="record_where">Recordings are also in Music/Recordings, visible in the Files app.</string>
+    <string name="record_where_private">Private mode: recordings stay only in this app.</string>
+    <string name="record_perm_denied_title">We need the microphone to record</string>
+    <string name="record_perm_denied_body">Tap Record again and allow microphone access.</string>
+    <string name="record_perm_permanent_title">Microphone blocked</string>
+    <string name="record_perm_permanent_body">Permission was denied. Open the app settings and allow Microphone.</string>
+    <string name="record_perm_open_settings">Open settings</string>
+    <string name="record_format_label">Format</string>
+    <string name="record_format_locked">The format cannot change while recording</string>
+    <string name="record_timer_desc">Recording time %1$s</string>
+    <string name="record_level_desc">Microphone level</string>
+    <string name="record_err_MIC_IN_USE">the microphone is in use by another app</string>
+    <string name="record_err_NO_SPACE">no space left on the device</string>
+    <string name="record_err_PERMISSION_DENIED">no microphone permission</string>
+    <string name="record_err_ENCODER_FAILURE">audio encoding failed</string>
+    <string name="record_err_UNKNOWN">unknown error</string>
+</resources>

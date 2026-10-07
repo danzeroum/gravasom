@@ -10,6 +10,18 @@ android {
         applicationId = "com.gravasom"
         versionCode = 1
         versionName = "1.0.0"
+        // Aparelhos reais (arm64) e o emulador do CI (x86_64). Reduz o APK; x86/armv7 de 32 bits ficam de fora.
+        ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+    }
+    signingConfigs {
+        // Keystore de DEBUG fixo e publico (senha padrao "android"): o APK baixado da CI atualiza por cima do anterior.
+        // NAO e uma chave de producao.
+        getByName("debug") {
+            storeFile = rootProject.file("config/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
     packaging {
         resources {
@@ -36,6 +48,9 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.timber)
     implementation(libs.profileinstaller)
+    implementation(libs.room.runtime)
+    implementation(libs.datastore.preferences)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     androidTestImplementation(project(":core:audio-engine"))
     androidTestImplementation(project(":core:audio-android"))

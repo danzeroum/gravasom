@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import com.gravasom.core.audio.android.InputRouting
 import com.gravasom.core.domain.audio.InputSource
 
 /**
@@ -40,6 +41,7 @@ class PcmCapture(
             )
             .setBufferSizeInBytes(size * 2)
             .build()
+        InputRouting.preferred?.let { r.setPreferredDevice(it) }
         record = r
         return r
     }

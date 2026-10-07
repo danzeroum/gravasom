@@ -39,6 +39,9 @@ interface RecordingDao {
     @Query("UPDATE recordings SET deletedAtMillis = :now WHERE id = :id")
     suspend fun moveToTrash(id: Long, now: Long)
 
+    @Query("UPDATE recordings SET publishedUri = :uri WHERE id = :id")
+    suspend fun setPublishedUri(id: Long, uri: String?)
+
     @Query("UPDATE recordings SET deletedAtMillis = NULL WHERE id = :id")
     suspend fun restore(id: Long)
 

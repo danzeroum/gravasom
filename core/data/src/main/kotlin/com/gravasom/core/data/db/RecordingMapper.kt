@@ -15,6 +15,7 @@ fun RecordingEntity.toDomain(): Recording = Recording(
     folder = folder,
     tags = tagsCsv.split(',').map { it.trim() }.filter { it.isNotEmpty() },
     deletedAtMillis = deletedAtMillis,
+    publishedUri = publishedUri,
 )
 
 fun Recording.toEntity(): RecordingEntity = RecordingEntity(
@@ -29,4 +30,5 @@ fun Recording.toEntity(): RecordingEntity = RecordingEntity(
     folder = folder,
     tagsCsv = tags.joinToString(","),
     deletedAtMillis = deletedAtMillis,
+    publishedUri = publishedUri,
 )

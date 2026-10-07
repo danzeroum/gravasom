@@ -1,13 +1,18 @@
 package com.gravasom.core.audio.android.recorder
 
 import android.media.MediaRecorder
+import android.os.Build
+import com.gravasom.core.audio.android.InputRouting
 import com.gravasom.core.audio.engine.LevelMeter
 import com.gravasom.core.domain.audio.AudioRecorder
 import com.gravasom.core.domain.audio.RecordingConfig
 import com.gravasom.core.domain.audio.RecordingFormat
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
+import kotlin.math.log10
 import java.io.File
 
 /**
@@ -18,7 +23,6 @@ class MediaRecorderM4aRecorder : AudioRecorder {
 
     override val format: RecordingFormat = RecordingFormat.M4A
 
-    private val levelFlow = MutableStateFlow(LevelMeter.MIN_DB)
     private var recorder: MediaRecorder? = null
     private var outputPath: String = ""
 
@@ -34,6 +38,8 @@ class MediaRecorderM4aRecorder : AudioRecorder {
         r.setAudioChannels(config.channels)
         r.setAudioEncodingBitRate(config.bitrateKbps * 1000)
         r.setOutputFile("$outputPath.tmp")
+        // MediaRecorder.setPreferredDevice existe a partir da API 28; antes, o sistema escolhe a entrada.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) InputRouting.preferred?.let { r.setPreferredDevice(it) }
         r.prepare()
         recorder = r
     }
@@ -58,10 +64,25 @@ class MediaRecorderM4aRecorder : AudioRecorder {
         outputPath
     }
 
-    override fun level(): Flow<Float> = levelFlow.asStateFlow()
+    /** VU do M4A: o MediaRecorder nao expoe amostras, mas informa a amplitude maxima desde a ultima leitura. */
+    override fun level(): Flow<Float> = flow {
+        while (currentCoroutineContext().isActive) {
+            val amplitude = runCatching { recorder?.maxAmplitude ?: 0 }.getOrDefault(0)
+            emit(amplitudeToDb(amplitude))
+            delay(LEVEL_POLL_MS)
+        }
+    }
 
     override fun release() {
         runCatching { recorder?.release() }
         recorder = null
+    }
+
+    private fun amplitudeToDb(amplitude: Int): Float =
+        if (amplitude <= 0) LevelMeter.MIN_DB else (20.0 * log10(amplitude / MAX_AMPLITUDE)).toFloat().coerceAtLeast(LevelMeter.MIN_DB)
+
+    private companion object {
+        const val MAX_AMPLITUDE = 32_767.0
+        const val LEVEL_POLL_MS = 100L
     }
 }

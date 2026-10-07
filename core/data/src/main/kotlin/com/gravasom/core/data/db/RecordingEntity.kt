@@ -16,4 +16,5 @@ data class RecordingEntity(
     val folder: String? = null,
     val tagsCsv: String = "",
     val deletedAtMillis: Long? = null,
+    val publishedUri: String? = null,
 )

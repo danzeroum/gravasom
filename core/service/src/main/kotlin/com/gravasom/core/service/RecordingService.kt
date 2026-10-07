@@ -7,12 +7,14 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import com.gravasom.core.audio.android.InputRouting
 import com.gravasom.core.audio.android.recorder.DefaultAudioRecorderFactory
 import com.gravasom.core.audio.engine.RecordingError
 import com.gravasom.core.audio.engine.RecordingEvent
 import com.gravasom.core.audio.engine.RecordingState
 import com.gravasom.core.audio.engine.RecordingStateMachine
 import com.gravasom.core.audio.engine.TransitionResult
+import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.domain.audio.AudioRecorder
 import com.gravasom.core.domain.audio.AudioRecorderFactory
 import com.gravasom.core.domain.audio.RecordingConfig
@@ -21,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -68,18 +71,20 @@ class RecordingService : Service() {
             stopSelf()
             return
         }
-        val format = runCatching { RecordingFormat.valueOf(formatName ?: "M4A") }
-            .getOrDefault(RecordingFormat.M4A)
         machine.transition(RecordingEvent.Start)
         RecordingServiceState.update(machine.state)
         focus?.request()
         startForegroundCompat()
         scope.launch {
+            val prefs = PreferencesRepository(applicationContext)
+            val format = formatName?.let { runCatching { RecordingFormat.valueOf(it) }.getOrNull() } ?: prefs.format.first()
+            InputRouting.preferred = AudioInputs.deviceById(applicationContext, prefs.preferredInputId.first())
             val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
             val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
             val rec = factory.create(format)
             recorder = rec
-            val started = rec.prepare(RecordingConfig(format = format), path).mapCatching { rec.start().getOrThrow() }
+            val config = RecordingConfig(format = format, sampleRateHz = prefs.sampleRate.first(), bitrateKbps = prefs.bitrate.first())
+            val started = rec.prepare(config, path).mapCatching { rec.start().getOrThrow() }
             started
                 .onSuccess {
                     machine.transition(RecordingEvent.Prepared)
@@ -120,6 +125,7 @@ class RecordingService : Service() {
             val path: String = recorder?.stop()?.getOrNull() ?: ""
             recorder?.release()
             recorder = null
+            if (path.isNotEmpty()) RecordingServiceState.emitSaved(path)
             if (cause != null) {
                 machine.transition(RecordingEvent.Fail(cause))
             } else {

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_format">Formato de gravação</string>
+    <string name="settings_format_M4A">M4A · leve, ideal para voz</string>
+    <string name="settings_format_WAV">WAV · sem compressão</string>
+    <string name="settings_format_MP3">MP3 · abre em qualquer lugar</string>
+    <string name="settings_quality">Qualidade (kbps)</string>
+    <string name="settings_quality_note">Vale para M4A e MP3</string>
+    <string name="settings_private">Manter só neste app</string>
+    <string name="settings_private_desc">As gravações novas não aparecem em Músicas, Arquivos nem em outros apps.</string>
+    <string name="settings_numbers_optin">Registrar meus números de uso</string>
+    <string name="settings_numbers_optin_desc">Fica só neste aparelho. Sem áudio, nomes de arquivo ou localização. Nada é enviado.</string>
+    <string name="settings_numbers_open">Seus números</string>
+    <string name="settings_licenses">Licenças de código aberto</string>
+    <string name="settings_licenses_close">Fechar</string>
+    <string name="settings_no_internet">Este app não usa a internet.</string>
+    <string name="settings_section_recording">Gravação</string>
+    <string name="settings_section_privacy">Privacidade</string>
+    <string name="settings_section_about">Sobre</string>
+    <string name="numbers_title">Seus números</string>
+    <string name="numbers_recordings">Gravações</string>
+    <string name="numbers_total_time">Tempo total gravado</string>
+    <string name="numbers_top_format">Formato mais usado</string>
+    <string name="numbers_none">Nenhum ainda</string>
+    <string name="numbers_usage_title">Uso neste aparelho</string>
+    <string name="numbers_usage_off">O registro está desligado: nenhum evento está sendo guardado. Ligue em Ajustes para acompanhar.</string>
+    <string name="numbers_started">Gravações iniciadas</string>
+    <string name="numbers_shared">Compartilhadas</string>
+    <string name="numbers_searches">Buscas</string>
+    <string name="numbers_imported">Importadas</string>
+    <string name="numbers_time_to_record">Tempo até gravar (mediana)</string>
+    <string name="numbers_ms">%1$d ms</string>
+    <string name="numbers_export">Exportar números (CSV)</string>
+    <string name="numbers_clear">Apagar meus números</string>
+    <string name="numbers_exported">Números exportados</string>
+    <string name="numbers_back">Voltar</string>
+    <string name="numbers_note">Estes números ficam só neste aparelho.</string>
+</resources>

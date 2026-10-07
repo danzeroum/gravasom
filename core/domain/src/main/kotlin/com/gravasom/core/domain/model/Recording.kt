@@ -15,6 +15,8 @@ data class Recording(
     val folder: String? = null,
     val tags: List<String> = emptyList(),
     val deletedAtMillis: Long? = null,
+    /** Uri do MediaStore da copia publicada em Music/Recordings (null se privada ou ainda nao publicada). */
+    val publishedUri: String? = null,
 ) {
     val isDeleted: Boolean get() = deletedAtMillis != null
     val isPrivate: Boolean get() = path.contains("/vault/")
