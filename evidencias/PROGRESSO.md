@@ -11,8 +11,9 @@ Atualizado: 2026-10-07
 ## Estado atual
 
 - Branch: `claude/gracious-clarke-7q1k3x` (origem: 27839e9 em `main`).
-- Fases 10, 11 (menos o widget), 12 concluídas e medidas no CI (API 34 e 36).
-- **Fase 13 PARADA em `TETO_NAO_DISCRIMINA`** (gate de inteligibilidade). Nenhum teto foi afrouxado.
+- Fases 10, 11, 12 e 13 concluídas e medidas no CI (API 34 e 36): 20/20 testes instrumentados, harness, lint, unidade e build verdes (run 37657257161, commit dec64ae).
+- A parada `TETO_NAO_DISCRIMINA` da Fase 13 foi resolvida pelo ADR-010. Nenhum teto foi afrouxado.
+- **Próximo**: Fase 14 (spike RNNoise × DeepFilterNet, redutor com intensidade 0–100% e A/B), depois 15, 16 e 17.
 
 ## Parada nomeada TETO_NAO_DISCRIMINA (RESOLVIDA por decisão do responsável)
 

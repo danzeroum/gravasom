@@ -27,7 +27,7 @@ Estados:
 | 10 — Retomada | APROVADA | — |
 | 11 — CI com emulador | APROVADA | Play, MobSF com credencial e Test Lab seguem PENDENTE-CI |
 | 12 — MP3 | APROVADA | Gate de true peak do MP3 decodificado pelo audio-suite entra com o harness (Fase 13) |
-| 13 — Fundação DSP + harness | APROVADA-PARCIAL | Room do projeto de edição e teste JNI/p95 do DSP no emulador; SI-SDRi aguarda o redutor (Fase 14) |
+| 13 — Fundação DSP + harness | APROVADA | SI-SDRi aguarda o redutor (Fase 14); p95/RTF medidos só com o passa-altas, refazer com NR e realçador |
 
 ## Gates por fase
 
@@ -172,5 +172,6 @@ fábrica gravava WAV com extensão `.mp3`; perda permanente de foco só sinaliza
 | Inteligibilidade sem referência (STOI-proxy do audio-suite) | observação | `TETO_NAO_DISCRIMINA` medido (3 de 7 bases); resolvido pelo ADR-010: só observação + escuta A/B |
 | STOI com referência (medidor próprio, pystoi) | APROVADA | pior bom 0,9996 × melhor controle 0,9823; teto 0,9909 (perfis/CALIBRACAO_REF.md) |
 | SI-SDRi com referência exata | AGUARDANDO_BONS (Fase 14) | sem redutor ainda; nenhum teto inventado |
-| Projeto de edição na Room | PENDENTE | entidade/DAO ainda não escritos |
-| JNI do DSP: teste instrumentado e p95 por quadro (< 5 ms) | PENDENTE | módulo `:core:dsp` compila; falta teste no emulador |
+| Projeto de edição na Room (DAO, CASCADE, migração 1→2 preservando gravações) | APROVADA | EdicaoRoomTest verde em API 34 e 36 (run 37657257161) |
+| JNI do DSP: bypass idêntico, determinismo, sem vazamento, export com mesmo hash e original intacto | APROVADA | DspNativoTest verde em API 34 e 36 |
+| Tempo por quadro de 10 ms (alvo p95 < 5 ms) e RTF do export | APROVADA (só passa-altas) | p95 0,0040 ms (API 34) e 0,0049 ms (API 36); RTF 0,0024 e 0,0030 (60 s) |
