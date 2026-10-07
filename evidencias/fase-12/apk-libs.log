@@ -1,0 +1,12 @@
+  1292896  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
+    35648  1981-01-01 01:01   lib/arm64-v8a/libgravasom_mp3.so
+   229064  1981-01-01 01:01   lib/arm64-v8a/libmp3lame.so
+   872872  1981-01-01 01:01   lib/armeabi-v7a/libc++_shared.so
+     6716  1981-01-01 01:01   lib/armeabi-v7a/libgravasom_mp3.so
+   171104  1981-01-01 01:01   lib/armeabi-v7a/libmp3lame.so
+  1255116  1981-01-01 01:01   lib/x86/libc++_shared.so
+    32576  1981-01-01 01:01   lib/x86/libgravasom_mp3.so
+   258036  1981-01-01 01:01   lib/x86/libmp3lame.so
+  1252080  1981-01-01 01:01   lib/x86_64/libc++_shared.so
+    32880  1981-01-01 01:01   lib/x86_64/libgravasom_mp3.so
+   249056  1981-01-01 01:01   lib/x86_64/libmp3lame.so

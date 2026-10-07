@@ -1,0 +1,27 @@
+$ ./gradlew :core:audio-android:assembleDebug :core:audio-android:assembleRelease --no-daemon
+> Task :core:audio-android:compileReleaseKotlin
+w: file:///home/user/gravasom/core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/MediaRecorderM4aRecorder.kt:29:17 'constructor(): MediaRecorder' is deprecated. Deprecated in Java.
+
+> Task :core:audio-android:extractReleaseAnnotations
+> Task :core:audio-android:processReleaseJavaRes
+> Task :core:audio-android:mergeDebugJavaResource
+> Task :core:audio-android:mergeReleaseJavaResource
+> Task :core:audio-android:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:audio-android:transformDebugClassesWithAsm
+> Task :core:audio-android:mergeDebugGeneratedProguardFiles
+> Task :core:audio-android:mergeDebugConsumerProguardFiles
+> Task :core:audio-android:syncDebugLibJars
+> Task :core:audio-android:bundleDebugAar
+> Task :core:audio-android:assembleDebug
+> Task :core:audio-android:compileReleaseJavaWithJavac
+> Task :core:audio-android:transformReleaseClassesWithAsm
+> Task :core:audio-android:mergeReleaseGeneratedProguardFiles
+> Task :core:audio-android:mergeReleaseConsumerProguardFiles
+> Task :core:audio-android:syncReleaseLibJars
+> Task :core:audio-android:bundleReleaseAar
+> Task :core:audio-android:assembleRelease
+
+BUILD SUCCESSFUL in 45s
+84 actionable tasks: 56 executed, 6 from cache, 22 up-to-date
+Configuration cache entry stored.
+exit=0

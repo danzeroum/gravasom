@@ -1,0 +1,4 @@
+$ scripts/test-native-host.sh  (TDD VERDE)
+medida: quadros=117 duracao=3056.3 ms bytes=48900 validos=48900
+OK: todos os testes passaram
+exit=0
