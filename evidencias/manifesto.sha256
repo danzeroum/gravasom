@@ -17,7 +17,7 @@ acab6a832a53ad930db416e56a65fa3a32cde7ab2e4c84a1d1943d09e6582e87  ./core/audio-a
 989f1f75491b8f02e0bbe36269b534e6001c1bd7adda056835178d9eba06e897  ./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmCapture.kt
 e6ea4cdf49a94e3cd58efe17c7b023b0780e91be45d85f4b0f14916b179eef75  ./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmMp3Recorder.kt
 d363f2e75115bd60bde9d3a29a2a923e86904d8dea872b80def812bcc7f3e415  ./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmWavRecorder.kt
-1155efb6a430b843dda7bb31d7a6a24b5a8fe53b32fa4e796f4217a4e209f2ef  ./core/audio-engine/build.gradle.kts
+960df67109314a7c6ecf6162bae2b7d950cba2e5bedf47e3587d67c0cfbb7108  ./core/audio-engine/build.gradle.kts
 aec6d903bfbd8a5109c94b22f592dff5ac1a3fd866a8bf5b2d5c50f32c6ec779  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/LevelMeter.kt
 2518b5d5ec4a4944ea4ddd5cc54afa4005b3ec37cbfcc3d32b0b19b895e44b75  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingError.kt
 628f8aaa9565ac59a9b2bb5ef52e1a79183ceeb7200f632e20a2dd72baee3d79  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingEvent.kt
@@ -25,11 +25,14 @@ aec6d903bfbd8a5109c94b22f592dff5ac1a3fd866a8bf5b2d5c50f32c6ec779  ./core/audio-e
 9e97dcbadae0bde657692bc882dce5493fb3b8ae207ffb9963aa657f1cfaf916  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingStateMachine.kt
 f480f73f7b5aa793697b82b372fa1cdb7bdbbc0a0c06c41473e9c129b4d44c68  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/TransitionResult.kt
 35c530a845aabca9d3db3a6ff94339ee065c28db223957497a5ac1db3e6a9d36  ./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavHeaderWriter.kt
+9518b40cfd4e73258261ff9e2317034c9f6cbbe35c9e864d56894cde30c93796  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/LevelMeterTest.kt
+7446c0a7e330c46599e7acafd67e7c79f10441f7ed7893263caa0ca49ac7c5db  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineCoverageTest.kt
 01bebbc1bf84a53ab7af5115910b5adf57aa6cc542e7f787f93048dab9e76fa0  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineTest.kt
+c8e312949993e9f61e314061110381aff05437d00d706ef32e2ca4fbe952d5a3  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavEdgeCasesTest.kt
 d335e3402dd0888590a50314d86c66252568bbb188de0f4ab9997e1363964a63  ./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavHeaderWriterTest.kt
 978bdac52b0d09bbfccbe5ef8f3a73f488b88fc1c8c35bd0ade751e2d0e0c366  ./core/data/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./core/data/src/main/AndroidManifest.xml
-1155efb6a430b843dda7bb31d7a6a24b5a8fe53b32fa4e796f4217a4e209f2ef  ./core/domain/build.gradle.kts
+960df67109314a7c6ecf6162bae2b7d950cba2e5bedf47e3587d67c0cfbb7108  ./core/domain/build.gradle.kts
 508ec54c0d8296bc9aa0875affb9f9acef7636ad6defaf1d3e8e4794b31d2014  ./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/AudioRecorderFactory.kt
 0b733c58e0bc9527ac851857c729163a13a49439aa95706c46f645c75674771d  ./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/AudioRecorder.kt
 169472e6498a72c173033e0f7815933db0e475f4f1f375085dcb00314bfd873b  ./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/RecordingConfig.kt
@@ -49,7 +52,7 @@ c1a179c08fd33281d8acfc19219bf35d131c16ac122971d70dac3825661bcdf4  ./docs/adr/006
 47de1d8c984e62a030307c97990790bd98c0b40df64c1eb0dbb58757ff43e4d7  ./docs/architecture/c4-container.md
 4760645edb54a3d1b8785a4cb02282e446ed4d90d2cf51655399d7fc8bdf415b  ./docs/architecture/c4-contexto.md
 4e4b10741dcd76688e8ec1d9cf3431f7642bd423492a48f8b092752f24d87871  ./docs/architecture/sequencia-interrupcao.md
-25995ec2824fb88426a6621cbfc62245ac1825e4b577732a4b921a03acae8010  ./docs/status.md
+bb4697c280ddbf5481fc760cc79d31ded42d8dbee00ec9d0a864fa550d61e62d  ./docs/status.md
 8ebf5681d5f3faf9bbd8fff9a230b0fd1dcd5579913216d5a38984a6f6f7cc57  ./docs/ux/01-personas.md
 8776a3e8cc0b672ba5b395352bcaa09bd0dd04da87f168323808fbc1a76b7e46  ./docs/ux/02-crazy-8s.md
 9bf3665e98eb1dc4ce239cd9401542d5785247c528b3d2182156bdce2cddfe7c  ./docs/ux/03-wireframes.md
@@ -58,7 +61,7 @@ b596353ed7dcb3ca0d37ec64822f8c5a4cb9b7cf8a68773f2ad1a9bba4d108a4  ./docs/ux/04-n
 37e3e6600168f5c45907bce8158fab2c0759968795e0a1c54a4864086ecae229  ./.editorconfig
 a019c423a1ecd422ca19a278f95e3d0dd752fbd2b35166fcac0ab1528506fbe0  ./evidencias/00-canal-lote.md
 fddd4cc5edc073bdf148df602086cf2cb1ed062967bd055f5943e2afb3de41e7  ./evidencias/00-diagnostico-gravacao.md
-fb46ccae3d782563feb230e1fe19ab3ef1c3069e88c7ebee23365e55a533e8c7  ./evidencias/PROGRESSO.md
+21b0a3d9472fc504be7636d43ce49529a431b9dd46543cbceb096dcfbba7ce3e  ./evidencias/PROGRESSO.md
 8aed97d5e28126f253b33a83bfc51c1081b4fc5182abec3e8011ffcb404cd962  ./feature/library/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./feature/library/src/main/AndroidManifest.xml
 8243dc324309798fd2832437f3ba7ee1abc8a08c3be3469749eda1ce4f19fd99  ./feature/player/build.gradle.kts

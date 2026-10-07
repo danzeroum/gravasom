@@ -10,29 +10,26 @@ Atualizado: 2026-10-07
 
 ## Estado por fase
 
-| Fase | Estado | Último lote verde | Commit | Próximo lote |
-| --- | --- | --- | --- | --- |
-| 0 (ambiente) | APROVADA | — | 877cf0f | — |
-| 2 (fundação) | APROVADA | lote-02 (C4, CI, detekt) | 140171b | — |
-| 1 (UX) | PENDENTE | — | — | personas + como podemos + crazy 8s |
-| 3 (motor áudio) | PENDENTE | — | — | testes da máquina de estados (vermelho) |
-| 4 (serviço) | PENDENTE | — | — | RecordingService |
-| 5 (biblioteca) | PENDENTE | — | — | Room + Paging |
-| 6 (player/edição) | PENDENTE | — | — | ExoPlayer + trim |
-| 7 (superfícies) | PENDENTE | — | — | Tile + widget |
-| 8 (privacidade) | PENDENTE | — | — | cofre Tink |
-| 9 (endurecimento) | PENDENTE | — | — | Baseline Profile |
+| Fase | Estado | Commit | Próximo lote |
+| --- | --- | --- | --- |
+| 0 (ambiente) | APROVADA | 877cf0f | — |
+| 2 (fundação) | APROVADA | 84c3e52 | — |
+| 1 (UX) | APROVADA | 0b99f2d | — |
+| 3 (motor áudio) | APROVADA (núcleo) | 81b7916 | fechamento |
+| 4 (serviço) | PENDENTE | — | RecordingService + foco de áudio + interrupções |
+| 5 (biblioteca) | PENDENTE | — | Room + Paging + MediaStore |
+| 6 (player/edição) | PENDENTE | — | ExoPlayer + trim |
+| 7 (superfícies) | PENDENTE | — | Tile + widget Glance |
+| 8 (privacidade) | PENDENTE | — | cofre Tink + consentimento |
+| 9 (endurecimento) | PENDENTE | — | Baseline Profile + release |
 
-## Gates da Fase 2
+## Gates PENDENTE-CI (exigem emulador/runner)
 
-| Gate | Estado | Log |
-| --- | --- | --- |
-| gradle help configura tudo | APROVADO | evidencias/fase-2/gradle-help.log (exit=0) |
-| detekt roda | APROVADO | evidencias/fase-2/detekt.log (exit=0) |
-| ADRs 001–006 | APROVADO | docs/adr/ (6 arquivos, no manifesto) |
-| C4 + sequência | APROVADO | docs/architecture/ (5 arquivos, no manifesto) |
-| CI (arquivo) | APROVADO | .github/workflows/ci.yml (no manifesto) |
-| CI (execução) | PENDENTE-CI | sem runner GitHub Actions neste ambiente |
+- MediaExtractor abre M4A/WAV/MP3 com duração ±100 ms
+- Gradle Managed Devices (API 26/30/34/36)
+- Firebase Test Lab (≥ 6 aparelhos)
+- Macrobenchmark de início a frio
+- Publicação no canal interno do Play
 
 ## Manifesto
 
