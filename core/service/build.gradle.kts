@@ -1,0 +1,17 @@
+plugins {
+    id("gravasom.android.library")
+    id("gravasom.android.hilt")
+}
+
+android {
+    namespace = "com.gravasom.core.service"
+}
+
+dependencies {
+    implementation(project(":core:domain"))
+    implementation(project(":core:audio-engine"))
+    implementation(project(":core:data"))
+    implementation(libs.coroutines.android)
+    implementation(libs.timber)
+    implementation(libs.androidx.core.ktx)
+}

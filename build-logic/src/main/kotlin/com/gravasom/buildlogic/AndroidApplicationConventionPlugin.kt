@@ -1,0 +1,60 @@
+package com.gravasom.buildlogic
+
+import com.android.build.api.dsl.ApplicationExtension
+import org.gradle.api.JavaVersion
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+class AndroidApplicationConventionPlugin : Plugin<Project> {
+    override fun apply(target: Project) = with(target) {
+        pluginManager.apply("com.android.application")
+        pluginManager.apply("org.jetbrains.kotlin.android")
+        pluginManager.apply("io.gitlab.arturbosch.detekt")
+
+        extensions.configure<ApplicationExtension> {
+            compileSdk = 36
+            defaultConfig {
+                minSdk = 26
+                targetSdk = 36
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                vectorDrawables { useSupportLibrary = true }
+            }
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+            buildFeatures {
+                buildConfig = true
+            }
+            lint {
+                warningsAsErrors = true
+                abortOnError = true
+            }
+            buildTypes {
+                release {
+                    isMinifyEnabled = true
+                    isShrinkResources = true
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro",
+                    )
+                }
+            }
+            testOptions {
+                unitTests {
+                    isIncludeAndroidResources = true
+                }
+            }
+        }
+
+        tasks.withType(KotlinCompile::class.java).configureEach {
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_17)
+                freeCompilerArgs.add("-Xjvm-default=all")
+            }
+        }
+    }
+}
