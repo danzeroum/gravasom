@@ -30,11 +30,11 @@ c1a179c08fd33281d8acfc19219bf35d131c16ac122971d70dac3825661bcdf4  ./docs/adr/006
 47de1d8c984e62a030307c97990790bd98c0b40df64c1eb0dbb58757ff43e4d7  ./docs/architecture/c4-container.md
 4760645edb54a3d1b8785a4cb02282e446ed4d90d2cf51655399d7fc8bdf415b  ./docs/architecture/c4-contexto.md
 4e4b10741dcd76688e8ec1d9cf3431f7642bd423492a48f8b092752f24d87871  ./docs/architecture/sequencia-interrupcao.md
-4dd192d1d80c8cd18f55aadee6bfe534e4fc1bad64c07e0c045f669ddf96df4f  ./docs/status.md
+25995ec2824fb88426a6621cbfc62245ac1825e4b577732a4b921a03acae8010  ./docs/status.md
 37e3e6600168f5c45907bce8158fab2c0759968795e0a1c54a4864086ecae229  ./.editorconfig
 a019c423a1ecd422ca19a278f95e3d0dd752fbd2b35166fcac0ab1528506fbe0  ./evidencias/00-canal-lote.md
 fddd4cc5edc073bdf148df602086cf2cb1ed062967bd055f5943e2afb3de41e7  ./evidencias/00-diagnostico-gravacao.md
-1990db4356fd64afcb861065d674458f7e5610821f59c0542bc7be3cb6f80703  ./evidencias/PROGRESSO.md
+fb46ccae3d782563feb230e1fe19ab3ef1c3069e88c7ebee23365e55a533e8c7  ./evidencias/PROGRESSO.md
 8aed97d5e28126f253b33a83bfc51c1081b4fc5182abec3e8011ffcb404cd962  ./feature/library/build.gradle.kts
 c8fe08b06e479efc7e3d00476fffe693a3e943e2b874b3c6a1ba5156fc180751  ./feature/library/src/main/AndroidManifest.xml
 8243dc324309798fd2832437f3ba7ee1abc8a08c3be3469749eda1ce4f19fd99  ./feature/player/build.gradle.kts
