@@ -22,5 +22,10 @@ Regras: (1) toda decisão cita um número e de onde ele veio; (2) nenhuma métri
 - **Hipótese**: ver H1 e H2.
 - **Experimento**: teste de UI no emulador (API 34 e 36) que mede (a) o intervalo entre o toque em Gravar e o estado Gravando e
   (b) o número de toques para tocar a gravação mais recente entre 20, buscando pelo nome parcial.
-- **Resultado medido**: *a preencher com os números do CI (run e artefato citados aqui).*
-- **Decisão**: *a registrar após o resultado.*
+- **Resultado medido** (run 37697797597, commit f02f8b9, emulador API 34; API 36 também verde, artefatos `instrumentados-api34/36`):
+  - H1: toque em Gravar → estado Gravando = **666 ms** (alvo ≤ 2000 ms; em runs anteriores 486 e 530 ms).
+  - H2: 20 gravações, achar "violao" por nome parcial = **2 toques** (aba Gravações + campo de busca; alvo ≤ 3); tocar a gravação = 1 toque.
+  - H4 (ciclo 2, já medido de passagem): áudio recebido de outro app aparece em **2178 ms** (alvo ≤ 3000 ms).
+  - Limite da medida: emulador, uma execução por API; não é usuário real nem aparelho real. Variação entre runs: 486–666 ms (H1).
+- **Decisão**: **manter** o fluxo de gravar (1 toque + permissão em contexto) e a busca fixa no topo; sem mudança de produto, logo sem ADR.
+  Reabrir a hipótese só se a medida em aparelho real passar de 2 s ou se o teste com 5 usuários (H6) mostrar > 3 toques.

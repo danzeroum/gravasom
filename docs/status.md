@@ -1,6 +1,6 @@
 # Status dos gates
 
-Atualizado: 2026-10-07 (Fase 10, reclassificação honesta de 27839e9)
+Atualizado: 2026-10-07 (versão instalável com telas reais; Fase 14 pausada)
 
 Estados:
 
@@ -28,6 +28,8 @@ Estados:
 | 11 — CI com emulador | APROVADA | Play, MobSF com credencial e Test Lab seguem PENDENTE-CI |
 | 12 — MP3 | APROVADA | Gate de true peak do MP3 decodificado pelo audio-suite entra com o harness (Fase 13) |
 | 13 — Fundação DSP + harness | APROVADA | SI-SDRi aguarda o redutor (Fase 14); p95/RTF medidos só com o passa-altas, refazer com NR e realçador |
+| 14 — Redutor de ruído | PAUSADA | Não iniciada: pausada para entregar a versão instalável (seção abaixo) |
+| Entrega instalável (telas reais + APK) | APROVADA-PARCIAL | Validada só em emulador (API 34 e 36); falta aparelho real, WhatsApp, Bluetooth/USB, TalkBack — ver seção |
 
 ## Gates por fase
 
@@ -175,3 +177,35 @@ fábrica gravava WAV com extensão `.mp3`; perda permanente de foco só sinaliza
 | Projeto de edição na Room (DAO, CASCADE, migração 1→2 preservando gravações) | APROVADA | EdicaoRoomTest verde em API 34 e 36 (run 37657257161) |
 | JNI do DSP: bypass idêntico, determinismo, sem vazamento, export com mesmo hash e original intacto | APROVADA | DspNativoTest verde em API 34 e 36 |
 | Tempo por quadro de 10 ms (alvo p95 < 5 ms) e RTF do export | APROVADA (só passa-altas) | p95 0,0040 ms (API 34) e 0,0049 ms (API 36); RTF 0,0024 e 0,0030 (60 s) |
+
+## Entrega instalável — telas reais e APK (run 37697797597, commit f02f8b9)
+
+CI inteiro verde: testes-unidade, lint-estatica, harness audio-suite, build, APK de debug, instrumentados API 34 (34 testes, 0 falhas) e API 36 (34 testes, 0 falhas).
+Os `Placeholder` foram substituídos por Gravar / Gravações / Ajustes (+ "Seus números"), com navegação inferior.
+
+| Item | Estado | Evidência |
+| --- | --- | --- |
+| Gravar 10 s pela tela → 1 item de ~10 s na lista → tocar com 1 toque | APROVADA (emulador) | FluxoUsuarioTest; tempo até gravar 666 ms, duração na lista 10 s |
+| Permissão (mic + notificações) pedida em contexto; negada duas vezes → mensagem + botão de configurações, sem crash | APROVADA (emulador) | PermissaoNegadaTest (passada própria) |
+| Cópia pública em Music/Recordings (MediaStore), M4A e MP3 | APROVADA (emulador) | FluxoUsuarioTest; MP3 pela tela 4624 ms (relógio visível 4013 ms, janela máxima 4991 ms) |
+| 20 gravações → achar por nome parcial em ≤ 3 toques | APROVADA (emulador) | 2 toques |
+| Excluir com DESFAZER | APROVADA (emulador) | FluxoUsuarioTest |
+| Compartilhar (content://, sem caminho bruto), receber ACTION_SEND audio/*, atalhos, app sem INTERNET | APROVADA (emulador) | EcossistemaTest; recebido em 2178 ms |
+| Notificação com Pausar/Retomar/Parar funcionando | APROVADA (emulador) | NotificacaoTest (corrigiu botões que eram intents vazios) |
+| "Seus números" offline; desligado não grava evento; nenhum evento com nome/áudio | APROVADA (emulador) | MetricasLocaisTest, ADR-011 |
+| Tile e widget | APROVADA (emulador) | SuperficiesTest; tile com retentativas (funcionou na tentativa 1 no API 34) |
+| APK de debug baixável pela CI | APROVADA | artefato `gravasom-apk`: 27 569 639 bytes (26,3 MiB), sha256 5f56e334e4c6612bfcb457c89e03d04cef6a92708162785fb7b3553c4e2c666d |
+
+Medida do `Mp3Test.gravadorRealMp3` (gravador direto): delta entre duração do arquivo e relógio variou de −291 ms a +22 ms entre execuções (emulador).
+O limite antigo de ±100 ms não era calibrado; o teste usa ±500 ms (aceite do produto). Tolerância mais apertada exige medida em aparelho real.
+
+### Pendente (não chamar de completo)
+
+- **Orçamento de APK**: o APK de debug tem 26,3 MiB (> 25 MB); o release com R8 media 7,5 MB numa medida anterior. Decisão humana pendente sobre a que APK o orçamento se aplica.
+- Validação em **aparelho real** (os testes rodaram em emulador): gravar, permissão, Arquivos, compartilhar pelo WhatsApp, microfone Bluetooth/USB.
+- TalkBack / Accessibility Scanner; teste com 5 usuários (H6).
+- API 26–28: sem cópia pública no MediaStore (só armazenamento do app).
+- Aviso de pouco espaço em disco ao gravar: não implementado.
+- Cofre criptografado (Tink) não está ligado; "Manter só neste app" apenas evita a cópia pública.
+- Build de release sem `signingConfig` de produção; o APK da CI é assinado com a chave de debug pública.
+- Fase 14 em diante (redutor, realçador, filtros na captação, separação) seguem pendentes.

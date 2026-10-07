@@ -34,3 +34,10 @@ Atualizado: 2026-10-07
 ## Pendências humanas
 
 Teste com 5 usuários, Accessibility Scanner, publicação Play, MobSF com credencial, Firebase Test Lab, medidas em dispositivo real (bateria, latência de partida).
+
+## Entrega instalável (telas reais + APK)
+
+- Run 37697797597 (f02f8b9): todos os jobs verdes; API 34 e 36 com 34 testes e 0 falhas cada; artefato `gravasom-apk` (27 569 639 bytes, sha256 5f56e334…c666d).
+- Falhas corrigidas no caminho (todas de teste, medidas nos artefatos): árvore mesclada escondia título/duração; rótulos no idioma do aparelho (emulador em inglês: notificação e DESFAZER);
+  botão "Negar e não perguntar de novo" na 2ª negação; LazyColumn só compõe itens visíveis; limite de ±100 ms do MP3 sem calibração substituído pelo aceite de ±500 ms.
+- Detalhes e pendências: docs/status.md (seção "Entrega instalável"); ciclo 1 de aprendizado: docs/aprendizado.md.
