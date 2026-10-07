@@ -24,7 +24,7 @@ std::unique_ptr<Step> MakeHighPass(double cutoff_hz, int sample_rate = kSampleRa
 
 class Chain {
  public:
-  Chain();
+  explicit Chain(int sample_rate = kSampleRate);
   ~Chain();
   void Add(std::unique_ptr<Step> step);
   void Reset();
@@ -35,6 +35,9 @@ class Chain {
   void SetIntensity(float intensity);
   void Process(float* x, int n);
   int LatencySamples() const;
+  int SampleRate() const;
+  // Amostras de um quadro de 10 ms na taxa da cadeia.
+  int FrameSamples() const { return SampleRate() / 100; }
 
  private:
   struct Impl;

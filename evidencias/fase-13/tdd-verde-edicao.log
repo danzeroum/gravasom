@@ -1,0 +1,3 @@
+$ ./gradlew :core:audio-engine:test :core:audio-engine:detekt :core:audio-engine:koverVerify --no-daemon  (TDD VERDE)
+BUILD SUCCESSFUL in 25s
+exit=0

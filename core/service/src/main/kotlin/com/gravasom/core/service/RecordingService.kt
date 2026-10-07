@@ -1,7 +1,9 @@
 package com.gravasom.core.service
 
+import android.Manifest
 import android.app.Service
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -60,6 +62,12 @@ class RecordingService : Service() {
     }
 
     private fun startRecording(formatName: String?) {
+        // Primeiro plano com tipo microfone exige RECORD_AUDIO concedida; sem ela o sistema lanca SecurityException.
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            RecordingServiceState.error(RecordingError.PERMISSION_DENIED)
+            stopSelf()
+            return
+        }
         val format = runCatching { RecordingFormat.valueOf(formatName ?: "M4A") }
             .getOrDefault(RecordingFormat.M4A)
         machine.transition(RecordingEvent.Start)
@@ -141,7 +149,7 @@ class RecordingService : Service() {
             paused = false,
             actions = NoopActions,
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             startForeground(
                 RecordingNotification.NOTIFICATION_ID,
                 notification,
@@ -153,12 +161,7 @@ class RecordingService : Service() {
     }
 
     private fun stopForegroundCompat() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
-            @Suppress("DEPRECATION")
-            stopForeground(true)
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     override fun onDestroy() {

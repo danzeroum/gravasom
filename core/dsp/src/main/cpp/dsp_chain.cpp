@@ -50,6 +50,7 @@ std::unique_ptr<Step> MakeHighPass(double cutoff_hz, int sample_rate) {
 }
 
 struct Chain::Impl {
+  int sample_rate = kSampleRate;
   std::vector<std::unique_ptr<Step>> steps;
   bool bypass = false;
   float intensity = 1.0f;
@@ -64,7 +65,7 @@ struct Chain::Impl {
   }
 };
 
-Chain::Chain() : impl_(new Impl) {}
+Chain::Chain(int sample_rate) : impl_(new Impl) { impl_->sample_rate = sample_rate; }
 Chain::~Chain() = default;
 
 void Chain::Add(std::unique_ptr<Step> step) {
@@ -87,6 +88,8 @@ void Chain::SetIntensity(float intensity) {
 }
 
 int Chain::LatencySamples() const { return impl_->Latency(); }
+
+int Chain::SampleRate() const { return impl_->sample_rate; }
 
 void Chain::Process(float* x, int n) {
   Impl& s = *impl_;

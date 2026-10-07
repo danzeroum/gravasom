@@ -16,18 +16,16 @@ object RecordingNotification {
     const val NOTIFICATION_ID = 1001
 
     fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Gravacao em andamento",
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                description = "Mostra a gravacao ativa e seus controles"
-                setShowBadge(false)
-            }
-            context.getSystemService(NotificationManager::class.java)
-                .createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Gravacao em andamento",
+            NotificationManager.IMPORTANCE_LOW,
+        ).apply {
+            description = "Mostra a gravacao ativa e seus controles"
+            setShowBadge(false)
         }
+        context.getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(channel)
     }
 
     fun build(
