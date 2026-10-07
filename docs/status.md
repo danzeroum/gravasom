@@ -27,7 +27,7 @@ Estados:
 | 10 — Retomada | APROVADA | — |
 | 11 — CI com emulador | APROVADA | Play, MobSF com credencial e Test Lab seguem PENDENTE-CI |
 | 12 — MP3 | APROVADA | Gate de true peak do MP3 decodificado pelo audio-suite entra com o harness (Fase 13) |
-| 13 — Fundação DSP + harness | **BLOQUEADA — TETO_NAO_DISCRIMINA** | Gate de inteligibilidade; ver evidencias/fase-13/CALIBRACAO.md |
+| 13 — Fundação DSP + harness | APROVADA-PARCIAL | Room do projeto de edição e teste JNI/p95 do DSP no emulador; SI-SDRi aguarda o redutor (Fase 14) |
 
 ## Gates por fase
 
@@ -161,7 +161,7 @@ fábrica gravava WAV com extensão `.mp3`; perda permanente de foco só sinaliza
 | Decodificado sem clipping | APROVADA | pico 0,4756 FS (entrada 0,5), nenhuma amostra no fundo de escala |
 | Aviso LGPL e oferta de fonte | APROVADA-PARCIAL | em `assets/licencas` e `docs/licencas`; **tela "Sobre/Licenças" ainda não existe** |
 
-## Fase 13 — Fundação DSP e harness (BLOQUEADA)
+## Fase 13 — Fundação DSP e harness
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
@@ -169,6 +169,8 @@ fábrica gravava WAV com extensão `.mp3`; perda permanente de foco só sinaliza
 | Edição não destrutiva (sha256 do original, export em streaming, 2 h com heap 96 MB, cancelamento, projeto reaberto = mesmo hash) | APROVADA | evidencias/fase-13/tdd-vermelho-edicao.log, tdd-verde-edicao.log |
 | Mapeamento exit code → estado | APROVADA | evidencias/fase-13/audio-suite-gate-estados.log |
 | Tetos com controle positivo: duração, F0, glitch, clipping/true peak | APROVADA | evidencias/fase-13/CALIBRACAO.md, verificar-tetos.log |
-| Teto de inteligibilidade (STOI sem referência) | **TETO_NAO_DISCRIMINA** | ruído reinjetado a 15 dB não derruba o proxy em 3 de 7 bases |
+| Inteligibilidade sem referência (STOI-proxy do audio-suite) | observação | `TETO_NAO_DISCRIMINA` medido (3 de 7 bases); resolvido pelo ADR-010: só observação + escuta A/B |
+| STOI com referência (medidor próprio, pystoi) | APROVADA | pior bom 0,9996 × melhor controle 0,9823; teto 0,9909 (perfis/CALIBRACAO_REF.md) |
+| SI-SDRi com referência exata | AGUARDANDO_BONS (Fase 14) | sem redutor ainda; nenhum teto inventado |
 | Projeto de edição na Room | PENDENTE | entidade/DAO ainda não escritos |
 | JNI do DSP: teste instrumentado e p95 por quadro (< 5 ms) | PENDENTE | módulo `:core:dsp` compila; falta teste no emulador |

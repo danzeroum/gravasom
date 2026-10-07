@@ -10,9 +10,12 @@ Gates (valor MAIOR = melhor):
   si_sdri      melhora de SI-SDR sobre misturas com referencia exata. SEM BONS ate a Fase 14 (nao ha redutor):
                fica AGUARDANDO_BONS; so registra os controles. Nenhum teto e inventado.
 """
+import hashlib
 import json
 import os
+import subprocess
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import medidor_ref as M  # noqa: E402
@@ -41,6 +44,39 @@ def medir_stoi(pasta):
     return bons, ctrl, lags
 
 
+def ref_quality_audio_suite(perfil, ref, deg, modo):
+    """SEGUNDA MEDIDA: ref_quality com referencia do audio-suite (CLI isolada via pipx). Nao substitui a primeira."""
+    sha = hashlib.sha256(open(ref, "rb").read()).hexdigest()
+    base = open(perfil).read().replace(
+        "  ref_quality:\n    mode: no-reference",
+        f"  ref_quality:\n    mode: {modo}\n    reference_path: {ref}\n    reference_sha256: {sha}")
+    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as t:
+        t.write(base)
+    try:
+        p = subprocess.run([os.environ.get("AUDIO_SUITE", "audio-suite"), "analyze", deg, "--profile", t.name,
+                            "--format", "json", "--only", "ref_quality"], capture_output=True, text=True)
+        if p.returncode not in (0, 1):
+            raise FileNotFoundError(f"audio-suite exit={p.returncode}: {p.stderr[-200:]}")
+        f = [x for x in json.loads(p.stdout)["findings"] if x["analyzer"] == "ref_quality"][0]
+        return f["value"]
+    finally:
+        os.unlink(t.name)
+
+
+def segunda_medida(perfil, pasta):
+    """STOI-proxy (speech-full-ref) e SI-SDR (source-sep-ref) do audio-suite: bons (hp80) x controles."""
+    out = {}
+    for modo, nome in (("speech-full-ref", "stoi_proxy_as"), ("source-sep-ref", "si_sdr_as")):
+        bons, ctrl = {}, {}
+        for b in bases(pasta):
+            ref = os.path.join(pasta, b + ".wav")
+            bons[b] = ref_quality_audio_suite(perfil, ref, os.path.join(pasta, f"{b}__hp80.wav"), modo)
+            for c in CONTROLES_STOI:
+                ctrl[f"{b}:{c}"] = ref_quality_audio_suite(perfil, ref, os.path.join(pasta, f"{b}__{c}.wav"), modo)
+        out[nome] = {"pior_bom": min(bons.values()), "melhor_controle": max(ctrl.values()), "bons": bons, "controles": ctrl}
+    return out
+
+
 def calibrar(pasta, tetos_json, md):
     bons, ctrl, lags = medir_stoi(pasta)
     pior_bom, melhor_ctrl = min(bons.values()), max(ctrl.values())
@@ -64,6 +100,15 @@ def calibrar(pasta, tetos_json, md):
             f.write(f"| {k} | {v:.4f} |\n")
         f.write(f"\nAtrasos medidos nos bons (amostras): min {min(lags.values())}, max {max(lags.values())} "
                 "(passa-altas causal: fase, nao atraso declarado).\n\n")
+        perfil = os.environ.get("PERFIL_AS")
+        if perfil:
+            f.write("## Segunda medida: ref_quality do audio-suite (informativa; nao substitui a primeira)\n\n")
+            f.write("| medida | pior bom (hp80) | melhor controle | separa? |\n|---|---|---|---|\n")
+            sm = segunda_medida(perfil, pasta)
+            for nome, v in sm.items():
+                f.write(f"| {nome} | {v['pior_bom']:.4f} | {v['melhor_controle']:.4f} | {'sim' if v['pior_bom'] > v['melhor_controle'] else 'NAO'} |\n")
+            f.write("\nObs.: o hp80 remove o grave que a fala real 'limpa' contem, por isso o SI-SDR do bom e baixo; "
+                    "a referencia exata so existe nas misturas sinteticas (Fase 14).\n\n")
         f.write("## si_sdri\n\nAGUARDANDO_BONS: nao ha redutor de ruido ainda (Fase 14). Os controles "
                 "(ruido reinjetado, supressao agressiva) ja existem no corpus; o teto sera calibrado com a saida do redutor.\n")
     print(open(md).read())

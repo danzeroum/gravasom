@@ -84,6 +84,14 @@ jobs:
           mkdir -p evidencias-ci
           set -o pipefail
           python3 -I scripts/calibrar_tetos.py verificar perfis/gravasom-fala.yaml tests-out/corpus perfis/tetos.json | tee evidencias-ci/verificar-tetos.log
+      - name: Medidor com referencia (venv SEPARADO do audio-suite; pystoi/numpy/scipy fixos)
+        run: |
+          python3 -m venv .venv-medidas
+          .venv-medidas/bin/pip install -q -r scripts/requirements-medidas.txt
+          set -o pipefail
+          .venv-medidas/bin/python scripts/calibrar_ref.py verificar tests-out/corpus perfis/tetos_ref.json | tee evidencias-ci/verificar-ref.log
+      - name: Kit de escuta A/B cego (bases reais)
+        run: scripts/kit-escuta.sh tests-out/corpus hp80 tests-out/kit-escuta 1
       - name: Estados do audio-suite (VERDE/VERMELHO) sobre amostras
         run: |
           set -o pipefail
@@ -100,6 +108,7 @@ jobs:
             tests-out/corpus/*__hp80.wav
             tests-out/corpus/*__ctrl_*.wav
             tests-out/corpus/fala_sintetica.wav
+            tests-out/kit-escuta/
           if-no-files-found: warn
 
   instrumentados:

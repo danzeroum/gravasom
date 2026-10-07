@@ -14,15 +14,15 @@ Atualizado: 2026-10-07
 - Fases 10, 11 (menos o widget), 12 concluídas e medidas no CI (API 34 e 36).
 - **Fase 13 PARADA em `TETO_NAO_DISCRIMINA`** (gate de inteligibilidade). Nenhum teto foi afrouxado.
 
-## Parada nomeada: TETO_NAO_DISCRIMINA
+## Parada nomeada TETO_NAO_DISCRIMINA (RESOLVIDA por decisão do responsável)
 
-- **O que falhou**: `speech_intelligibility.stoi_proxy_no_ref` (audio-suite) não cai quando se reinjeta ruído rosa a 15 dB SNR em 3 das 7 bases
-  (real_fala_1 queda +0,016; real_fala_2 −0,018; real_fala_4 −0,045; nas outras bases a queda é 0,12–0,18).
-  Além disso `ref_quality` com referência leva 48–120 s por par e o modo `source-sep-ref` retorna `error`.
-- **Evidência**: `evidencias/fase-13/CALIBRACAO.md`, `perfis/tetos.json`.
-- **Último commit verde**: ver `git log` (o CI de lint/unidade/build e 12 de 13 testes de emulador estão verdes).
-- **Próximo passo recomendado**: medir SNR/SI-SDR com referência limpa por um script numpy próprio (venv separado do audio-suite),
-  mantendo `speech_intelligibility` do audio-suite só como observação. Precisa de decisão (ver mensagem final).
+- **O que falhou**: `speech_intelligibility.stoi_proxy_no_ref` (audio-suite) não cai com ruído rosa a 15 dB reinjetado em 3 das 7 bases
+  (real_fala_1 +0,016; real_fala_2 −0,018; real_fala_4 −0,045; nas outras a queda é 0,12–0,18). Nenhum teto foi afrouxado.
+- **Decisão**: ADR-010. Medidor próprio com referência (SI-SDR/SI-SDRi/STOI via pystoi) em venv separado; audio-suite fica com clipping,
+  true peak, glitch, loudness, F0 e duração; STOI-proxy e descritores só observação nas bases reais + kit de escuta A/B.
+- **Correção de registro**: uma versão anterior deste arquivo dizia que o `ref_quality` do audio-suite levava 48–120 s e dava `error`.
+  Isso era contaminação de CPU da nossa medição; isolado, leva ~4 s por par (0,7 s com o patch) e não dá erro.
+- **Próximo passo**: Fase 14 (redutor de ruído), calibrando o SI-SDRi com a saída dele (gate hoje AGUARDANDO_BONS).
 
 ## Também calibrado (não são paradas)
 

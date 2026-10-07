@@ -39,6 +39,11 @@ dependencies {
 
     androidTestImplementation(project(":core:audio-engine"))
     androidTestImplementation(project(":core:audio-android"))
+    androidTestImplementation(project(":core:data"))
+    androidTestImplementation(project(":core:dsp"))
+    androidTestImplementation(libs.room.runtime)
+    androidTestImplementation(libs.room.ktx)
+    androidTestImplementation(libs.coroutines.android)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
