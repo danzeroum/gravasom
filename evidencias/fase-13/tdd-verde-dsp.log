@@ -1,0 +1,6 @@
+$ scripts/test-dsp-host.sh (TDD VERDE)
+medida: seno 1 kHz apos passa-altas 80 Hz: -0.000 dB
+medida: seno 20 Hz apos passa-altas 80 Hz: -24.10 dB
+medida: maior diferenca bloco x inteiro = 0 (1 LSB16 = 3.05e-05)
+OK: todos os testes passaram
+exit=0
