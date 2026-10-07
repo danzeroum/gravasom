@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-estatica:
     runs-on: ubuntu-latest
@@ -52,6 +56,51 @@ jobs:
           java-version: '17'
       - name: Build release (R8)
         run: ./gradlew assembleRelease bundleRelease --no-daemon
+
+  harness-audio-suite:
+    name: harness audio-suite (calibracao e controles positivos)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ESTUDIO_EXIGIR_AUDIO_SUITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias do sistema (ffmpeg para converter o corpus)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: audio-suite isolado (pipx, pinado por SHA)
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx install "git+https://github.com/danzeroum/audio-suite@$(cat .github/audio-suite.sha)"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Cache do corpus (baixado por hash)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gravasom-corpus
+          key: corpus-${{ hashFiles('corpus/corpus.sha256') }}
+      - name: Gerar corpus, saidas boas e controles
+        run: scripts/corpus-tudo.sh tests-out/corpus
+      - name: Verificar tetos (bons passam, controles reprovam)
+        run: |
+          mkdir -p evidencias-ci
+          set -o pipefail
+          python3 -I scripts/calibrar_tetos.py verificar perfis/gravasom-fala.yaml tests-out/corpus perfis/tetos.json | tee evidencias-ci/verificar-tetos.log
+      - name: Estados do audio-suite (VERDE/VERMELHO) sobre amostras
+        run: |
+          set -o pipefail
+          {
+            scripts/audio-suite-gate.sh perfis/gravasom-fala.yaml tests-out/corpus/real_fala_1__hp80.wav tests-out/corpus/real_fala_1.wav
+            ! scripts/audio-suite-gate.sh perfis/gravasom-fala.yaml tests-out/corpus/real_fala_1__ctrl_ganho3db_clip.wav
+          } 2>&1 | tee evidencias-ci/estados.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: harness-audio-suite
+          path: |
+            evidencias-ci/
+            tests-out/corpus/*__hp80.wav
+            tests-out/corpus/*__ctrl_*.wav
+            tests-out/corpus/fala_sintetica.wav
+          if-no-files-found: warn
 
   instrumentados:
     name: instrumentados (API ${{ matrix.api }})

@@ -1,0 +1,50 @@
+{
+ "tetos": {
+  "clipping_ou_true_peak": {
+   "ativo": true,
+   "controle": "ctrl_ganho3db_clip",
+   "discrimina": true,
+   "n_bons": 14,
+   "pior_bom": 0.0,
+   "teto": 0.0,
+   "valor_controle": 1.0
+  },
+  "duracao_amostras": {
+   "ativo": true,
+   "controle": "ctrl_corte50ms",
+   "discrimina": true,
+   "n_bons": 14,
+   "pior_bom": 0,
+   "teto": 0.0,
+   "valor_controle": 2400
+  },
+  "f0_cents": {
+   "ativo": true,
+   "controle": "ctrl_pitch_mais50c",
+   "discrimina": true,
+   "n_bons": 14,
+   "pior_bom": 20.982970507705023,
+   "teto": 29.742663958529533,
+   "valor_controle": 42.159238560868864
+  },
+  "glitch_novos": {
+   "ativo": true,
+   "controle": "ctrl_cliques",
+   "discrimina": true,
+   "n_bons": 14,
+   "pior_bom": 2.0,
+   "teto": 8.831760866327848,
+   "valor_controle": 39.0
+  },
+  "stoi_queda": {
+   "ativo": false,
+   "controle": "ctrl_ruido_reinjetado",
+   "discrimina": false,
+   "n_bons": 14,
+   "pior_bom": 0.0,
+   "teto": 0.0,
+   "valor_controle": -0.04520000000000002
+  }
+ },
+ "versao": 1
+}
