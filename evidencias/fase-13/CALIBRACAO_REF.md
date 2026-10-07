@@ -39,6 +39,7 @@ Medidor: scripts/medidor_ref.py (numpy/scipy/pystoi MIT, venv separado do audio-
 
 Atrasos medidos nos bons (amostras): min -8, max 0 (passa-altas causal: fase, nao atraso declarado).
 
-## si_sdri
+## Segunda medida: ref_quality do audio-suite (informativa; nao substitui a primeira)
 
-AGUARDANDO_BONS: nao ha redutor de ruido ainda (Fase 14). Os controles (ruido reinjetado, supressao agressiva) ja existem no corpus; o teto sera calibrado com a saida do redutor.
+| medida | pior bom (hp80) | melhor controle | separa? |
+|---|---|---|---|
