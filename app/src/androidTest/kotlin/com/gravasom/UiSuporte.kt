@@ -38,13 +38,13 @@ object UiSuporte {
     }
 
     fun textos(rule: SemanticsNodeInteractionsProvider, tag: String): List<String> =
-        rule.onAllNodesWithTag(tag).fetchSemanticsNodes().map { n ->
+        rule.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().map { n ->
             n.config.getOrNull(SemanticsProperties.Text)?.joinToString("") { it.text }.orEmpty()
         }
 
     /** False tambem quando nao ha hierarquia Compose ativa (ex.: dialogo do sistema por cima do app). */
     fun existe(rule: SemanticsNodeInteractionsProvider, tag: String): Boolean =
-        runCatching { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
+        runCatching { rule.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
 
     fun aguardar(rule: RegraCompose, timeoutMs: Long = 15_000, condicao: () -> Boolean) = rule.waitUntil(timeoutMs) { condicao() }
 

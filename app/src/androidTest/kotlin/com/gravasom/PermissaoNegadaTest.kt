@@ -25,7 +25,7 @@ class PermissaoNegadaTest {
 
     /** Nega todos os dialogos de permissao que aparecerem (microfone e, no Android 13+, notificacoes). */
     private fun negarDialogos() {
-        val negar = By.res("com.android.permissioncontroller:id/permission_deny_button")
+        val negar = By.res(java.util.regex.Pattern.compile("com\\.android\\.permissioncontroller:id/permission_deny(_and_dont_ask_again)?_button"))
         repeat(MAX_DIALOGOS) {
             val botao = device.wait(Until.findObject(negar), DIALOGO_MS) ?: return
             botao.click()

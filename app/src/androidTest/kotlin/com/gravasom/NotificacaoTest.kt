@@ -28,6 +28,12 @@ class NotificacaoTest {
     @Before
     fun preparar() = UiSuporte.limparTudo()
 
+    /** Rotulo no idioma do aparelho (o emulador de CI roda em ingles). */
+    private fun rotulo(nome: String): String {
+        val ctx = Suporte.contexto
+        return ctx.getString(ctx.resources.getIdentifier(nome, "string", ctx.packageName))
+    }
+
     private fun acoes(): List<android.app.Notification.Action> {
         val nm = Suporte.contexto.getSystemService(NotificationManager::class.java)
         val n = nm.activeNotifications.firstOrNull { it.id == RecordingNotification.NOTIFICATION_ID }
@@ -39,11 +45,11 @@ class NotificacaoTest {
         compose.onNodeWithTag("botao_gravar").performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "botao_parar") }
         assertTrue(Suporte.aguardar { acoes().size == 2 })
-        assertEquals(listOf("Pausar", "Parar"), acoes().map { it.title.toString() })
+        assertEquals(listOf(rotulo("notif_action_pause"), rotulo("notif_action_stop")), acoes().map { it.title.toString() })
 
         acoes()[0].actionIntent.send()
         assertTrue("nao pausou", Suporte.aguardar { RecordingServiceState.state.value == RecordingState.Paused })
-        assertTrue(Suporte.aguardar { acoes().map { it.title.toString() } == listOf("Retomar", "Parar") })
+        assertTrue(Suporte.aguardar { acoes().map { it.title.toString() } == listOf(rotulo("notif_action_resume"), rotulo("notif_action_stop")) })
 
         acoes()[0].actionIntent.send()
         assertTrue("nao retomou", ControleServico.esperarGravando())

@@ -3,6 +3,7 @@ package com.gravasom
 import android.Manifest
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -91,6 +92,7 @@ class FluxoUsuarioTest {
         compose.onNodeWithTag("mais_acoes").performClick()
         compose.onNodeWithTag("menu_excluir").performClick()
         UiSuporte.aguardar(compose) { !UiSuporte.existe(compose, "item_gravacao") }
+        UiSuporte.aguardar(compose) { compose.onAllNodesWithText("DESFAZER").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("DESFAZER").performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "item_gravacao") }
     }
