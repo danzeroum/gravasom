@@ -1,0 +1,27 @@
+$ ./gradlew detekt --no-daemon
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as configuration cache cannot be reused because file 'baselineprofile/build.gradle.kts' has changed.
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :core:data:detekt UP-TO-DATE
+> Task :core:audio-android:detekt UP-TO-DATE
+> Task :app:detekt UP-TO-DATE
+> Task :core:audio-engine:detekt UP-TO-DATE
+> Task :core:ui:detekt NO-SOURCE
+> Task :core:service:detekt UP-TO-DATE
+> Task :feature:library:detekt NO-SOURCE
+> Task :core:domain:detekt UP-TO-DATE
+> Task :feature:record:detekt NO-SOURCE
+> Task :feature:settings:detekt NO-SOURCE
+> Task :feature:player:detekt UP-TO-DATE
+
+BUILD SUCCESSFUL in 20s
+11 actionable tasks: 11 up-to-date
+Configuration cache entry stored.
+exit=0

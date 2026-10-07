@@ -1,0 +1,426 @@
+./app/build.gradle.kts: OK
+./app/proguard-rules.pro: OK
+./app/src/main/AndroidManifest.xml: OK
+./app/src/main/kotlin/com/gravasom/GravasomApplication.kt: OK
+./app/src/main/kotlin/com/gravasom/MainActivity.kt: OK
+./app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml: OK
+./app/src/main/res/values/colors.xml: OK
+./app/src/main/res/values-en/strings.xml: OK
+./app/src/main/res/values/strings.xml: OK
+./app/src/main/res/values/themes.xml: OK
+./app/src/main/res/xml/backup_rules.xml: OK
+./app/src/main/res/xml/data_extraction_rules.xml: OK
+./app/src/main/res/xml/file_paths.xml: OK
+./baselineprofile/build.gradle.kts: OK
+./baselineprofile/src/main/kotlin/com/gravasom/baselineprofile/BaselineProfileGenerator.kt: OK
+./build.gradle.kts: OK
+./build-logic/build.gradle.kts: OK
+./build-logic/settings.gradle.kts: OK
+./build-logic/src/main/kotlin/com/gravasom/buildlogic/AndroidApplicationConventionPlugin.kt: OK
+./build-logic/src/main/kotlin/com/gravasom/buildlogic/AndroidComposeConventionPlugin.kt: OK
+./build-logic/src/main/kotlin/com/gravasom/buildlogic/AndroidHiltConventionPlugin.kt: OK
+./build-logic/src/main/kotlin/com/gravasom/buildlogic/AndroidLibraryConventionPlugin.kt: OK
+./build-logic/src/main/kotlin/com/gravasom/buildlogic/JvmLibraryConventionPlugin.kt: OK
+./config/detekt/detekt.yml: OK
+./core/audio-android/build.gradle.kts: OK
+./core/audio-android/consumer-rules.pro: OK
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/cache-v2-20cb2c6f06f09bef94b2.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/cache-v2-20cb2c6f06f09bef94b2.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/cmakeFiles-v1-f73dea34bb7fb6bd27a1.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/cmakeFiles-v1-f73dea34bb7fb6bd27a1.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/codemodel-v2-481ddbee238b0ad46800.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/codemodel-v2-481ddbee238b0ad46800.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/index-2026-10-07T05-49-16-0777.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/index-2026-10-07T05-49-16-0777.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/target-gravasom_mp3-Debug-dca8c975c2f6545a698b.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/.cmake/api/v1/reply/target-gravasom_mp3-Debug-dca8c975c2f6545a698b.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/arm64-v8a/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/cache-v2-378352909604c638d71a.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/cache-v2-378352909604c638d71a.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/cmakeFiles-v1-3bc68329d5f832b851d0.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/cmakeFiles-v1-3bc68329d5f832b851d0.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/codemodel-v2-d52d12c74b9d63e72da5.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/codemodel-v2-d52d12c74b9d63e72da5.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/index-2026-10-07T05-49-19-0981.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/index-2026-10-07T05-49-19-0981.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/target-gravasom_mp3-Debug-de02257baaf6c672b772.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/.cmake/api/v1/reply/target-gravasom_mp3-Debug-de02257baaf6c672b772.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/armeabi-v7a/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/hash_key.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/hash_key.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/cache-v2-c38a9d628c8f257bd92d.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/cache-v2-c38a9d628c8f257bd92d.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/cmakeFiles-v1-893a4d1ec40c901e0003.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/cmakeFiles-v1-893a4d1ec40c901e0003.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/codemodel-v2-936d016595f1124d84eb.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/codemodel-v2-936d016595f1124d84eb.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/index-2026-10-07T05-49-23-0841.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/index-2026-10-07T05-49-23-0841.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/target-gravasom_mp3-Debug-abfdb75a5d395da1a772.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/.cmake/api/v1/reply/target-gravasom_mp3-Debug-abfdb75a5d395da1a772.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86_64/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/cache-v2-a65b772ddd232d28db6a.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/cache-v2-a65b772ddd232d28db6a.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/cmakeFiles-v1-13205756ab9aa313821a.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/cmakeFiles-v1-13205756ab9aa313821a.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/codemodel-v2-d2aea289a0f67365ed15.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/codemodel-v2-d2aea289a0f67365ed15.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/index-2026-10-07T05-49-21-0913.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/index-2026-10-07T05-49-21-0913.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/target-gravasom_mp3-Debug-d05179b3e2c034d0ee80.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/.cmake/api/v1/reply/target-gravasom_mp3-Debug-d05179b3e2c034d0ee80.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/Debug/g1p3zd4l/x86/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/Debug/g1p3zd4l/x86/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/cache-v2-3c183aee9b550c9b8bd2.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/cache-v2-3c183aee9b550c9b8bd2.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/cmakeFiles-v1-10877e8900c2fa0e679f.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/cmakeFiles-v1-10877e8900c2fa0e679f.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/codemodel-v2-8f9c9f664569aab9238e.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/codemodel-v2-8f9c9f664569aab9238e.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/index-2026-10-07T05-54-18-0216.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/index-2026-10-07T05-54-18-0216.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-ebd8fbd7a4e235326b6f.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-ebd8fbd7a4e235326b6f.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/arm64-v8a/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/cache-v2-0402ff5bf61a1db84519.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/cache-v2-0402ff5bf61a1db84519.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/cmakeFiles-v1-06c0f6b59e578eb96ad8.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/cmakeFiles-v1-06c0f6b59e578eb96ad8.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/codemodel-v2-ba960d6af15bf6b120a6.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/codemodel-v2-ba960d6af15bf6b120a6.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/index-2026-10-07T05-54-20-0166.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/index-2026-10-07T05-54-20-0166.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-dd0c57dc0fcd62b79902.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-dd0c57dc0fcd62b79902.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/armeabi-v7a/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/hash_key.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/hash_key.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/cache-v2-6dc04269f5627a665042.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/cache-v2-6dc04269f5627a665042.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/cmakeFiles-v1-aa84e20ca4bdb9f897fb.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/cmakeFiles-v1-aa84e20ca4bdb9f897fb.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/codemodel-v2-5a012685ddc6d9e4fe97.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/codemodel-v2-5a012685ddc6d9e4fe97.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/index-2026-10-07T05-54-22-0937.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/index-2026-10-07T05-54-22-0937.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-034cb078e7bc75e54085.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-034cb078e7bc75e54085.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86_64/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/additional_project_files.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/additional_project_files.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/android_gradle_build.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/android_gradle_build.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/android_gradle_build_mini.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/android_gradle_build_mini.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/build_file_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/build_file_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/cache-v2-ed1310e75f94203209cb.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/cache-v2-ed1310e75f94203209cb.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/cmakeFiles-v1-daec80145d53f8251890.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/cmakeFiles-v1-daec80145d53f8251890.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/codemodel-v2-b9dfa72c242e3cb925cf.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/codemodel-v2-b9dfa72c242e3cb925cf.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/directory-.-RelWithDebInfo-f5ebdc15457944623624.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/index-2026-10-07T05-54-21-0366.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/index-2026-10-07T05-54-21-0366.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-71b0388d24f05f4a0dab.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/.cmake/api/v1/reply/target-gravasom_mp3-RelWithDebInfo-71b0388d24f05f4a0dab.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeCache.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeCache.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeFiles/3.22.1-g37088a8/CompilerIdCXX/CMakeCXXCompilerId.cpp: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeFiles/TargetDirectories.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/CMakeFiles/TargetDirectories.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/metadata_generation_command.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/metadata_generation_command.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/prefab_config.json: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/prefab_config.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/symbol_folder_index.txt: No such file or directory
+./core/audio-android/.cxx/RelWithDebInfo/6i6t4x6d/x86/symbol_folder_index.txt: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/debug/arm64-v8a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/debug/arm64-v8a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/debug/armeabi-v7a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/debug/armeabi-v7a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/debug/x86_64/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/debug/x86_64/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/debug/x86/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/debug/x86/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/release/arm64-v8a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/release/arm64-v8a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/release/armeabi-v7a/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/release/armeabi-v7a/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/release/x86_64/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/release/x86_64/compile_commands.json: FAILED open or read
+sha256sum: ./core/audio-android/.cxx/tools/release/x86/compile_commands.json: No such file or directory
+./core/audio-android/.cxx/tools/release/x86/compile_commands.json: FAILED open or read
+./core/audio-android/src/main/AndroidManifest.xml: OK
+./core/audio-android/src/main/cpp/CMakeLists.txt: OK
+./core/audio-android/src/main/cpp/lame_bridge.cpp: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/mp3/LameBridge.kt: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/DefaultAudioRecorderFactory.kt: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/MediaRecorderM4aRecorder.kt: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmCapture.kt: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmMp3Recorder.kt: OK
+./core/audio-android/src/main/kotlin/com/gravasom/core/audio/android/recorder/PcmWavRecorder.kt: OK
+./core/audio-engine/build.gradle.kts: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/LevelMeter.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingError.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingEvent.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingState.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/RecordingStateMachine.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/TransitionResult.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/TrimRange.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavHeaderWriter.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavRepair.kt: OK
+./core/audio-engine/src/main/kotlin/com/gravasom/core/audio/engine/WavTrimmer.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/LevelMeterTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineCoverageTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/RecordingStateMachineTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/TrimRangeTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavEdgeCasesTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavHeaderWriterTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavRepairTest.kt: OK
+./core/audio-engine/src/test/kotlin/com/gravasom/core/audio/engine/WavTrimmerTest.kt: OK
+./core/data/build.gradle.kts: OK
+./core/data/src/main/AndroidManifest.xml: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/db/GravasomDatabase.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/db/RecordingDao.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/db/RecordingEntity.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/db/RecordingMapper.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/preferences/PreferencesRepository.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/repository/RoomRecordingRepository.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/share/ShareProvider.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/vault/PrivacyManager.kt: OK
+./core/data/src/main/kotlin/com/gravasom/core/data/vault/VaultCipher.kt: OK
+./core/domain/build.gradle.kts: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/AudioRecorderFactory.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/AudioRecorder.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/RecordingConfig.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/audio/RecordingFormat.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/model/Recording.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/repository/RecordingRepository.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/usecase/DeleteRecording.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/usecase/ListRecordings.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/usecase/RenameRecording.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/usecase/RestoreRecording.kt: OK
+./core/domain/src/main/kotlin/com/gravasom/core/domain/usecase/SearchRecordings.kt: OK
+./core/domain/src/test/kotlin/com/gravasom/core/domain/audio/RecordingConfigTest.kt: OK
+./core/domain/src/test/kotlin/com/gravasom/core/domain/usecase/FakeRecordingRepository.kt: OK
+./core/domain/src/test/kotlin/com/gravasom/core/domain/usecase/MoreUseCasesTest.kt: OK
+./core/domain/src/test/kotlin/com/gravasom/core/domain/usecase/UseCasesTest.kt: OK
+./core/service/build.gradle.kts: OK
+./core/service/src/main/AndroidManifest.xml: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/AudioFocusController.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/BootRecovery.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/RecordingNotification.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/RecordingService.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/RecordingServiceState.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/tile/RecordTileService.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/widget/RecordWidget.kt: OK
+./core/service/src/main/kotlin/com/gravasom/core/service/widget/RecordWidgetReceiver.kt: OK
+./core/service/src/main/res/xml/record_widget_info.xml: OK
+./core/ui/build.gradle.kts: OK
+./core/ui/src/main/AndroidManifest.xml: OK
+./docs/adr/001-formato-padrao-m4a.md: OK
+./docs/adr/002-mp3-via-lame-ndk.md: OK
+./docs/adr/003-armazenamento-mediastore.md: OK
+./docs/adr/004-estado-flow-mvi.md: OK
+./docs/adr/005-servico-primeiro-plano.md: OK
+./docs/adr/006-maquina-estados-pura.md: OK
+./docs/architecture/c4-codigo.md: OK
+./docs/architecture/c4-componente.md: OK
+./docs/architecture/c4-container.md: OK
+./docs/architecture/c4-contexto.md: OK
+./docs/architecture/sequencia-interrupcao.md: OK
+./docs/status.md: OK
+./docs/ux/01-personas.md: OK
+./docs/ux/02-crazy-8s.md: OK
+./docs/ux/03-wireframes.md: OK
+./docs/ux/04-navegacao.md: OK
+./docs/ux/05-roteiro-teste.md: OK
+./.editorconfig: OK
+./evidencias/00-canal-lote.md: OK
+./evidencias/00-diagnostico-gravacao.md: OK
+./evidencias/PROGRESSO.md: OK
+./feature/library/build.gradle.kts: OK
+./feature/library/src/main/AndroidManifest.xml: OK
+./feature/player/build.gradle.kts: OK
+./feature/player/src/main/AndroidManifest.xml: OK
+./feature/player/src/main/kotlin/com/gravasom/feature/player/PlayerController.kt: OK
+./feature/player/src/main/kotlin/com/gravasom/feature/player/PlayerScreen.kt: OK
+./feature/record/build.gradle.kts: OK
+./feature/record/src/main/AndroidManifest.xml: OK
+./feature/settings/build.gradle.kts: OK
+./feature/settings/src/main/AndroidManifest.xml: OK
+./.github/workflows/ci.yml: OK
+./gradle/libs.versions.toml: OK
+./gradle.properties: OK
+./macrobenchmark/build.gradle.kts: OK
+./macrobenchmark/src/main/kotlin/com/gravasom/macrobenchmark/StartupBenchmark.kt: OK
+./Plano — Gravador de Áudio Android (Kotlin).md: OK
+./settings.gradle.kts: OK
+sha256sum: WARNING: 146 listed files could not be read
+exit=1

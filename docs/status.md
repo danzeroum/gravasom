@@ -1,93 +1,124 @@
 # Status dos gates
 
-Atualizado: 2026-10-07
+Atualizado: 2026-10-07 (Fase 10, reclassificação honesta de 27839e9)
 
-Todo gate APROVADO tem comando, exit code e saída em `evidencias/`.
+Estados:
 
-## Fase 0 — Ambiente (APROVADA)
+- **APROVADA**: comportamento medido; comando, exit code e saída em `evidencias/`.
+- **APROVADA-PARCIAL**: o que foi medido passou, mas falta medir parte do comportamento (indicado em "Falta").
+- **PENDENTE-CI**: depende de emulador/serviço externo; vira medição na Fase 11.
+
+"Compila" nunca aprova comportamento. Fases 4, 6 e 7 estavam marcadas APROVADAS só por compilar e foram rebaixadas.
+
+## Resumo por fase
+
+| Fase | Estado | Falta |
+| --- | --- | --- |
+| 0 — Ambiente | APROVADA | — |
+| 1 — UX | APROVADA-PARCIAL | Teste com 5 usuários (pendência humana) |
+| 2 — Fundação | APROVADA-PARCIAL | CI nunca executado (PENDENTE-CI → Fase 11); `gradlew` não estava versionado, corrigido na Fase 10 |
+| 3 — Motor de áudio | APROVADA-PARCIAL | Duração ±100 ms via MediaExtractor (nunca medida); MP3 é stub (Fase 12) |
+| 4 — Serviço | APROVADA-PARCIAL | Só compila + testes JVM do engine; 100 ciclos de interrupção e foreground em emulador (Fase 11) |
+| 5 — Biblioteca | APROVADA-PARCIAL | Room/DAO só compilam; falta teste instrumentado de Room (Fase 11) |
+| 6 — Player/edição | APROVADA-PARCIAL | Trim WAV testado (TDD); player Media3 só compila, sem tocar/buscar/pausar medido (Fase 11) |
+| 7 — Superfícies | APROVADA-PARCIAL | Tile e widget só compilam (Fase 11) |
+| 8 — Privacidade | APROVADA-PARCIAL | Cofre/PrivacyManager só compilam; MobSF PENDENTE-CI |
+| 9 — Endurecimento | APROVADA-PARCIAL | Release/detekt/kover medidos; Baseline Profile, Test Lab, Play, Accessibility Scanner pendentes |
+
+## Gates por fase
+
+### Fase 0 — Ambiente
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| JDK 17 (toolchain) | APROVADO | evidencias/fase-0/jdk17.log (exit=0) |
-| Android SDK 36 + build-tools + platform-tools + NDK 27 | APROVADO | evidencias/fase-0/android-sdk.log |
-| Gradle 8.11.1 | APROVADO | .tooling/gradle-8.11.1 |
-| Canal em lote | APROVADO | evidencias/00-canal-lote.md |
+| JDK 17 (toolchain) | APROVADA | evidencias/fase-0/jdk17.log (exit=0) |
+| Android SDK 36 + build-tools + platform-tools + NDK 27 | APROVADA | evidencias/fase-0/android-sdk.log |
+| Gradle 8.11.1 | APROVADA | wrapper versionado na Fase 10 |
+| Canal em lote | APROVADA | evidencias/00-canal-lote.md |
 
-## Fase 1 — Descoberta e UX (APROVADA)
-
-| Gate | Estado | Evidência |
-| --- | --- | --- |
-| Personas, Como podemos, Crazy 8s, wireframes, navegação, roteiro | APROVADO | docs/ux/ (5 arquivos) |
-| Teste com 5 usuários (validação) | PENDENTE | exige usuários reais |
-
-## Fase 2 — Fundação (APROVADA)
+### Fase 1 — Descoberta e UX
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| gradle help configura os 13 módulos | APROVADO | evidencias/fase-2/gradle-help.log (exit=0) |
-| detekt roda | APROVADO | evidencias/fase-2/detekt.log (exit=0) |
-| ADRs 001–006 + C4 + sequência | APROVADO | docs/adr/, docs/architecture/ |
-| CI (arquivo) | APROVADO | .github/workflows/ci.yml |
-| CI (execução) | PENDENTE-CI | sem runner GitHub Actions |
+| Personas, Como podemos, Crazy 8s, wireframes, navegação, roteiro | APROVADA | docs/ux/ (5 arquivos) |
+| Teste com 5 usuários (validação) | PENDENTE (humano) | exige usuários reais |
 
-## Fase 3 — Motor de áudio (APROVADA)
+### Fase 2 — Fundação
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| TDD vermelho → verde | APROVADO | evidencias/fase-3/tdd-vermelho.log (exit=1), tdd-verde.log (exit=0) |
-| Testes de borda (0 s, 2 GB, pausa 50×) | APROVADO | evidencias/fase-3/edge-tests.log (exit=0) |
-| Cobertura ≥ 80% | APROVADO | 95,35% |
-| MediaExtractor nos 3 formatos (±100 ms) | PENDENTE-CI | exige emulador |
-| LAME vendorizado | PENDENTE-CI | bridge JNI stub (ADR-002) |
+| gradle help configura os 13 módulos | APROVADA | evidencias/fase-2/gradle-help.log (exit=0) |
+| detekt roda | APROVADA | evidencias/fase-2/detekt.log (exit=0) |
+| ADRs 001–006 + C4 + sequência | APROVADA | docs/adr/, docs/architecture/ |
+| CI (arquivo) | APROVADA-PARCIAL | .github/workflows/ci.yml existe; referia `./gradlew` inexistente |
+| CI (execução) | PENDENTE-CI | Fase 11 |
 
-## Fase 4 — Serviço (APROVADA)
-
-| Gate | Estado | Evidência |
-| --- | --- | --- |
-| RecordingService compila | APROVADO | evidencias/fase-4/service-compile.log (exit=0) |
-| BootRecovery/WavRepair (TDD) | APROVADO | evidencias/fase-4/engine-tests.log (exit=0) |
-| 100 ciclos de interrupção em device | PENDENTE-CI | exige emulador |
-
-## Fase 5 — Biblioteca (APROVADA)
+### Fase 3 — Motor de áudio
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| Room + DAO + repositório compilam | APROVADO | evidencias/fase-5/data-compile.log (exit=0) |
-| Use cases (TDD) + cobertura ≥ 80% | APROVADO | 97,78% |
+| TDD vermelho → verde | APROVADA | evidencias/fase-3/tdd-vermelho.log (exit=1), tdd-verde.log (exit=0) |
+| Testes de borda (0 s, 2 GB, pausa 50×) | APROVADA | evidencias/fase-3/edge-tests.log (exit=0) |
+| Cobertura ≥ 80% | APROVADA | 95,35% |
+| Duração ±100 ms via MediaExtractor | PENDENTE-CI | exige emulador; M4A e WAV na Fase 11 |
+| MP3 (LAME) | PENDENTE-CI | bridge JNI é stub; só 2 formatos reais (M4A, WAV); Fase 12 |
 
-## Fase 6 — Player e edição (APROVADA)
-
-| Gate | Estado | Evidência |
-| --- | --- | --- |
-| Trim sem perdas de WAV (TDD) | APROVADO | evidencias/fase-6/tdd-verde-trim.log (exit=0) |
-| Player Media3 compila | APROVADO | evidencias/fase-6/player-compile.log (exit=0) |
-
-## Fase 7 — Superfícies (APROVADA)
+### Fase 4 — Serviço
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| Tile + widget Glance compilam | APROVADO | evidencias/fase-7/service-compile.log (exit=0) |
-| Funcionamento em device | PENDENTE-CI | exige emulador |
+| RecordingService compila | APROVADA | evidencias/fase-4/service-compile.log (exit=0) — só compilação |
+| BootRecovery/WavRepair (TDD, JVM) | APROVADA | evidencias/fase-4/engine-tests.log (exit=0) |
+| 100 ciclos de interrupção | PENDENTE-CI | Fase 11 |
+| foregroundServiceType=microphone em rotação/background | PENDENTE-CI | Fase 11 |
 
-## Fase 8 — Privacidade e segurança (APROVADA)
-
-| Gate | Estado | Evidência |
-| --- | --- | --- |
-| Cofre Tink + PrivacyManager compilam | APROVADO | evidencias/fase-8/compile.log (exit=0) |
-| MobSF sem achados altos | PENDENTE-CI | exige ferramenta externa |
-
-## Fase 9 — Endurecimento (APROVADA)
+### Fase 5 — Biblioteca
 
 | Gate | Estado | Evidência |
 | --- | --- | --- |
-| assembleDebug | APROVADO | evidencias/fase-9/app-build.log (exit=0) |
-| assembleRelease com R8 | APROVADO | evidencias/fase-9/release-build.log (exit=0) |
-| detekt em todos os módulos | APROVADO | evidencias/fase-9/detekt-final.log (exit=0) |
-| kover ≥ 80% | APROVADO | evidencias/fase-9/kover-final.log (exit=0) |
-| Suíte de testes completa | APROVADO | evidencias/fase-9/testes-finais.log (exit=0) |
-| i18n pt-BR + en | APROVADO | app/src/main/res/values/ e values-en/ |
-| Baseline Profile e Macrobenchmark (código) | APROVADO | baselineprofile/, macrobenchmark/ |
-| Baseline Profile e Macrobenchmark (execução) | PENDENTE-CI | exige device |
-| Test Lab (≥ 6 aparelhos) | PENDENTE-CI | exige Firebase |
+| Use cases (TDD) + cobertura ≥ 80% | APROVADA | 97,78% |
+| Room + DAO + repositório | APROVADA-PARCIAL | só compilam (evidencias/fase-5/data-compile.log) |
+
+### Fase 6 — Player e edição
+
+| Gate | Estado | Evidência |
+| --- | --- | --- |
+| Trim sem perdas de WAV (TDD) | APROVADA | evidencias/fase-6/tdd-verde-trim.log (exit=0) |
+| Player Media3 tocar/buscar/pausar | PENDENTE-CI | só compila; Fase 11 |
+
+### Fase 7 — Superfícies
+
+| Gate | Estado | Evidência |
+| --- | --- | --- |
+| Tile + widget Glance compilam | APROVADA-PARCIAL | só compilação |
+| Tile e widget acionando a gravação | PENDENTE-CI | Fase 11 |
+
+### Fase 8 — Privacidade e segurança
+
+| Gate | Estado | Evidência |
+| --- | --- | --- |
+| Cofre Tink + PrivacyManager compilam | APROVADA-PARCIAL | só compilação |
+| MobSF sem achados altos | PENDENTE-CI | exige credencial/ferramenta externa |
+
+### Fase 9 — Endurecimento
+
+| Gate | Estado | Evidência |
+| --- | --- | --- |
+| assembleDebug / assembleRelease / testDebugUnitTest / detekt / koverVerify | APROVADA | rerodados na Fase 10, todos exit=0 (evidencias/fase-10/*.log). O `assembleDebug` global NÃO fechava em 27839e9 (`:baselineprofile` e `:macrobenchmark` sem alvo JVM 17); corrigido |
+| i18n pt-BR + en | APROVADA | app/src/main/res/values/ e values-en/ |
+| Baseline Profile e Macrobenchmark (código) | APROVADA-PARCIAL | código existe, nunca executado |
+| Baseline Profile e Macrobenchmark (execução) | PENDENTE-CI | exige emulador/device |
+| Test Lab (≥ 6 aparelhos) | PENDENTE-CI | exige Firebase pago |
 | Publicação no canal interno | PENDENTE-CI | exige credenciais Play |
-| Accessibility Scanner sem erros | PENDENTE-CI | exige device |
+| Accessibility Scanner sem erros | PENDENTE (humano) | exige device |
+
+## Fase 10 — Retomada
+
+| Gate | Estado | Evidência |
+| --- | --- | --- |
+| 27839e9 presente no remote | APROVADA | `git ls-remote origin` → refs/heads/main = 27839e9 |
+| Nenhum remote com credencial | APROVADA | `git remote -v` sem userinfo na URL |
+| Manifesto sha256 | APROVADA-PARCIAL | evidencias/fase-10/manifesto.log: 132 arquivos-fonte OK; os 146 itens FAILED são todos `.cxx/` (cache CMake ignorado no git), nenhum arquivo-fonte faltando |
+| assembleDebug, assembleRelease, testDebugUnitTest, detekt, koverVerify | APROVADA | evidencias/fase-10/<tarefa>.log, todos exit=0 |
+| Tamanho do APK | APROVADA | release 8,6 MB (orçamento 25 MB); debug 28,9 MB sem R8, fora do orçamento (evidencias/fase-10/apk-tamanhos.log) |
+| `gradlew` versionado | APROVADA | wrapper 8.11.1 adicionado |
