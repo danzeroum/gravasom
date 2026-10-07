@@ -2,6 +2,7 @@ package com.gravasom.core.service.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.glance.LocalContext
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -32,12 +33,12 @@ class RecordWidget : GlanceAppWidget() {
     private fun WidgetContent() {
         val startAction = actionStartService(startIntent(LocalContext.current), isForegroundService = true)
         Box(
-            modifier = GlanceModifier.fillMaxSize().background(0xFF12151A.toInt()).clickable(startAction),
+            modifier = GlanceModifier.fillMaxSize().background(Color(0xFF12151A)).clickable(startAction),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = "Gravar",
-                style = TextStyle(color = ColorProvider(0xFFFFFFFF.toInt())),
+                style = TextStyle(color = ColorProvider(Color.White)),
             )
         }
     }

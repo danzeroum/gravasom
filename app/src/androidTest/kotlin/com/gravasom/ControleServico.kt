@@ -55,7 +55,7 @@ object ControleServico {
 
     fun emPrimeiroPlanoComoMicrofone(): Boolean {
         val bloco = dumpsysServico()
-        return bloco.contains("isForeground=true") && Regex("0x0*80\\b").containsMatchIn(bloco)
+        return bloco.contains("isForeground=true") && Regex("types=(0x)?0*80\\b").containsMatchIn(bloco)
     }
 
     fun gravacoesValidas(dir: File, ehPlayable: (File) -> Boolean): List<File> =

@@ -45,10 +45,14 @@ class SuperficiesTest {
     fun tileIniciaAGravacao() {
         val add = Suporte.shell("cmd statusbar add-tile $tile")
         Thread.sleep(1_500)
+        // A tile so "escuta" (recebe onClick) com o painel de Ajustes Rapidos aberto.
+        val expandir = Suporte.shell("cmd statusbar expand-settings")
+        Thread.sleep(2_500)
         val click = Suporte.shell("cmd statusbar click-tile $tile")
-        java.io.File(Suporte.testsOut(), "tile_shell.txt").writeText("add:$add\nclick:$click")
+        java.io.File(Suporte.testsOut(), "tile_shell.txt").writeText("add:$add\nexpandir:$expandir\nclick:$click")
         assertTrue("tile nao iniciou a gravacao (add=$add click=$click)", ControleServico.esperarGravando())
         assertTrue(ControleServico.emPrimeiroPlanoComoMicrofone())
+        Suporte.shell("cmd statusbar collapse")
     }
 
     @Test
