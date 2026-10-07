@@ -23,6 +23,11 @@ class GravasomApplication : Application() {
     @Inject lateinit var repo: RecordingRepository
     @Inject lateinit var files: RecordingFiles
 
+    // Expostos para os testes instrumentados (mesmo grafo Hilt de producao; nao ha grafo de teste separado).
+    @Inject lateinit var preferences: com.gravasom.core.data.preferences.PreferencesRepository
+    @Inject lateinit var usageMetrics: com.gravasom.core.data.metrics.UsageMetrics
+    @Inject lateinit var database: com.gravasom.core.data.db.GravasomDatabase
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
