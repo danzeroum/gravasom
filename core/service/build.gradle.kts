@@ -10,8 +10,10 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:audio-engine"))
+    implementation(project(":core:audio-android"))
     implementation(project(":core:data"))
     implementation(libs.coroutines.android)
     implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.glance.appwidget)
 }
