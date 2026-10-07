@@ -42,14 +42,25 @@ class SuperficiesTest {
 
     @Test
     fun tileIniciaAGravacao() {
-        val add = Suporte.shell("cmd statusbar add-tile $tile")
+        val log = StringBuilder()
+        log.appendLine("add: " + Suporte.shell("cmd statusbar add-tile $tile"))
         Thread.sleep(1_500)
-        // A tile so "escuta" (recebe onClick) com o painel de Ajustes Rapidos aberto.
-        val expandir = Suporte.shell("cmd statusbar expand-settings")
-        Thread.sleep(2_500)
-        val click = Suporte.shell("cmd statusbar click-tile $tile")
-        java.io.File(Suporte.testsOut(), "tile_shell.txt").writeText("add:$add\nexpandir:$expandir\nclick:$click")
-        assertTrue("tile nao iniciou a gravacao (add=$add click=$click)", ControleServico.esperarGravando())
+        // Tentativa 1: clique direto. Tentativa 2: com o painel de Ajustes Rapidos aberto (a tile so "escuta" assim em algumas APIs).
+        log.appendLine("click1: " + Suporte.shell("cmd statusbar click-tile $tile"))
+        var tentativa = 1
+        var ok = ControleServico.esperarGravando(5_000)
+        if (!ok) {
+            tentativa = 2
+            log.appendLine("expandir: " + Suporte.shell("cmd statusbar expand-settings"))
+            Thread.sleep(2_500)
+            log.appendLine("click2: " + Suporte.shell("cmd statusbar click-tile $tile"))
+            ok = ControleServico.esperarGravando(8_000)
+        }
+        log.appendLine("estado final: ${com.gravasom.core.service.RecordingServiceState.state.value}")
+        if (!ok) log.appendLine("ui: " + Suporte.shell("uiautomator dump /dev/stdout").take(4_000))
+        java.io.File(Suporte.testsOut(), "tile_shell.txt").writeText(log.toString())
+        Suporte.medida("tile", "tentativa_que_funcionou", if (ok) tentativa else 0)
+        assertTrue("tile nao iniciou a gravacao:\n$log", ok)
         assertTrue(ControleServico.emPrimeiroPlanoComoMicrofone())
         Suporte.shell("cmd statusbar collapse")
     }
