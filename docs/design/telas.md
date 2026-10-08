@@ -237,10 +237,12 @@ Igual a 1b com estas trocas:
 │  Qualidade (kbps) (64)(128✓)(192)│
 │ [25] Aparência                   │
 │  Tema   (Sistema✓)(Claro)(Escuro)│
-│  Cores do sistema          [  ○] │
-│  Usa as cores do papel de parede.│
-│  Gravando, pausado e cofre       │
-│  mantêm as cores do Gravasom.    │
+│  Paleta                          │
+│   ◉ Gravasom (petróleo)  ▮▮▮     │
+│   ○ Mixlirous (roxo e madeira) ▮▮▮│
+│   ○ Cores do sistema             │
+│  Gravando, pausado e marcadores  │
+│  mantêm as mesmas cores.         │
 │ [26] Privacidade                 │
 │  🔒 Cofre cifrado          [● ] │
 │  Registrar meus números    [  ○] │
@@ -258,7 +260,7 @@ Igual a 1b com estas trocas:
 | --- | --- | --- | --- | --- |
 | 24 | Título de seção | `Text` | `t:scale.titleSmall`; `c:scheme.*.primary`; margem superior `e:spacing.xl` | "Gravação", "Aparência", "Privacidade", "Sobre" |
 | — | Opção | `ListItem` com `RadioButton`/`Switch` | Título `t:scale.bodyLarge` `c:scheme.*.onSurface`; descrição `t:scale.bodySmall` `c:scheme.*.onSurfaceVariant`; linha inteira clicável, ≥ 56 dp | Switch ligado mostra ícone `Check` no polegar (não só cor) |
-| 25 | Aparência (nova) | `SegmentedButton` (tema) + `Switch` (cores) | `c:scheme.*.secondaryContainer` no segmento ativo + ✓; o switch só aparece no Android 12+ | "Tema" (Sistema / Claro / Escuro) — a parte "Tema" é sugestão nova, não é exigida pela identidade; "Cores do sistema" é a decisão D1 |
+| 25 | Aparência (nova) | `SegmentedButton` (tema) + 3 `RadioButton` em `ListItem` (paleta) | Segmento ativo `c:scheme.*.secondaryContainer` + ✓; cada opção de paleta mostra 3 amostras de 16 dp (primary, primaryContainer, tertiary da própria paleta: Gravasom = `color.scheme.*`, Mixlirous = `color.themes.mixlirous.scheme.*`) com borda 1 dp `c:scheme.*.outline`; o rádio é o sinal de seleção, não a amostra; troca de paleta aplica na hora, sem reiniciar (cross-fade `motion.duration.medium2`) | "Tema" (Sistema / Claro / Escuro) é sugestão nova; "Paleta": "Gravasom" (padrão), "Mixlirous", "Cores do sistema" (só Android 12+; some nos anteriores). Texto de ajuda: "Gravando, pausado e marcadores mantêm as mesmas cores." Decisões D1 e D12 |
 | 26 | Cofre | `ListItem` + `Switch` | Ícone `Lock` `c:semantic.*.cofre.base`; switch ligado `c:semantic.*.cofre.base` (trilho) e `c:semantic.*.cofre.onBase` (polegar) | `settings_private` / `settings_private_desc` |
 | — | Excluir tudo | `ListItem` | Texto `c:scheme.*.error`; ícone `DeleteForever` `c:scheme.*.error` | Confirmação em `AlertDialog` (ação irreversível) |
 
@@ -266,7 +268,7 @@ Igual a 1b com estas trocas:
 
 ## 5. Widget (Glance)
 
-Três estados × dois tamanhos (P8). Fundo e textos usam os papéis do esquema **fixo** (não o dinâmico), para o vermelho
+Três estados × dois tamanhos (P8). Fundo e textos usam os papéis da paleta escolhida (Gravasom ou Mixlirous; com "Cores do sistema", usam Gravasom), para o vermelho
 nunca vir do papel de parede. Canto `f:shape.component.widget` (no Android 12+ usar `system_app_widget_background_radius`).
 
 ```
@@ -343,7 +345,7 @@ texto. Depende de P2 para saber o estado.
 
 ## 8. Checklist para o agente de código
 
-1. Gerar `Color.kt`, `Type.kt`, `Shape.kt` e `GravasomExtraColors` a partir de `tokens.json` (`$meta.geracao`).
+1. Gerar `Color.kt`, `Type.kt`, `Shape.kt` e `GravasomExtraColors` a partir de `tokens.json` (`$meta.geracao` e `$meta.paletas`), com um par de esquemas para Gravasom e outro para Mixlirous (`color.themes.mixlirous`). Guardar a paleta escolhida no DataStore de preferências.
 2. Trocar todos os `MaterialTheme.colorScheme.primary` que hoje significam "gravando" por `color.semantic.*.gravando`.
 3. Na onda, trocar `marker = colors.tertiary` por `color.marker.*.<cor do marcador>` e `bar = primary` / `played = onSurface`
    por `onda.barra` / `onda.tocada`.

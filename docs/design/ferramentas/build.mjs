@@ -2,8 +2,9 @@
 import fs from 'node:fs';
 const OUT = process.argv[2];
 const c = JSON.parse(fs.readFileSync('colors.json'));
-const pairs = JSON.parse(fs.readFileSync('pairs.json'));
-const cvd = JSON.parse(fs.readFileSync('cvd.json'));
+const mix = JSON.parse(fs.readFileSync('mixlirous.json'));
+const pairs = [...JSON.parse(fs.readFileSync('pairs.json')), ...JSON.parse(fs.readFileSync('pairs_mixlirous.json'))];
+const cvd = [...JSON.parse(fs.readFileSync('cvd.json')), ...JSON.parse(fs.readFileSync('cvd_mixlirous.json'))];
 const icon = JSON.parse(fs.readFileSync('icon.json'));
 
 const T = (font, weight, size, lineHeight, letterSpacing, extra = {}) => ({ fontFamily: font, fontWeight: weight, fontSize: size, lineHeight, letterSpacing, ...extra });
@@ -28,6 +29,7 @@ const tokens = {
       'Shape.kt': 'shape.scale → Shapes(extraSmall = RoundedCornerShape(<n>.dp), ...). shape.component → objeto GravasomShapes; valor "50%" = CircleShape.',
       'outros': 'spacing, size, motion e elevation → objetos Kotlin com Dp / Int (ms) / CubicBezierEasing de mesmo nome.',
     },
+    paletas: 'Ajustes › Aparência › Paleta tem 3 opções: "Gravasom" (padrão = color.scheme + color.semantic), "Mixlirous" (color.themes.mixlirous.scheme + os semânticos de identidade de color.themes.mixlirous.semantic: pronto, cofre, onda) e "Cores do sistema" (Android 12+, ver corDinamica). Em QUALQUER paleta, gravando, pausado, vu e marker vêm de color.semantic/color.marker. Em Kotlin: um enum Paleta { GRAVASOM, MIXLIROUS, SISTEMA } e, por paleta, um par (ColorScheme claro/escuro) + GravasomExtraColors.',
     corDinamica: 'Desligada por padrão. Se o usuário ligar "Cores do sistema" em Ajustes (Android 12+), substituir SÓ color.scheme pelo dynamicLight/DarkColorScheme. color.semantic e color.marker NUNCA mudam (são fixos para o vermelho de gravando e o contraste continuarem garantidos). Ver docs/design/decisoes.md D1.',
     referencias: 'Cada chave é citada em docs/design/telas.md no formato token:<caminho.com.pontos>.',
   },
@@ -54,6 +56,10 @@ const tokens = {
       mapeamentoNota: 'RED (já existe no enum MarkerColor) passa a ser desenhado como "rosa" para não confundir com gravando. GRAPHITE não existe no enum: ver pergunta P1 em decisoes.md.',
       light: c.marker.light,
       dark: c.marker.dark,
+    },
+    themes: {
+      $descricao: 'Paletas opcionais. A padrão (Gravasom) é color.scheme. Cada tema traz scheme (36 papéis, claro e escuro) e semantic com SÓ os semânticos de identidade; os de estado não mudam.',
+      mixlirous: mix,
     },
     icon: {
       $descricao: 'Cores fixas da marca no ícone adaptativo (não seguem tema nem cor dinâmica). monochrome é desenhado pelo sistema.',

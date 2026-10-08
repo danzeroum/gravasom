@@ -7,6 +7,7 @@ Os arquivos de `docs/design/` que têm números (`tokens.json`, as tabelas de co
 cd docs/design/ferramentas
 npm i --no-save @material/material-color-utilities@0.3.0
 node gen.mjs                          # cores M3 + semânticos + contraste + daltonismo (colors.json, pairs.json, cvd.json, icon.json)
+node tema_mixlirous.mjs               # paleta opcional Mixlirous (mixlirous.json, pairs_mixlirous.json, cvd_mixlirous.json)
 node build.mjs ../tokens.json         # monta tokens.json; falha se algum par não passar no AA
 python3 icons.py ../icone             # SVGs do ícone (lê icon.json)
 ```

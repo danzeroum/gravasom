@@ -98,6 +98,32 @@ isso que mantém os estados distintos para quem não vê vermelho (seção 13).
 | `marker.*.rosa` | `#AF4282` / `#FFD8E8` | `#FF98CE` / `#811A5C` | `RED` → desenhado como rosa |
 | `marker.*.grafite` | `#686B6C` / `#E1E3E4` | `#B7B9BA` / `#444748` | não existe (P1) |
 
+### 4.4 Paleta opcional "Mixlirous"
+
+Escolhida em Ajustes › Aparência › Paleta (`token:color.themes.mixlirous`). Cores tiradas das fotos de estúdio de
+referência (mediana dos pixels saturados de cada matiz), passadas pelo mesmo gerador HCT:
+
+| Origem na foto | Amostra | Vira | Claro | Escuro |
+| --- | --- | --- | --- | --- |
+| Painéis acústicos roxos | `#562B64` | primary | `#804792` | `#EFB0FF` |
+| | | primaryContainer | `#FAD7FF` | `#662F79` |
+| Roxo acinzentado (mesmo matiz, pouco croma) | — | secondary | `#6A596C` | `#D5C0D7` |
+| Brilho ciano dos cabos | `#41A09A` | tertiary = **cofre** neste tema | `#0C6A65` | `#87D4CE` |
+| Difusor de madeira e luz quente | `#C1935E` | neutros (surface…) | `#FFF8F4` | `#18120C` |
+| | | surfaceContainer | `#FAEBE0` | `#251E17` |
+| | | onSurface | `#211A13` | `#EEE0D5` |
+
+O que muda e o que **não** muda:
+
+- Mudam: os 36 papéis do esquema e os semânticos de identidade `pronto` (botão Gravar: `#FAD7FF` / `#FAD7FF`), `cofre` (ciano + cadeado) e `onda`.
+- **Não mudam:** gravando, pausado, VU e marcadores. O vermelho neon das fotos **não** entrou: ele colidiria com o
+  vermelho reservado para "gravando". O brilho rosa-avermelhado das fotos aparece só como o roxo-rosado claro do primário
+  escuro (`#EFB0FF`).
+- A madeira foi para os neutros e não para `secondary`, porque `secondaryContainer` pinta o botão Pausar e ficaria
+  parecido com o âmbar de "pausado".
+- As fotos em si não entram no app (pesariam no APK e mostram equipamentos e marcas de terceiros). O tema leva só as
+  cores.
+
 ## 5. Tipografia
 
 **Atkinson Hyperlegible Next** (OFL 1.1), uma família só, pesos 400/500/600/700 empacotados. Foi desenhada para
@@ -196,13 +222,13 @@ Mudanças propostas:
 - **Player:** continua como painel na lista (mini-player → painel). A hierarquia do painel vira 3 níveis: (1) onda e
   transporte, (2) chips de ajuste numa linha que rola, (3) marcadores. Isso resolve a linha de chips cortada (heurística
   8).
-- **Ajustes:** quatro seções com rótulos fixos: Gravação · Aparência (nova: "Cores do sistema", "Tema") · Privacidade ·
+- **Ajustes:** quatro seções com rótulos fixos: Gravação · Aparência (nova: "Tema" e "Paleta": Gravasom, Mixlirous, Cores do sistema) · Privacidade ·
   Sobre.
 
 ## 12. Tabela de contraste (todos os pares de tokens)
 
 Calculada pelo script que gerou `tokens.json` (mesmos valores de `contrast.pares`). "informativo" = não exigido pelo
-WCAG (container grande cujo texto interno já passa).
+WCAG (container grande cujo texto interno já passa). Linhas `mixlirous-*` = paleta opcional Mixlirous.
 
 | Tema | Par (frente / fundo) | Frente | Fundo | Razão | Mínimo | OK |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -378,6 +404,138 @@ WCAG (container grande cujo texto interno já passa).
 | dark | `marker.grafite.onContainer / container` | #E1E3E4 | #444748 | 7,28:1 | 4,50:1 | sim |
 | icone | `icon.foreground / icon.background` | #D5F6FF | #004E5A | 8,25:1 | 3,00:1 | sim |
 | icone | `icon.foregroundAccent / icon.background` | #76D4E8 | #004E5A | 5,52:1 | 3,00:1 | sim |
+| mixlirous-light | `onPrimary / primary` | #FFFFFF | #804792 | 6,49:1 | 4,50:1 | sim |
+| mixlirous-light | `onPrimaryContainer / primaryContainer` | #662F79 | #FAD7FF | 7,22:1 | 4,50:1 | sim |
+| mixlirous-light | `onSecondary / secondary` | #FFFFFF | #6A596C | 6,45:1 | 4,50:1 | sim |
+| mixlirous-light | `onSecondaryContainer / secondaryContainer` | #514254 | #F2DCF3 | 7,22:1 | 4,50:1 | sim |
+| mixlirous-light | `onTertiary / tertiary` | #FFFFFF | #0C6A65 | 6,43:1 | 4,50:1 | sim |
+| mixlirous-light | `onTertiaryContainer / tertiaryContainer` | #00504C | #A2F1EA | 7,24:1 | 4,50:1 | sim |
+| mixlirous-light | `onBackground / background` | #211A13 | #FFF8F4 | 16,36:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surface` | #211A13 | #FFF8F4 | 16,36:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceVariant` | #524436 | #F4DFCB | 7,26:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surface` | #524436 | #FFF8F4 | 8,93:1 | 4,50:1 | sim |
+| mixlirous-light | `onError / error` | #FFFFFF | #BA1A1A | 6,46:1 | 4,50:1 | sim |
+| mixlirous-light | `onErrorContainer / errorContainer` | #93000A | #FFDAD6 | 7,24:1 | 4,50:1 | sim |
+| mixlirous-light | `inverseOnSurface / inverseSurface` | #FCEEE2 | #372F27 | 11,55:1 | 4,50:1 | sim |
+| mixlirous-light | `inversePrimary / inverseSurface` | #EFB0FF | #372F27 | 7,71:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surface` | #804792 | #FFF8F4 | 6,18:1 | 4,50:1 | sim |
+| mixlirous-light | `error / surface` | #BA1A1A | #FFF8F4 | 6,15:1 | 4,50:1 | sim |
+| mixlirous-light | `tertiary / surface` | #0C6A65 | #FFF8F4 | 6,12:1 | 4,50:1 | sim |
+| mixlirous-light | `secondary / surface` | #6A596C | #FFF8F4 | 6,13:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceContainerLowest` | #211A13 | #FFFFFF | 17,19:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceContainerLowest` | #524436 | #FFFFFF | 9,38:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceContainerLowest` | #804792 | #FFFFFF | 6,49:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceContainerLow` | #211A13 | #FFF1E6 | 15,53:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceContainerLow` | #524436 | #FFF1E6 | 8,48:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceContainerLow` | #804792 | #FFF1E6 | 5,87:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceContainer` | #211A13 | #FAEBE0 | 14,75:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceContainer` | #524436 | #FAEBE0 | 8,05:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceContainer` | #804792 | #FAEBE0 | 5,57:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceContainerHigh` | #211A13 | #F4E6DA | 14,06:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceContainerHigh` | #524436 | #F4E6DA | 7,67:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceContainerHigh` | #804792 | #F4E6DA | 5,31:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceContainerHighest` | #211A13 | #EEE0D5 | 13,31:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceContainerHighest` | #524436 | #EEE0D5 | 7,26:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceContainerHighest` | #804792 | #EEE0D5 | 5,03:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceDim` | #211A13 | #E5D8CC | 12,30:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceDim` | #524436 | #E5D8CC | 6,71:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceDim` | #804792 | #E5D8CC | 4,65:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurface / surfaceBright` | #211A13 | #FFF8F4 | 16,36:1 | 4,50:1 | sim |
+| mixlirous-light | `onSurfaceVariant / surfaceBright` | #524436 | #FFF8F4 | 8,93:1 | 4,50:1 | sim |
+| mixlirous-light | `primary / surfaceBright` | #804792 | #FFF8F4 | 6,18:1 | 4,50:1 | sim |
+| mixlirous-light | `outline / surface (borda)` | #857464 | #FFF8F4 | 4,27:1 | 3,00:1 | sim |
+| mixlirous-light | `outline / surfaceContainerHighest (borda)` | #857464 | #EEE0D5 | 3,47:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.pronto.onBase / base` | #FFFFFF | #804792 | 6,49:1 | 4,50:1 | sim |
+| mixlirous-light | `semantic.pronto.onContainer / container` | #662F79 | #FAD7FF | 7,22:1 | 4,50:1 | sim |
+| mixlirous-light | `semantic.pronto.base / surface (ícone)` | #804792 | #FFF8F4 | 6,18:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.cofre.onBase / base` | #FFFFFF | #0C6A65 | 6,43:1 | 4,50:1 | sim |
+| mixlirous-light | `semantic.cofre.onContainer / container` | #00504C | #A2F1EA | 7,24:1 | 4,50:1 | sim |
+| mixlirous-light | `semantic.cofre.base / surface (ícone)` | #0C6A65 | #FFF8F4 | 6,12:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.gravando.base (fixo) / surface (ícone)` | #BA1A1A | #FFF8F4 | 6,15:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.gravando.container (fixo) / surface (faixa)` | #BA1A1A | #FFF8F4 | 6,15:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.pausado.base (fixo) / surface (ícone)` | #926000 | #FFF8F4 | 5,13:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.baixo (fixo) / surfaceContainerHighest (trilho do tema)` | #6F797B | #EEE0D5 | 3,46:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.ok (fixo) / surfaceContainerHighest (trilho do tema)` | #007A54 | #EEE0D5 | 4,16:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.clipando (fixo) / surfaceContainerHighest (trilho do tema)` | #BF5A00 | #EEE0D5 | 3,48:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.baixo (fixo) / surface` | #6F797B | #FFF8F4 | 4,26:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.ok (fixo) / surface` | #007A54 | #FFF8F4 | 5,11:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.vu.clipando (fixo) / surface` | #BF5A00 | #FFF8F4 | 4,27:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.onda.barra / onda.fundo` | #857464 | #FFF1E6 | 4,06:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.onda.tocada / onda.fundo` | #804792 | #FFF1E6 | 5,87:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.onda.cursor / onda.fundo` | #211A13 | #FFF1E6 | 15,53:1 | 3,00:1 | sim |
+| mixlirous-light | `semantic.onda.alca / onda.fundo` | #6A596C | #FFF1E6 | 5,82:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.ambar.fill (fixo) / onda.fundo` | #8D6300 | #FFF1E6 | 4,84:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.verde.fill (fixo) / onda.fundo` | #327932 | #FFF1E6 | 4,85:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.azul.fill (fixo) / onda.fundo` | #1A6DB5 | #FFF1E6 | 4,87:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.roxo.fill (fixo) / onda.fundo` | #755BB5 | #FFF1E6 | 4,84:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.rosa.fill (fixo) / onda.fundo` | #AF4282 | #FFF1E6 | 4,84:1 | 3,00:1 | sim |
+| mixlirous-light | `marker.grafite.fill (fixo) / onda.fundo` | #686B6C | #FFF1E6 | 4,86:1 | 3,00:1 | sim |
+| mixlirous-dark | `onPrimary / primary` | #4D1660 | #EFB0FF | 7,71:1 | 4,50:1 | sim |
+| mixlirous-dark | `onPrimaryContainer / primaryContainer` | #FAD7FF | #662F79 | 7,22:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSecondary / secondary` | #3A2B3D | #D5C0D7 | 7,75:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSecondaryContainer / secondaryContainer` | #F2DCF3 | #514254 | 7,22:1 | 4,50:1 | sim |
+| mixlirous-dark | `onTertiary / tertiary` | #003734 | #87D4CE | 7,73:1 | 4,50:1 | sim |
+| mixlirous-dark | `onTertiaryContainer / tertiaryContainer` | #A2F1EA | #00504C | 7,24:1 | 4,50:1 | sim |
+| mixlirous-dark | `onBackground / background` | #EEE0D5 | #18120C | 14,38:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surface` | #EEE0D5 | #18120C | 14,38:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceVariant` | #D7C3B0 | #524436 | 5,50:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surface` | #D7C3B0 | #18120C | 10,90:1 | 4,50:1 | sim |
+| mixlirous-dark | `onError / error` | #690005 | #FFB4AB | 7,72:1 | 4,50:1 | sim |
+| mixlirous-dark | `onErrorContainer / errorContainer` | #FFDAD6 | #93000A | 7,24:1 | 4,50:1 | sim |
+| mixlirous-dark | `inverseOnSurface / inverseSurface` | #372F27 | #EEE0D5 | 10,17:1 | 4,50:1 | sim |
+| mixlirous-dark | `inversePrimary / inverseSurface` | #804792 | #EEE0D5 | 5,03:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surface` | #EFB0FF | #18120C | 10,90:1 | 4,50:1 | sim |
+| mixlirous-dark | `error / surface` | #FFB4AB | #18120C | 10,94:1 | 4,50:1 | sim |
+| mixlirous-dark | `tertiary / surface` | #87D4CE | #18120C | 10,91:1 | 4,50:1 | sim |
+| mixlirous-dark | `secondary / surface` | #D5C0D7 | #18120C | 10,92:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceContainerLowest` | #EEE0D5 | #130D07 | 14,94:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceContainerLowest` | #D7C3B0 | #130D07 | 11,32:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceContainerLowest` | #EFB0FF | #130D07 | 11,32:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceContainerLow` | #EEE0D5 | #211A13 | 13,31:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceContainerLow` | #D7C3B0 | #211A13 | 10,09:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceContainerLow` | #EFB0FF | #211A13 | 10,09:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceContainer` | #EEE0D5 | #251E17 | 12,73:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceContainer` | #D7C3B0 | #251E17 | 9,65:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceContainer` | #EFB0FF | #251E17 | 9,65:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceContainerHigh` | #EEE0D5 | #302921 | 11,10:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceContainerHigh` | #D7C3B0 | #302921 | 8,41:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceContainerHigh` | #EFB0FF | #302921 | 8,41:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceContainerHighest` | #EEE0D5 | #3B332C | 9,59:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceContainerHighest` | #D7C3B0 | #3B332C | 7,27:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceContainerHighest` | #EFB0FF | #3B332C | 7,27:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceDim` | #EEE0D5 | #18120C | 14,38:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceDim` | #D7C3B0 | #18120C | 10,90:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceDim` | #EFB0FF | #18120C | 10,90:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurface / surfaceBright` | #EEE0D5 | #403830 | 8,90:1 | 4,50:1 | sim |
+| mixlirous-dark | `onSurfaceVariant / surfaceBright` | #D7C3B0 | #403830 | 6,75:1 | 4,50:1 | sim |
+| mixlirous-dark | `primary / surfaceBright` | #EFB0FF | #403830 | 6,75:1 | 4,50:1 | sim |
+| mixlirous-dark | `outline / surface (borda)` | #9F8E7D | #18120C | 5,87:1 | 3,00:1 | sim |
+| mixlirous-dark | `outline / surfaceContainerHighest (borda)` | #9F8E7D | #3B332C | 3,92:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.pronto.onBase / base` | #4D1660 | #EFB0FF | 7,71:1 | 4,50:1 | sim |
+| mixlirous-dark | `semantic.pronto.onContainer / container` | #330045 | #FAD7FF | 13,23:1 | 4,50:1 | sim |
+| mixlirous-dark | `semantic.pronto.base / surface (ícone)` | #EFB0FF | #18120C | 10,90:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.cofre.onBase / base` | #003734 | #87D4CE | 7,73:1 | 4,50:1 | sim |
+| mixlirous-dark | `semantic.cofre.onContainer / container` | #A2F1EA | #00504C | 7,24:1 | 4,50:1 | sim |
+| mixlirous-dark | `semantic.cofre.base / surface (ícone)` | #87D4CE | #18120C | 10,91:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.gravando.base (fixo) / surface (ícone)` | #FF897D | #18120C | 8,07:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.gravando.container (fixo) / surface (faixa)` | #CC2925 | #18120C | 3,46:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.pausado.base (fixo) / surface (ícone)` | #FFB94E | #18120C | 10,88:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.baixo (fixo) / surfaceContainerHighest (trilho do tema)` | #969FA2 | #3B332C | 4,59:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.ok (fixo) / surfaceContainerHighest (trilho do tema)` | #60CC9C | #3B332C | 6,26:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.clipando (fixo) / surfaceContainerHighest (trilho do tema)` | #FF9651 | #3B332C | 5,74:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.baixo (fixo) / surface` | #969FA2 | #18120C | 6,88:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.ok (fixo) / surface` | #60CC9C | #18120C | 9,39:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.vu.clipando (fixo) / surface` | #FF9651 | #18120C | 8,61:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.onda.barra / onda.fundo` | #9F8E7D | #211A13 | 5,43:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.onda.tocada / onda.fundo` | #EFB0FF | #211A13 | 10,09:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.onda.cursor / onda.fundo` | #EEE0D5 | #211A13 | 13,31:1 | 3,00:1 | sim |
+| mixlirous-dark | `semantic.onda.alca / onda.fundo` | #D5C0D7 | #211A13 | 10,11:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.ambar.fill (fixo) / onda.fundo` | #F2AC00 | #211A13 | 8,74:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.verde.fill (fixo) / onda.fundo` | #80CA79 | #211A13 | 8,71:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.azul.fill (fixo) / onda.fundo` | #85BCFF | #211A13 | 8,70:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.roxo.fill (fixo) / onda.fundo` | #C4ACFF | #211A13 | 8,75:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.rosa.fill (fixo) / onda.fundo` | #FF98CE | #211A13 | 8,70:1 | 3,00:1 | sim |
+| mixlirous-dark | `marker.grafite.fill (fixo) / onda.fundo` | #B7B9BA | #211A13 | 8,73:1 | 3,00:1 | sim |
 
 ## 13. Estados sem cor (simulação de daltonismo)
 
@@ -416,3 +574,23 @@ sobre os containers. Mínimo 3:1 nos pares estado × estado.
 | dark | acromatopsia | gravando.container × pausado.container | #6A6A6A | #DCDCDC | 3,94:1 | 3,00:1 | sim |
 | dark | acromatopsia | gravando.container × surface | #6A6A6A | #131313 | 3,44:1 | informativo | — |
 | dark | acromatopsia | gravando.container × pronto.container (botão Gravar parado) | #6A6A6A | #E2E2E2 | 4,18:1 | 3,00:1 | sim |
+| mixlirous-light | normal | gravando.container × pronto.container (Mixlirous) | #BA1A1A | #FAD7FF | 4,99:1 | 3,00:1 | sim |
+| mixlirous-light | normal | gravando.container × primary (Mixlirous) | #BA1A1A | #804792 | 1,01:1 | informativo | — |
+| mixlirous-light | protanopia | gravando.container × pronto.container (Mixlirous) | #524817 | #D4E0FF | 6,92:1 | 3,00:1 | sim |
+| mixlirous-light | protanopia | gravando.container × primary (Mixlirous) | #524817 | #395A95 | 1,34:1 | informativo | — |
+| mixlirous-light | deuteranopia | gravando.container × pronto.container (Mixlirous) | #786A0F | #DBE4FE | 4,28:1 | 3,00:1 | sim |
+| mixlirous-light | deuteranopia | gravando.container × primary (Mixlirous) | #786A0F | #4A6090 | 1,15:1 | informativo | — |
+| mixlirous-light | tritanopia | gravando.container × pronto.container (Mixlirous) | #CE001D | #FCDBE4 | 4,50:1 | 3,00:1 | sim |
+| mixlirous-light | tritanopia | gravando.container × primary (Mixlirous) | #CE001D | #805266 | 1,10:1 | informativo | — |
+| mixlirous-light | acromatopsia | gravando.container × pronto.container (Mixlirous) | #5E5E5E | #E2E2E2 | 5,01:1 | 3,00:1 | sim |
+| mixlirous-light | acromatopsia | gravando.container × primary (Mixlirous) | #5E5E5E | #5E5E5E | 1,00:1 | informativo | — |
+| mixlirous-dark | normal | gravando.container × pronto.container (Mixlirous) | #CC2925 | #FAD7FF | 4,15:1 | 3,00:1 | sim |
+| mixlirous-dark | normal | gravando.container × primary (Mixlirous) | #CC2925 | #EFB0FF | 3,15:1 | informativo | — |
+| mixlirous-dark | protanopia | gravando.container × pronto.container (Mixlirous) | #5E5422 | #D4E0FF | 5,75:1 | 3,00:1 | sim |
+| mixlirous-dark | protanopia | gravando.container × primary (Mixlirous) | #5E5422 | #A6C2FF | 4,26:1 | informativo | — |
+| mixlirous-dark | deuteranopia | gravando.container × pronto.container (Mixlirous) | #86771C | #DBE4FE | 3,54:1 | 3,00:1 | sim |
+| mixlirous-dark | deuteranopia | gravando.container × primary (Mixlirous) | #86771C | #B5C9FC | 2,73:1 | informativo | — |
+| mixlirous-dark | tritanopia | gravando.container × pronto.container (Mixlirous) | #E1002B | #FCDBE4 | 3,87:1 | 3,00:1 | sim |
+| mixlirous-dark | tritanopia | gravando.container × primary (Mixlirous) | #E1002B | #F0B9CD | 2,96:1 | informativo | — |
+| mixlirous-dark | acromatopsia | gravando.container × pronto.container (Mixlirous) | #6A6A6A | #E2E2E2 | 4,18:1 | 3,00:1 | sim |
+| mixlirous-dark | acromatopsia | gravando.container × primary (Mixlirous) | #6A6A6A | #C6C6C6 | 3,17:1 | informativo | — |

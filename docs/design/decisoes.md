@@ -24,7 +24,7 @@ própria. Abaixo do Android 12, o primário é o vermelho `#B3261E`, o mesmo do 
 | B. Só cores próprias | Identidade e contraste garantidos; o vermelho fica só para estado | Ignora quem gosta de Material You |
 | **C. Próprias por padrão + dinâmica opcional** | Identidade e contraste garantidos de saída; quem prefere ganha a cor do sistema | Uma linha a mais em Ajustes; dois caminhos para testar |
 
-**Decisão: C.** Ajustes ganha o interruptor **"Cores do sistema"** (Android 12+, desligado por padrão). Ligado, só
+**Decisão: C.** Ajustes ganha a escolha de **paleta**, com "Cores do sistema" como uma das opções (Android 12+, não é o padrão; ver D12). Escolhida, só
 `color.scheme` é trocado pelo esquema dinâmico. `color.semantic` (gravando, pausado, pronto, cofre, VU, onda) e
 `color.marker` **nunca** mudam.
 
@@ -123,6 +123,27 @@ sem colorir, `setColor(semantic.light.pausado.base)` + `ic_stat_pausado`. O tít
 **Trade-off.** Alguns fabricantes ignoram `setColorized`. Por isso o texto e a silhueta do ícone (cheia × vazada)
 carregam o estado sozinhos.
 
+## D12 — Paleta opcional "Mixlirous"
+
+**Contexto.** Pedido do dono: oferecer um tema com as cores da Mixlirous, a partir de duas fotos de estúdio (painéis
+roxos e vermelho-neon; madeira, espuma preta e luz quente; cabos com brilho ciano).
+
+**Decisão.** Ajustes › Aparência › Paleta passa a ter três opções: **Gravasom** (padrão), **Mixlirous** e **Cores do
+sistema**. A Mixlirous (`color.themes.mixlirous`) foi gerada pelo mesmo método HCT a partir de amostras das fotos:
+primário roxo dos painéis, neutros quentes de madeira e terciário ciano dos cabos, que nesse tema é o **cofre**. Tem
+claro e escuro, e todos os pares passam no AA (linhas `mixlirous-*` da tabela em `identidade.md`).
+
+**O que ficou de fora, de propósito.**
+- O vermelho-neon e o rosa-avermelhado das fotos: colidem com o vermelho reservado para "gravando" (D2).
+- A madeira como `secondary`: o botão Pausar usa `secondaryContainer` e ficaria parecido com o âmbar de "pausado".
+- As fotos e o logotipo: o tema leva só cores. As fotos pesariam no APK e mostram equipamentos e marcas de terceiros.
+
+**Trade-off.** Mais um esquema para manter e testar (capturas em 2 paletas × 2 temas). O primário claro da Mixlirous
+(`#804792`) tem a mesma luminância do vermelho de gravando; por isso o botão Gravar parado usa o container claro
+(`semantic.pronto`), e a medição sem cor continua ≥ 3,5:1 entre gravando e pronto.
+
+**Ponto aberto:** P9 — confirmar que "Mixlirous" é marca do próprio projeto e pode aparecer por nome no app.
+
 ---
 
 ## Perguntas em aberto (não inventei a resposta)
@@ -136,6 +157,7 @@ carregam o estado sozinhos.
 | P5 | Hoje não existe tela para escolher a cor do marcador (todos usam `tertiary`). O seletor proposto em `telas.md` (diálogo do marcador) entra no escopo? | `PlayerDialogs.kt` | Sem seletor, todos ficam âmbar (padrão do domínio) |
 | P6 | Há folga de tamanho no APK para 4 arquivos de fonte? | Meta ≤ 25 MB do README | Quantos pesos empacotar |
 | P7 | A notificação de mídia do player usa o ícone padrão do Media3. Podemos trocar pelo `ic_stat_gravasom` (provavelmente sobrescrevendo o drawable `media3_notification_small_icon` — confirmar na versão 1.5.0)? | `PlaybackService.kt` | Consistência do ícone na barra de status |
+| P9 | "Mixlirous" é marca sua (pode aparecer por nome em Ajustes)? Se não, a opção se chama "Estúdio" e mantém as mesmas cores. | Pedido do tema (D12) | Só o rótulo da opção |
 | P8 | Quais tamanhos de widget queremos? Hoje só existe o mínimo 110 × 40 dp. Proponho 2×1 e 4×1 responsivos. | `record_widget_info.xml` | Layout do widget |
 
 ## Como validar (pendente, depende do dono)
