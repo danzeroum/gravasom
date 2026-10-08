@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("gravasom.android.application")
     id("gravasom.android.compose")
@@ -9,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.gravasom"
         // Sem CI: a versao vem de app/version.properties (versionCode sobe a cada entrega). O workflow manual pode sobrepor por ambiente.
-        val version = java.util.Properties().apply {
+        val version = Properties().apply {
             load(providers.fileContents(layout.projectDirectory.file("version.properties")).asText.get().reader())
         }
         versionCode = System.getenv("GRAVASOM_VERSION_CODE")?.toIntOrNull() ?: version.getProperty("versionCode").toInt()
