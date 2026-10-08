@@ -1,2 +1,7 @@
 # Fontes baixadas por hash (nada grande no git). sha256  url
 76f87d090650617fca0cac8f88b9416e0ebf80350acb97b343a85fa903728ab3  https://www.openslr.org/resources/12/dev-clean.tar.gz
+# FLEURS pt_br (Google, CC BY 4.0), do Hugging Face. Usado pelo harness do VAD (ADR-014) e pelo spike de transcricao (ADR-013).
+15f2a075859c3b6448e81c867f9c2a77694b3deab6b24ebc632de09bbf401838  https://huggingface.co/datasets/google/fleurs/resolve/main/data/pt_br/audio/dev.tar.gz
+49c6a02a57576f99bd0e6e51aacebfdea9a0bd2cee146e5d20cdceac56e9be9e  https://huggingface.co/datasets/google/fleurs/resolve/main/data/pt_br/audio/train.tar.gz
+69a60f2ef2964da22ac38c3fe223a5ff5d59b9d7fb8ccfcc7003737fc7a1f69c  https://huggingface.co/datasets/google/fleurs/resolve/main/data/pt_br/dev.tsv
+8d266b0545b9efb535cd1c37a176b4772c987b53cc88b25b39d5f5eacc409f8b  https://huggingface.co/datasets/google/fleurs/resolve/main/data/pt_br/train.tsv
