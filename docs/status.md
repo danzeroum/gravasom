@@ -280,3 +280,51 @@ acrescentei também `config`, `build.gradle.kts`, `settings.gradle.kts` e `gradl
 Filtro de caminhos: nova saída `benchmark` (`macrobenchmark/**`, `app/src/benchmark/**`) liga o job do macrobenchmark; `audio` passou a incluir o próprio `ci.yml`.
 
 **Estado da CI na entrega (honesto):** no run 37779440170 (`f26e739`) os instrumentados de API 34 e 36 passaram e o detekt falhou por uma linha longa (corrigida em `efe6417`). O job de API 28 terminou em falha sem log (HTTP 404) e o macrobenchmark não subiu o emulador. O run seguinte (37785758466, `efe6417`) falhou em todos os jobs em ~4 s, sem passos executados, o que aponta para o runner e não para o código; não consegui reexecutar nem disparar por `workflow_dispatch` (403 para a integração). Falta, portanto: um run completo e verde de toda a matriz (API 28 incluída), a reexecução do harness do VAD e o macrobenchmark.
+
+## Onda 1 — fechamento sem CI (2026-10-08): verificação local × validação no celular
+
+**Regime:** a CI do GitHub está desligada (limite de gasto da conta; `ci.yml` só roda por `workflow_dispatch`). Verificação = o que
+esta máquina executou, abaixo, com a saída real. Validação = o dono instalando o APK (`docs/teste-aparelho-real.md`, parte A).
+
+### Os 4 achados de severidade 3 (`docs/ux/heuristica.md`)
+
+| Achado | Correção | Teste (executado, verde) |
+| --- | --- | --- |
+| "Marcar" da notificação sem feedback | Texto "Marcador N às mm:ss" na notificação + uma vibração de 60 ms (`MarkerFeedback`, `SystemHaptics`; permissão `VIBRATE`) | `MarkerFeedbackTest` (6, Robolectric): texto pt-BR e en, relógio, pausada, uma vibração |
+| Cancelar o diálogo salva marcador vazio | Marcador novo é **rascunho** até Salvar (`MarkerEditor`, `MarkerDialogTarget.Draft`) | `MarkerEditorTest` (cancelar não grava; salvar cria 1; 141 rejeita) e `MarkerDialogTest` (cancelar sem salvar, rascunho sem "Excluir") |
+| Excluir marcador sem confirmação/desfazer | "Marcador excluído — Desfazer" por 5 s; volta com o mesmo id, posição, nota, nome e cor | `MarkerEditorTest` (restaura tudo; expira aos 5 s; 2ª exclusão substitui a 1ª) |
+| Fechar o player para a reprodução | ExoPlayer único (`PlaybackHub`) + `PlaybackService` (MediaSessionService, notificação de mídia com pausar/retomar); fechar o painel e sair da aba não pausam; gravação privada mostra "Gravação privada" | `SegundoPlanoTest` (8, Robolectric): mesmo player na tela e no serviço, fechar não pausa, serviço iniciado, pausa pela sessão, título privado, fim encerra o serviço, manifesto (mediaPlayback, não exportado) |
+
+**Não coberto por teste automatizado:** a notificação de mídia aparecendo de verdade, a vibração real e o áudio em segundo plano com a tela
+bloqueada (dependem de aparelho): são os passos A1, A9–A12 do roteiro.
+
+### Comandos locais (saída real)
+
+`./gradlew --no-daemon detekt lintDebug testDebugUnitTest koverVerify --continue` → **`BUILD SUCCESSFUL in 2m 48s`**, `rc=0`
+(629 tarefas: 128 executadas, 501 já atualizadas — módulos sem mudança vieram do cache do Gradle, já verdes na rodada anterior).
+Antes dessa rodada houve duas falhas minhas, corrigidas: detekt (5 linhas longas/complexidade em código novo) e erro de
+compilação em `app/build.gradle.kts` (`java.util` dentro de `android {}`).
+
+Testes unitários (soma dos `build/test-results/testDebugUnitTest`): **71 executados, 10 pulados, 0 falhas** (os 10 pulados são os 4
+de `CapturasTest`, que só rodam com `GRAVASOM_CAPTURAS`, e casos já marcados como ignorados antes desta etapa).
+`koverVerify` rodou nos módulos que o definem (`core:domain`, `core:audio-engine`) e passou.
+
+**Testes instrumentados: NÃO rodaram** (sem emulador nesta máquina). Lista em `docs/teste-aparelho-real.md`, parte B.
+
+### APK entregue
+
+`./gradlew :app:assembleRelease` (R8 ligado, `mapping.txt` gerado) → `app-release.apk`:
+
+| Item | Valor |
+| --- | --- |
+| versionCode / versionName | **60** / `1.1.0-onda1` (`app/version.properties`; sobe a cada entrega) |
+| Tamanho | 8 313 035 bytes = **7,93 MiB** (teto 25 MB) |
+| SHA-256 | `a8c353dffb049061363d2d2e498f76d63b522c493d51044a7e7bca8a07b6415b` |
+| Assinatura | `apksigner verify`: **OK**; certificado `CN=Android Debug`, SHA-256 `bec8a13c…9b2bd1` = o de `config/debug.keystore` (a mesma chave de todas as entregas: instala por cima) |
+| Manifesto | `PlaybackService` com `foregroundServiceType=mediaPlayback`; permissões `VIBRATE` e `FOREGROUND_SERVICE_MEDIA_PLAYBACK` |
+
+A chave de debug é pública (senha "android"): serve para atualizar por cima, **não** é chave de produção. Quando houver chave de release, definir
+`GRAVASOM_KEYSTORE_FILE` e as senhas (`docs/release-assinatura.md`): mudar de chave exige desinstalar a versão anterior.
+
+**Não verificado:** o APK nunca foi instalado nem executado (sem aparelho/emulador aqui); "instala por cima de uma versão anterior" só foi
+verificado pela identidade do certificado, não por uma instalação real. O R8 pode ter removido algo da mídia: confira A9–A10.
