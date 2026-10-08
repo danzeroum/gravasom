@@ -56,8 +56,9 @@ class ClipExporter {
                 extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true
             } ?: throw IOException("sem faixa de audio")
             val trackFormat = extractor.getTrackFormat(track)
-            val totalUs = if (trackFormat.containsKey(MediaFormat.KEY_DURATION)) trackFormat.getLong(MediaFormat.KEY_DURATION) else Long.MAX_VALUE
-            // seekTo alem do fim pousa no ultimo quadro em alguns aparelhos: sem este corte, copiaria um quadro que nao esta no intervalo.
+            val totalUs =
+                if (trackFormat.containsKey(MediaFormat.KEY_DURATION)) trackFormat.getLong(MediaFormat.KEY_DURATION) else Long.MAX_VALUE
+            // seekTo alem do fim pousa no ultimo quadro em alguns aparelhos: sem este corte, copiaria um quadro fora do intervalo.
             if (startMillis * MICROS >= totalUs) return 0L
             extractor.selectTrack(track)
             extractor.seekTo(startMillis * MICROS, MediaExtractor.SEEK_TO_PREVIOUS_SYNC)
