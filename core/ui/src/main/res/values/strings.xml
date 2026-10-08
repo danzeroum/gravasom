@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_strip_recording">Gravando</string>
+    <string name="ui_strip_paused">Pausada</string>
+    <string name="ui_strip_recording_desc">Gravando, %1$s</string>
+    <string name="ui_strip_paused_desc">Gravação pausada em %1$s</string>
+    <string name="ui_level_low">Baixo</string>
+    <string name="ui_level_ok">Bom</string>
+    <string name="ui_level_high">Alto demais</string>
+    <string name="ui_level_desc">Nível do microfone: %1$s</string>
+    <string name="ui_level_off_desc">Nível do microfone: sem sinal</string>
+    <plurals name="ui_spoken_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="ui_spoken_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="ui_spoken_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+</resources>

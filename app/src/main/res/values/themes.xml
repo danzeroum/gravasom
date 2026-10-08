@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- O Compose desenha tudo; aqui só a janela, para não piscar branco/preto antes do primeiro quadro (claro e escuro). -->
     <style name="Theme.Gravasom" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@android:color/background_dark</item>
+        <item name="android:windowBackground">@drawable/gravasom_window_background</item>
     </style>
 </resources>
