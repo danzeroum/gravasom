@@ -54,7 +54,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
 import com.gravasom.feature.player.PlayerController
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = hiltViewModel()) {
@@ -79,19 +81,7 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
     val deletedText = stringResource(R.string.library_deleted)
     val undoText = stringResource(R.string.library_undo)
     val actions = RowActions(
-        onPlay = { r ->
-            scope.launch {
-                val path = runCatching { viewModel.playablePath(r) }.getOrNull()
-                if (path == null) {
-                    snackbar.showSnackbar(playFail)
-                } else {
-                    current = r
-                    player.load(path)
-                    player.play()
-                    viewModel.played()
-                }
-            }
-        },
+        onPlay = { r -> scope.launch { if (openAndPlay(viewModel, player, r)) current = r else snackbar.showSnackbar(playFail) } },
         onRename = { renaming = it },
         onFavorite = viewModel::toggleFavorite,
         onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
@@ -115,6 +105,17 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
+}
+
+/** Decifra (se preciso) fora da thread principal e toca NA principal (o ExoPlayer exige); false se nao abriu. */
+private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerController, recording: Recording): Boolean {
+    val path = runCatching { viewModel.playablePath(recording) }.getOrNull() ?: return false
+    withContext(Dispatchers.Main) {
+        player.load(path)
+        player.play()
+        viewModel.played()
+    }
+    return true
 }
 
 private data class RowActions(
