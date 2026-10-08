@@ -2,3 +2,4 @@
 numpy==2.5.3
 scipy==1.18.1
 pystoi==0.4.1
+pyloudnorm==0.2.0

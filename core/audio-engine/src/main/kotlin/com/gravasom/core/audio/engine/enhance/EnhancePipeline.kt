@@ -111,7 +111,9 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         onProgress: (Float) -> Unit,
     ): EnhanceResult {
         val target = (step.params.getOrNull(0) ?: DEFAULT_TARGET).toDouble()
-        val ceiling = (step.params.getOrNull(1) ?: DEFAULT_CEILING).toDouble()
+        val requested = (step.params.getOrNull(1) ?: DEFAULT_CEILING).toDouble()
+        // Folga de 0,05 dB: um medidor independente pode divergir do nosso em centesimos de dB; o teto pedido vale para ele tambem.
+        val ceiling = requested - PEAK_GUARD_DB
         val before = if (source == original) null else LoudnessAnalyzer.measure(original).lufs
         val input = LoudnessAnalyzer.measure(source)
         val lufsBefore = before ?: input.lufs
@@ -185,5 +187,6 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         private const val TP_TOLERANCE = 0.01
         private const val LUFS_TOLERANCE = 0.25
         private const val PEAK_STEP = 0.05
+        private const val PEAK_GUARD_DB = 0.05
     }
 }

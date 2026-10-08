@@ -51,4 +51,27 @@ class TruePeakTest {
     fun silencioTemPicoMuitoBaixo() {
         assertTrue(dbtp(Sinais.silencio(48_000, 1.0), 48_000) < -100.0)
     }
+
+    @Test
+    fun emTaxaBaixaOPicoVerdadeiroSeAproximaDeVerdadeCom16xDeSobreamostragem() {
+        // 6 kHz a 16 kHz (3 ciclos a cada 8 amostras): so 8 fases distintas, nenhuma cai no pico (melhor amostra: -0,7 dBFS).
+        // Com rampa de entrada e saida: um tom cortado abruptamente tem sobressinal real (Gibbs) que nao e o que se quer testar.
+        val bruto = Sinais.seno(16_000, 1.0, 6_000.0, 0.0, fase = PI / 8)
+        val x = FloatArray(bruto.size) { i ->
+            val rampa = minOf(i, bruto.size - 1 - i).coerceAtMost(800) / 800.0
+            (bruto[i] * (0.5 - 0.5 * kotlin.math.cos(PI * rampa))).toFloat()
+        }
+        val verdadeiro = dbtp(x, 16_000)
+        assertTrue(Sinais.picoAmostraDb(x) < -0.5, "amostra ${Sinais.picoAmostraDb(x)}")
+        assertEquals(0.0, verdadeiro, 0.1)
+        assertTrue(verdadeiro > Sinais.picoAmostraDb(x) + 0.5)
+    }
+
+    @Test
+    fun fatorDeSobreamostragemCrescePorTaxa() {
+        assertEquals(4, TruePeakFilter.factorFor(48_000))
+        assertEquals(4, TruePeakFilter.factorFor(44_100))
+        assertEquals(8, TruePeakFilter.factorFor(32_000))
+        assertEquals(16, TruePeakFilter.factorFor(16_000))
+    }
 }

@@ -47,6 +47,7 @@ class NormalizeProcessor(sampleRate: Int, gainDb: Double, ceilingDbtp: Double = 
     private var mPos = 0
     private var mSum = (look + 1).toDouble()
 
+    private val filter = TruePeakFilter(TruePeakFilter.factorFor(sampleRate))
     private val window = DoubleArray(TruePeakFilter.PER_PHASE)
 
     override fun process(block: FloatArray, length: Int) {
@@ -77,10 +78,10 @@ class NormalizeProcessor(sampleRate: Int, gainDb: Double, ceilingDbtp: Double = 
     /** Ganho desejado (<= 1) para o pico verdadeiro entre a amostra [m] e a seguinte caber no teto. */
     private fun desired(m: Long): Double {
         var near = 0.0
-        for (k in -1..2) near = max(near, abs(at(m + k)))
-        if (near * SAFE_RATIO <= ceiling) return 1.0
+        for (k in -NEAR_SPAN..NEAR_SPAN) near = max(near, abs(at(m + k)))
+        if (near * TruePeakFilter.SAFE_RATIO <= ceiling) return 1.0
         for (k in 0 until TruePeakFilter.PER_PHASE) window[k] = at(m - TruePeakFilter.LOOKAHEAD + k)
-        val peak = max(max(abs(window[TruePeakFilter.LOOKAHEAD]), abs(window[TruePeakFilter.LOOKAHEAD + 1])), TruePeakFilter.peakBetween(window))
+        val peak = max(max(abs(window[TruePeakFilter.LOOKAHEAD]), abs(window[TruePeakFilter.LOOKAHEAD + 1])), filter.peakBetween(window))
         return if (peak <= ceiling) 1.0 else ceiling / peak
     }
 
@@ -92,7 +93,7 @@ class NormalizeProcessor(sampleRate: Int, gainDb: Double, ceilingDbtp: Double = 
         /** O ganho varia durante o ataque; a interpolacao enxerga amostras com ganhos um pouco diferentes: folga para isso. */
         const val SAFETY_MARGIN_DB = 0.3
         const val MIN_LOOKAHEAD = 8
-        /** Entre amostras o pico passa do maior vizinho em ate ~2x (+6 dB) nos casos extremos de sinal perto de Nyquist. */
-        const val SAFE_RATIO = 2.0
+        /** Vizinhanca (amostras de cada lado) olhada antes de decidir se vale interpolar. */
+        const val NEAR_SPAN = 4
     }
 }
