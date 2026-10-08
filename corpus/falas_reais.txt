@@ -1,0 +1,7 @@
+# Locucoes do LibriSpeech dev-clean usadas (falantes distintos). Caminho dentro do tar.
+LibriSpeech/dev-clean/84/121123/84-121123-0001.flac
+LibriSpeech/dev-clean/174/84280/174-84280-0002.flac
+LibriSpeech/dev-clean/2277/149896/2277-149896-0005.flac
+LibriSpeech/dev-clean/2412/153947/2412-153947-0003.flac
+LibriSpeech/dev-clean/1272/128104/1272-128104-0002.flac
+LibriSpeech/dev-clean/1988/24833/1988-24833-0001.flac

@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.os.Build
 
 /**
  * Pede foco de audio e reage a perda/ganho. Perda transiente (ligacao) pausa;
@@ -29,33 +28,20 @@ class AudioFocusController(
     }
 
     fun request(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val attrs = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
-            val r = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                .setAudioAttributes(attrs)
-                .setOnAudioFocusChangeListener(listener)
-                .build()
-            request = r
-            return audioManager.requestAudioFocus(r) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-        }
-        @Suppress("DEPRECATION")
-        return audioManager.requestAudioFocus(
-            listener,
-            AudioManager.STREAM_MUSIC,
-            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
-        ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        val attrs = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+        val r = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+            .setAudioAttributes(attrs)
+            .setOnAudioFocusChangeListener(listener)
+            .build()
+        request = r
+        return audioManager.requestAudioFocus(r) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
     fun abandon() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            request?.let { audioManager.abandonAudioFocusRequest(it) }
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(listener)
-        }
+        request?.let { audioManager.abandonAudioFocusRequest(it) }
         request = null
     }
 }

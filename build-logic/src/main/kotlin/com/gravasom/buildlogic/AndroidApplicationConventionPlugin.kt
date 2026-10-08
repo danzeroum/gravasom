@@ -32,6 +32,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             lint {
                 warningsAsErrors = true
                 abortOnError = true
+                // Verificacoes de "versao mais nova disponivel" dependem da rede e nao do codigo;
+                // atualizar AGP/dependencias e decisao consciente, nao motivo para quebrar o build.
+                disable += setOf("AndroidGradlePluginVersion", "NewerVersionAvailable", "GradleDependency")
             }
             buildTypes {
                 release {

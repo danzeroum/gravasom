@@ -1,5 +1,6 @@
 plugins {
     id("gravasom.android.library")
+    id("gravasom.android.compose")
     id("gravasom.android.hilt")
 }
 

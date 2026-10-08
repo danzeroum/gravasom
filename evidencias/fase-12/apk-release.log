@@ -1,0 +1,11 @@
+$ ./gradlew :app:assembleRelease --no-daemon
+> Task :app:packageRelease
+> Task :app:assembleRelease
+> Task :app:createReleaseApkListingFileRedirect
+[Incubating] Problems report is available at: file:///home/user/gravasom/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 3m 17s
+367 actionable tasks: 270 executed, 61 from cache, 36 up-to-date
+Configuration cache entry stored.
+exit=0
+release_bytes=9614304

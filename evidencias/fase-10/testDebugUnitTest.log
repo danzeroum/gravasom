@@ -1,0 +1,27 @@
+$ ./gradlew testDebugUnitTest --no-daemon
+> Task :feature:record:compileDebugUnitTestKotlin NO-SOURCE
+> Task :feature:settings:processDebugUnitTestManifest UP-TO-DATE
+> Task :feature:record:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:settings:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :feature:settings:mergeDebugUnitTestResources UP-TO-DATE
+> Task :feature:settings:processDebugUnitTestResources UP-TO-DATE
+> Task :feature:record:hiltAggregateDepsDebugUnitTest UP-TO-DATE
+> Task :feature:settings:kspDebugUnitTestKotlin NO-SOURCE
+> Task :feature:settings:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :feature:record:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :feature:settings:generateDebugUnitTestConfig UP-TO-DATE
+> Task :feature:settings:compileDebugUnitTestKotlin NO-SOURCE
+> Task :feature:record:processDebugUnitTestJavaRes NO-SOURCE
+> Task :feature:settings:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:record:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :feature:settings:hiltAggregateDepsDebugUnitTest UP-TO-DATE
+> Task :feature:settings:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :feature:record:testDebugUnitTest UP-TO-DATE
+> Task :feature:settings:processDebugUnitTestJavaRes NO-SOURCE
+> Task :feature:settings:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :feature:settings:testDebugUnitTest UP-TO-DATE
+
+BUILD SUCCESSFUL in 28s
+307 actionable tasks: 307 up-to-date
+Configuration cache entry stored.
+exit=0

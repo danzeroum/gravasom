@@ -1,0 +1,4 @@
+# Venv do MEDIDOR proprio (separado do pipx do audio-suite). Versoes fixas.
+numpy==2.5.3
+scipy==1.18.1
+pystoi==0.4.1

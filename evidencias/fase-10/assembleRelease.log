@@ -1,0 +1,27 @@
+$ ./gradlew assembleRelease --no-daemon
+> Task :feature:record:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:settings:bundleReleaseAar UP-TO-DATE
+> Task :feature:settings:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :core:service:mergeReleaseResources UP-TO-DATE
+> Task :feature:library:mergeReleaseResources UP-TO-DATE
+> Task :core:ui:verifyReleaseResources UP-TO-DATE
+> Task :core:ui:assembleRelease UP-TO-DATE
+> Task :core:service:verifyReleaseResources UP-TO-DATE
+> Task :core:service:assembleRelease UP-TO-DATE
+> Task :feature:library:verifyReleaseResources UP-TO-DATE
+> Task :core:service:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:library:assembleRelease UP-TO-DATE
+> Task :feature:player:mergeReleaseResources UP-TO-DATE
+> Task :feature:settings:mergeReleaseResources UP-TO-DATE
+> Task :feature:settings:verifyReleaseResources UP-TO-DATE
+> Task :feature:settings:assembleRelease UP-TO-DATE
+> Task :feature:record:mergeReleaseResources UP-TO-DATE
+> Task :feature:player:verifyReleaseResources UP-TO-DATE
+> Task :feature:player:assembleRelease UP-TO-DATE
+> Task :feature:record:verifyReleaseResources UP-TO-DATE
+> Task :feature:record:assembleRelease UP-TO-DATE
+
+BUILD SUCCESSFUL in 28s
+403 actionable tasks: 9 executed, 394 up-to-date
+Configuration cache entry stored.
+exit=0

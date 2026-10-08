@@ -1,0 +1,17 @@
+$ scripts/audio-suite-gate.sh (mapeamento exit code -> estado)
+-- VERDE esperado
+ESTADO=VERDE (analyze exit=0, compare exit=0) wav=real_fala_1__hp80.wav
+   exit=0
+-- VERMELHO esperado (ganho +3 dB com clipping)
+ESTADO=VERMELHO (analyze exit=1 (achado de nivel fail)) wav=real_fala_1__ctrl_ganho3db_clip.wav
+   exit=1
+-- INDECISO esperado (arquivo inexistente)
+ESTADO=INDECISO (analyze exit=3: audio-suite: error: file does not exist: /tmp/dl/corpus2/nao_existe.wav ) wav=nao_existe.wav
+   exit=3
+-- INDECISO esperado (audio-suite ausente)
+ESTADO=INDECISO (audio-suite ausente) wav=real_fala_1.wav
+   exit=3
+-- VERMELHO esperado (ausente com ESTUDIO_EXIGIR_AUDIO_SUITE=1)
+ESTADO=INDECISO (audio-suite ausente) wav=real_fala_1.wav
+ESTADO=VERMELHO (indeciso nao e aceito com ESTUDIO_EXIGIR_AUDIO_SUITE=1)
+   exit=1

@@ -1,0 +1,9 @@
+Gravasom usa a biblioteca LAME (libmp3lame) 3.100 para gravar MP3.
+LAME é software livre sob a GNU Library General Public License v2 (LGPL). Copyright os autores do LAME (https://lame.sourceforge.io/).
+
+A biblioteca está no aplicativo como arquivo separado (libmp3lame.so) e pode ser substituída por uma versão modificada.
+
+Oferta de código-fonte: o código-fonte do LAME usado (inalterado) está em
+https://github.com/danzeroum/gravasom/tree/main/core/audio-android/src/main/cpp/lame
+e a versão original em https://sourceforge.net/projects/lame/files/lame/3.100/ (lame-3.100.tar.gz).
+O texto completo da licença está em LAME-COPYING.txt.

@@ -1,0 +1,27 @@
+$ ./gradlew assembleDebug --no-daemon
+> Task :macrobenchmark:processDebugJavaRes UP-TO-DATE
+> Task :baselineprofile:mergeProjectDexDebug UP-TO-DATE
+> Task :macrobenchmark:dexBuilderDebug UP-TO-DATE
+> Task :baselineprofile:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :macrobenchmark:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :macrobenchmark:mergeDebugJavaResource UP-TO-DATE
+> Task :baselineprofile:mergeDebugJavaResource UP-TO-DATE
+> Task :feature:settings:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :feature:settings:prepareDebugArtProfile UP-TO-DATE
+> Task :macrobenchmark:mergeProjectDexDebug UP-TO-DATE
+> Task :feature:settings:mergeDebugJavaResource UP-TO-DATE
+> Task :baselineprofile:packageDebug UP-TO-DATE
+> Task :feature:settings:prepareLintJarForPublish UP-TO-DATE
+> Task :baselineprofile:assembleDebug UP-TO-DATE
+> Task :baselineprofile:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :feature:settings:syncDebugLibJars UP-TO-DATE
+> Task :feature:settings:bundleDebugAar UP-TO-DATE
+> Task :feature:settings:assembleDebug UP-TO-DATE
+> Task :macrobenchmark:packageDebug UP-TO-DATE
+> Task :macrobenchmark:assembleDebug UP-TO-DATE
+> Task :macrobenchmark:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 12s
+377 actionable tasks: 8 executed, 369 up-to-date
+Configuration cache entry reused.
+exit=0

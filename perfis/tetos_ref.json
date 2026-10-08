@@ -1,0 +1,15 @@
+{
+ "si_sdri": {
+  "estado": "AGUARDANDO_BONS (Fase 14)"
+ },
+ "stoi_limpa": {
+  "discrimina": true,
+  "dispersao_bons": 0.0004108982890991264,
+  "gap": 0.017309164039730485,
+  "gap_exigido": 0.005,
+  "melhor_controle": 0.9822799376711704,
+  "pior_bom": 0.9995891017109009,
+  "teto_min": 0.9909345196910356
+ },
+ "versao": 1
+}

@@ -1,0 +1,11 @@
+$ scripts/calibrar_tetos.py verificar perfis/gravasom-fala.yaml <corpus> perfis/tetos.json
+BOM      clipping_ou_true_peak    pior=0 teto=0  ok
+CONTROLE clipping_ou_true_peak    ctrl_ganho3db_clip: pior=1 > 0  pegou
+BOM      duracao_amostras         pior=0 teto=0  ok
+CONTROLE duracao_amostras         ctrl_corte50ms: pior=2400 > 0  pegou
+BOM      f0_cents                 pior=20.98 teto=29.74  ok
+CONTROLE f0_cents                 ctrl_pitch_mais50c: pior=42.16 > 29.74  pegou
+BOM      glitch_novos             pior=2 teto=8.832  ok
+CONTROLE glitch_novos             ctrl_cliques: pior=39 > 8.832  pegou
+INATIVO  stoi_queda               (TETO_NAO_DISCRIMINA registrado em CALIBRACAO.md; so observacao)
+exit=0

@@ -1,0 +1,28 @@
+# Perfil do Gravasom para fala processada. Tetos objetivos (true peak, clipping) vem do profile;
+# nenhum numero aqui foi inventado: ver perfis/CALIBRACAO.md. Descritores nao reprovam sozinhos.
+name: gravasom-fala
+version: "1.0.0"
+data_classification: confidential
+
+analyzers:
+  inspect: {}
+  loudness: {}
+  true_peak:
+    max_dbtp: -1.0
+  clipping:
+    threshold: 0.99
+    max_clipped_pct: 0.001
+  glitch:
+    # Calibrado no corpus (CALIBRACAO.md): no padrao 6.0 a fala real tem 400-2000 'cliques' de linha de base;
+    # em 30.0 a fala limpa fica em 0-14 e 40 cliques injetados dao 39-41 em todas as bases.
+    click_sensitivity: 30.0
+  voice_artifacts: {}
+  speech_intelligibility: {}
+  pitch_f0: {}
+  ref_quality:
+    mode: no-reference
+
+retention_policy:
+  bundle_ttl_days: 30
+  redact_pii: true
+  audit_access: false

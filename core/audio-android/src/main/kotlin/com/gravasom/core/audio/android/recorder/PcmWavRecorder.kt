@@ -39,7 +39,7 @@ class PcmWavRecorder(
     override suspend fun prepare(config: RecordingConfig, outputPath: String): Result<Unit> = runCatching {
         this.config = config
         this.outputPath = outputPath
-        val f = File(outputPath)
+        val f = File(tempPathFor(outputPath))
         f.parentFile?.mkdirs()
         val raf = RandomAccessFile(f, "rw")
         raf.setLength(0)
@@ -105,6 +105,7 @@ class PcmWavRecorder(
         }
         file = null
         capture = null
+        check(File(tempPathFor(outputPath)).renameTo(File(outputPath))) { "falha ao finalizar $outputPath" }
         outputPath
     }
 
@@ -115,5 +116,9 @@ class PcmWavRecorder(
         capture?.close()
         runCatching { file?.close() }
         file = null
+    }
+
+    private companion object {
+        fun tempPathFor(path: String): String = "$path.tmp"
     }
 }

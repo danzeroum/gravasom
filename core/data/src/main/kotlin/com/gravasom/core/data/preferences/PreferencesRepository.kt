@@ -26,6 +26,9 @@ class PreferencesRepository(private val context: Context) {
     val privateVault: Flow<Boolean> = context.dataStore.data.map { it[KEY_VAULT] ?: false }
     val telemetryOptIn: Flow<Boolean> = context.dataStore.data.map { it[KEY_TELEMETRY] ?: false }
 
+    val preferredInputId: Flow<Int> = context.dataStore.data.map { it[KEY_INPUT] ?: NO_INPUT }
+
+    suspend fun setPreferredInputId(id: Int) = context.dataStore.edit { it[KEY_INPUT] = id }
     suspend fun setFormat(format: RecordingFormat) = context.dataStore.edit { it[KEY_FORMAT] = format.name }
     suspend fun setSampleRate(hz: Int) = context.dataStore.edit { it[KEY_SAMPLE_RATE] = hz }
     suspend fun setBitrate(kbps: Int) = context.dataStore.edit { it[KEY_BITRATE] = kbps }
@@ -33,12 +36,14 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setPrivateVault(enabled: Boolean) = context.dataStore.edit { it[KEY_VAULT] = enabled }
     suspend fun setTelemetryOptIn(enabled: Boolean) = context.dataStore.edit { it[KEY_TELEMETRY] = enabled }
 
-    private companion object {
-        val KEY_FORMAT = stringPreferencesKey("format")
-        val KEY_SAMPLE_RATE = intPreferencesKey("sample_rate")
-        val KEY_BITRATE = intPreferencesKey("bitrate")
-        val KEY_MP3 = booleanPreferencesKey("mp3_enabled")
-        val KEY_VAULT = booleanPreferencesKey("private_vault")
-        val KEY_TELEMETRY = booleanPreferencesKey("telemetry_opt_in")
+    companion object {
+        const val NO_INPUT = -1
+        private val KEY_INPUT = intPreferencesKey("preferred_input")
+        private val KEY_FORMAT = stringPreferencesKey("format")
+        private val KEY_SAMPLE_RATE = intPreferencesKey("sample_rate")
+        private val KEY_BITRATE = intPreferencesKey("bitrate")
+        private val KEY_MP3 = booleanPreferencesKey("mp3_enabled")
+        private val KEY_VAULT = booleanPreferencesKey("private_vault")
+        private val KEY_TELEMETRY = booleanPreferencesKey("telemetry_opt_in")
     }
 }

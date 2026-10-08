@@ -1,0 +1,12 @@
+$ scripts/test-native-host.sh  (TDD VERMELHO: implementacao e stub)
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:82: saida vazia
+medida: quadros=0 duracao=0.0 ms bytes=0 validos=0
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:86: nenhum quadro MPEG valido
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:87: duracao 0.0 ms fora de 3000 +-100
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:89: tamanho 0 x esperado 48000
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:96: silencio nao gerou quadros
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:104: mesma entrada deu saidas diferentes
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:112: create falhou na iteracao 0
+FALHOU /home/user/gravasom/core/audio-android/src/main/cpp/host_test/mp3_encoder_test.cpp:123: create
+FALHAS: 8
+exit=1

@@ -9,4 +9,8 @@
     <string name="record_resume">Retomar</string>
     <string name="record_stop">Parar</string>
     <string name="low_space_warning">Espaço em disco baixo. Tempo estimado restante: %1$s</string>
+    <string name="shortcut_record_short">Gravar agora</string>
+    <string name="shortcut_record_long">Começar a gravar agora</string>
+    <string name="shortcut_library_short">Gravações</string>
+    <string name="shortcut_library_long">Abrir minhas gravações</string>
 </resources>

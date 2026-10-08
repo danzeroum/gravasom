@@ -7,6 +7,10 @@ dependencies {
     implementation(libs.coroutines.core)
 }
 
+tasks.test {
+    maxHeapSize = "96m"
+}
+
 kover {
     reports {
         verify {

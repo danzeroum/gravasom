@@ -1,0 +1,27 @@
+$ ./gradlew koverVerify --no-daemon
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :core:audio-engine:compileJava NO-SOURCE
+> Task :core:audio-engine:classes UP-TO-DATE
+> Task :core:audio-engine:jar UP-TO-DATE
+> Task :core:domain:compileTestKotlin UP-TO-DATE
+> Task :core:audio-engine:compileTestKotlin UP-TO-DATE
+> Task :core:domain:compileTestJava NO-SOURCE
+> Task :core:domain:testClasses UP-TO-DATE
+> Task :core:audio-engine:compileTestJava NO-SOURCE
+> Task :core:audio-engine:testClasses UP-TO-DATE
+> Task :core:domain:test UP-TO-DATE
+> Task :core:domain:koverGenerateArtifactJvm UP-TO-DATE
+> Task :core:audio-engine:test UP-TO-DATE
+> Task :core:domain:koverGenerateArtifact UP-TO-DATE
+> Task :core:audio-engine:koverGenerateArtifactJvm UP-TO-DATE
+> Task :core:audio-engine:koverGenerateArtifact UP-TO-DATE
+> Task :core:domain:koverCachedVerify UP-TO-DATE
+> Task :core:audio-engine:koverCachedVerify UP-TO-DATE
+> Task :core:audio-engine:koverVerify
+> Task :core:domain:koverVerify
+
+BUILD SUCCESSFUL in 21s
+22 actionable tasks: 2 executed, 20 up-to-date
+Configuration cache entry stored.
+exit=0

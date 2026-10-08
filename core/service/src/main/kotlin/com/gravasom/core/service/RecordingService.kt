@@ -1,15 +1,23 @@
 package com.gravasom.core.service
 
+import android.Manifest
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import com.gravasom.core.audio.android.InputRouting
+import com.gravasom.core.audio.android.recorder.DefaultAudioRecorderFactory
 import com.gravasom.core.audio.engine.RecordingError
 import com.gravasom.core.audio.engine.RecordingEvent
 import com.gravasom.core.audio.engine.RecordingState
 import com.gravasom.core.audio.engine.RecordingStateMachine
 import com.gravasom.core.audio.engine.TransitionResult
+import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.domain.audio.AudioRecorder
 import com.gravasom.core.domain.audio.AudioRecorderFactory
 import com.gravasom.core.domain.audio.RecordingConfig
@@ -18,9 +26,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Servico em primeiro plano (type=microphone). Detem a maquina de estados, o
@@ -42,9 +52,7 @@ class RecordingService : Service() {
         focus = AudioFocusController(
             context = this,
             onPause = { pause() },
-            onStopWithError = { msg ->
-                RecordingServiceState.error(RecordingError.MIC_IN_USE)
-            },
+            onStopWithError = { stopRecording(RecordingError.MIC_IN_USE) },
         )
     }
 
@@ -60,22 +68,32 @@ class RecordingService : Service() {
     }
 
     private fun startRecording(formatName: String?) {
-        val format = runCatching { RecordingFormat.valueOf(formatName ?: "M4A") }
-            .getOrDefault(RecordingFormat.M4A)
+        // Primeiro plano com tipo microfone exige RECORD_AUDIO concedida; sem ela o sistema lanca SecurityException.
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            RecordingServiceState.error(RecordingError.PERMISSION_DENIED)
+            stopSelf()
+            return
+        }
         machine.transition(RecordingEvent.Start)
         RecordingServiceState.update(machine.state)
         focus?.request()
         startForegroundCompat()
         scope.launch {
-            val path = "/sdcard/Music/Recordings/gravacao_${System.currentTimeMillis()}.${format.extension}"
-            val rec = DefaultRecorderFactoryHolder.factory?.create(format) ?: return@launch
+            val prefs = PreferencesRepository(applicationContext)
+            val format = formatName?.let { runCatching { RecordingFormat.valueOf(it) }.getOrNull() } ?: prefs.format.first()
+            InputRouting.preferred = AudioInputs.deviceById(applicationContext, prefs.preferredInputId.first())
+            val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
+            val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
+            val rec = factory.create(format)
             recorder = rec
-            rec.prepare(RecordingConfig(format = format), path)
+            val config = RecordingConfig(format = format, sampleRateHz = prefs.sampleRate.first(), bitrateKbps = prefs.bitrate.first())
+            val started = rec.prepare(config, path).mapCatching { rec.start().getOrThrow() }
+            started
                 .onSuccess {
-                    rec.start()
                     machine.transition(RecordingEvent.Prepared)
                     RecordingServiceState.update(machine.state)
                     startedAtMillis = System.currentTimeMillis()
+                    refreshNotification(paused = false)
                     observeLevel(rec)
                 }
                 .onFailure {
@@ -88,6 +106,7 @@ class RecordingService : Service() {
     private fun pause() {
         if (machine.transition(RecordingEvent.Pause) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            refreshNotification(paused = true)
             scope.launch { recorder?.pause() }
         }
     }
@@ -95,23 +114,40 @@ class RecordingService : Service() {
     private fun resume() {
         if (machine.transition(RecordingEvent.Resume) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            refreshNotification(paused = false)
             scope.launch { recorder?.resume() }
         }
     }
 
-    private fun stopRecording() {
-        machine.transition(RecordingEvent.Stop)
+    /** Para e finaliza o arquivo; com [cause], sinaliza o erro depois de preservar o que foi gravado. */
+    private fun stopRecording(cause: RecordingError? = null) {
+        if (machine.transition(RecordingEvent.Stop) !is TransitionResult.Ok) {
+            // Sem gravacao em curso (ex.: erro na partida): so desfaz o primeiro plano.
+            if (machine.state is RecordingState.Error || machine.state == RecordingState.Idle) teardown()
+            return
+        }
         RecordingServiceState.update(machine.state)
         scope.launch {
             val path: String = recorder?.stop()?.getOrNull() ?: ""
             recorder?.release()
             recorder = null
-            machine.transition(RecordingEvent.Saved(path))
+            if (path.isNotEmpty()) RecordingServiceState.emitSaved(path)
+            if (cause != null) {
+                machine.transition(RecordingEvent.Fail(cause))
+            } else {
+                machine.transition(RecordingEvent.Saved(path))
+            }
             RecordingServiceState.update(machine.state)
-            focus?.abandon()
-            stopForegroundCompat()
-            stopSelf()
+            teardown()
         }
+    }
+
+    private fun teardown() {
+        recorder?.release()
+        recorder = null
+        focus?.abandon()
+        stopForegroundCompat()
+        stopSelf()
     }
 
     private fun observeLevel(rec: AudioRecorder) {
@@ -119,13 +155,8 @@ class RecordingService : Service() {
     }
 
     private fun startForegroundCompat() {
-        val notification = RecordingNotification.build(
-            context = this,
-            elapsedLabel = "00:00",
-            paused = false,
-            actions = NoopActions,
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val notification = notification(paused = false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             startForeground(
                 RecordingNotification.NOTIFICATION_ID,
                 notification,
@@ -136,13 +167,16 @@ class RecordingService : Service() {
         }
     }
 
+    private fun notification(paused: Boolean) =
+        RecordingNotification.build(this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this))
+
+    /** Atualiza a notificacao quando o estado muda (pausa/retomada/inicio efetivo). */
+    private fun refreshNotification(paused: Boolean) {
+        getSystemService(NotificationManager::class.java).notify(RecordingNotification.NOTIFICATION_ID, notification(paused))
+    }
+
     private fun stopForegroundCompat() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
-            @Suppress("DEPRECATION")
-            stopForeground(true)
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     override fun onDestroy() {
@@ -167,15 +201,16 @@ object DefaultRecorderFactoryHolder {
     var factory: AudioRecorderFactory? = null
 }
 
-/** Acoes vazias enquanto a UI nao liga os PendingIntents reais. */
-private object NoopActions : NotificationActions {
-    override val openAppIntent: Intent = Intent()
-    override fun resumePendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 0, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun pausePendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 1, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun markerPendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 2, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
-    override fun stopPendingIntent(context: android.content.Context) =
-        android.app.PendingIntent.getService(context, 3, Intent(), android.app.PendingIntent.FLAG_IMMUTABLE)
+/** Acoes reais da notificacao: cada botao reenvia a acao ao proprio servico; tocar na notificacao abre o app. */
+private class ServiceActions(private val context: Context) : NotificationActions {
+    override val openAppIntent: Intent =
+        context.packageManager.getLaunchIntentForPackage(context.packageName) ?: Intent()
+
+    private fun service(action: String, code: Int): PendingIntent = PendingIntent.getService(
+        context, code, Intent(context, RecordingService::class.java).setAction(action), PendingIntent.FLAG_IMMUTABLE,
+    )
+
+    override fun resumePendingIntent(context: Context) = service(RecordingService.ACTION_RESUME, 1)
+    override fun pausePendingIntent(context: Context) = service(RecordingService.ACTION_PAUSE, 2)
+    override fun stopPendingIntent(context: Context) = service(RecordingService.ACTION_STOP, 3)
 }

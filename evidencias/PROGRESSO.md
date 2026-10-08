@@ -4,30 +4,40 @@ Atualizado: 2026-10-07
 
 ## Retomada
 
-1. Ler este arquivo.
-2. Rodar `sha256sum -c evidencias/manifesto.sha256`. Falha → ARQUIVOS_SUMIRAM.
-3. Continuar do "próximo lote planejado".
+1. Ler este arquivo e `docs/status.md`.
+2. `git fetch` e confirmar o último commit verde no remote (o push a cada lote é a prova de durabilidade).
+3. Continuar do "próximo passo".
 
-## Estado por fase
+## Estado atual
 
-| Fase | Estado | Commit |
-| --- | --- | --- |
-| 0 (ambiente) | APROVADA | 877cf0f |
-| 2 (fundação) | APROVADA | 84c3e52 |
-| 1 (UX) | APROVADA | 0b99f2d |
-| 3 (motor áudio) | APROVADA | 61ba3f4 |
-| 4 (serviço) | APROVADA | 232305f |
-| 5 (biblioteca) | APROVADA | 3e5ed6c |
-| 6 (player/edição) | APROVADA | be9d882 |
-| 7 (superfícies) | APROVADA | aeac245 |
-| 8 (privacidade) | APROVADA | aeac245 |
-| 9 (endurecimento) | APROVADA | pendente |
+- Branch: `claude/gracious-clarke-7q1k3x` (origem: 27839e9 em `main`).
+- Fases 10, 11, 12 e 13 concluídas e medidas no CI (API 34 e 36): 20/20 testes instrumentados, harness, lint, unidade e build verdes (run 37657257161, commit dec64ae).
+- A parada `TETO_NAO_DISCRIMINA` da Fase 13 foi resolvida pelo ADR-010. Nenhum teto foi afrouxado.
+- **Próximo**: Fase 14 (spike RNNoise × DeepFilterNet, redutor com intensidade 0–100% e A/B), depois 15, 16 e 17.
 
-## Próximo lote planejado
+## Parada nomeada TETO_NAO_DISCRIMINA (RESOLVIDA por decisão do responsável)
 
-Nenhum: as 7 fases do plano foram executadas. Restam apenas gates PENDENTE-CI
-(emulador, Test Lab, Play) listados em docs/status.md.
+- **O que falhou**: `speech_intelligibility.stoi_proxy_no_ref` (audio-suite) não cai com ruído rosa a 15 dB reinjetado em 3 das 7 bases
+  (real_fala_1 +0,016; real_fala_2 −0,018; real_fala_4 −0,045; nas outras a queda é 0,12–0,18). Nenhum teto foi afrouxado.
+- **Decisão**: ADR-010. Medidor próprio com referência (SI-SDR/SI-SDRi/STOI via pystoi) em venv separado; audio-suite fica com clipping,
+  true peak, glitch, loudness, F0 e duração; STOI-proxy e descritores só observação nas bases reais + kit de escuta A/B.
+- **Registro corrigido duas vezes**: (1) a lentidão do `ref_quality` do audio-suite é real e quadrática (12,5 s a 48 kHz: 46–48 s sem patch,
+  1,1 s com patch, valores idênticos); (2) o `status=error` visto numa rodada concorrente **não** se reproduz isolado. Detalhes em `docs/audio-suite/ISSUE.md`.
+  A segunda medida (full-ref do audio-suite) fica opt-in até o patch ser aplicado e o pin atualizado.
+- **Próximo passo**: Fase 14 (redutor de ruído), calibrando o SI-SDRi com a saída dele (gate hoje AGUARDANDO_BONS).
 
-## Manifesto
+## Também calibrado (não são paradas)
 
-`evidencias/manifesto.sha256`.
+- F0: meta inicial 5 cents **não é mensurável** em fala real (o passa-altas de 80 Hz sozinho move a mediana até 21 cents); teto calibrado 29,7 cents; controle +50 cents dá 42–77.
+- Glitch: `click_sensitivity` 6,0 dá 400–2000 "cliques" na fala limpa; calibrado em 30,0 (limpo 0–14; 40 cliques injetados dão 39–41); teto 8,8 eventos novos.
+
+## Pendências humanas
+
+Teste com 5 usuários, Accessibility Scanner, publicação Play, MobSF com credencial, Firebase Test Lab, medidas em dispositivo real (bateria, latência de partida).
+
+## Entrega instalável (telas reais + APK)
+
+- Run 37697797597 (f02f8b9): todos os jobs verdes; API 34 e 36 com 34 testes e 0 falhas cada; artefato `gravasom-apk` (27 569 639 bytes, sha256 5f56e334…c666d).
+- Falhas corrigidas no caminho (todas de teste, medidas nos artefatos): árvore mesclada escondia título/duração; rótulos no idioma do aparelho (emulador em inglês: notificação e DESFAZER);
+  botão "Negar e não perguntar de novo" na 2ª negação; LazyColumn só compõe itens visíveis; limite de ±100 ms do MP3 sem calibração substituído pelo aceite de ±500 ms.
+- Detalhes e pendências: docs/status.md (seção "Entrega instalável"); ciclo 1 de aprendizado: docs/aprendizado.md.

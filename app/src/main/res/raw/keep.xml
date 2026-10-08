@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings i18n (pt-BR/en) ja prontas para as telas de gravar/biblioteca/ajustes, que ainda sao placeholder. -->
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/nav_*,@string/record_*,@string/low_space_warning" />

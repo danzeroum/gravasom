@@ -47,6 +47,10 @@ class FakeRecordingRepository : RecordingRepository {
         items.value = items.value.map { if (it.id == id) it.copy(deletedAtMillis = nowMillis) else it }
     }
 
+    override suspend fun setPublishedUri(id: Long, uri: String?) {
+        items.value = items.value.map { if (it.id == id) it.copy(publishedUri = uri) else it }
+    }
+
     override suspend fun restore(id: Long) {
         items.value = items.value.map { if (it.id == id) it.copy(deletedAtMillis = null) else it }
     }

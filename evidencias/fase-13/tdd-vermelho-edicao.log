@@ -1,0 +1,21 @@
+$ ./gradlew :core:audio-engine:test --no-daemon  (TDD VERMELHO: stubs)
+EdicaoNaoDestrutivaTest > desfazer e refazer navegam no historico() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:130
+EdicaoNaoDestrutivaTest > duas horas de audio exportam em streaming sem estourar a memoria() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:164
+EdicaoNaoDestrutivaTest > cancelamento no meio nao deixa arquivo nem temporario() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:120
+EdicaoNaoDestrutivaTest > original tem o mesmo sha256 apos editar exportar desfazer e refazer() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:73
+EdicaoNaoDestrutivaTest > export com processamento muda o audio mas mantem a duracao em amostras mesmo com latencia() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:96
+EdicaoNaoDestrutivaTest > projeto reaberto da o mesmo hash de export() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:107
+EdicaoNaoDestrutivaTest > codec rejeita versao desconhecida e texto invalido() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:146
+EdicaoNaoDestrutivaTest > bypass e intensidade zero exportam bytes identicos ao original() FAILED
+    kotlin.NotImplementedError at EdicaoNaoDestrutivaTest.kt:85
+37 tests completed, 8 failed
+> Task :core:audio-engine:test FAILED
+BUILD FAILED in 51s
+exit=1

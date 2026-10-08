@@ -12,6 +12,9 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:ui"))
+    implementation(project(":core:service"))
+    implementation(project(":feature:player"))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.hilt.navigation.compose)
@@ -19,5 +22,7 @@ dependencies {
     implementation(libs.paging.runtime)
     implementation(libs.paging.compose)
     implementation(libs.coroutines.android)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.datastore.preferences)
     implementation(libs.timber)
 }

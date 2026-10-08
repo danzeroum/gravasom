@@ -1,8 +1,10 @@
 package com.gravasom.core.audio.android.recorder
 
+import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import com.gravasom.core.audio.android.InputRouting
 import com.gravasom.core.domain.audio.InputSource
 
 /**
@@ -21,6 +23,11 @@ class PcmCapture(
         get() = AudioRecord.getMinBufferSize(sampleRateHz, channelMask(), encoding())
             .coerceAtLeast(MIN_BUFFER)
 
+    /**
+     * A permissao RECORD_AUDIO e verificada por quem inicia a captura (RecordingService antes do
+     * primeiro plano; testes via GrantPermissionRule). Sem ela o AudioRecord falha ao iniciar.
+     */
+    @SuppressLint("MissingPermission")
     fun open(): AudioRecord {
         val size = bufferSizeBytes
         val r = AudioRecord.Builder()
@@ -34,6 +41,7 @@ class PcmCapture(
             )
             .setBufferSizeInBytes(size * 2)
             .build()
+        InputRouting.preferred?.let { r.setPreferredDevice(it) }
         record = r
         return r
     }

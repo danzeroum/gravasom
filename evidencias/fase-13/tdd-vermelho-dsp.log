@@ -1,0 +1,8 @@
+$ scripts/test-dsp-host.sh (TDD VERMELHO: stub)
+medida: seno 1 kHz apos passa-altas 80 Hz: 0.000 dB
+medida: seno 20 Hz apos passa-altas 80 Hz: 0.00 dB
+FALHOU /home/user/gravasom/core/dsp/src/hosttest/dsp_chain_test.cpp:83: 20 Hz so atenuou 0.00 dB
+medida: maior diferenca bloco x inteiro = 0 (1 LSB16 = 3.05e-05)
+FALHOU /home/user/gravasom/core/dsp/src/hosttest/dsp_chain_test.cpp:142: 355 blocos com NaN/Inf/fora de [-1,1]
+FALHAS: 2
+exit=1

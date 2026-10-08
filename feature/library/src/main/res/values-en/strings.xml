@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_search_hint">Search by name…</string>
+    <string name="library_search_clear">Clear search</string>
+    <string name="library_empty">No recordings yet. Tap Record to start.</string>
+    <string name="library_no_results">Nothing found for “%1$s”</string>
+    <string name="library_item_meta">%1$s · %2$s · %3$s</string>
+    <string name="library_more">More actions</string>
+    <string name="library_play_item">Play %1$s</string>
+    <string name="library_action_rename">Rename</string>
+    <string name="library_action_favorite">Favorite</string>
+    <string name="library_action_unfavorite">Remove from favorites</string>
+    <string name="library_action_share">Share</string>
+    <string name="library_action_save_as">Save to…</string>
+    <string name="library_action_delete">Delete</string>
+    <string name="library_deleted">Recording deleted</string>
+    <string name="library_undo">UNDO</string>
+    <string name="library_rename_title">Rename recording</string>
+    <string name="library_rename_ok">Save</string>
+    <string name="library_cancel">Cancel</string>
+    <string name="library_import_ok">Audio received and added to recordings</string>
+    <string name="library_import_unsupported">This audio format is not supported yet (use M4A, WAV or MP3)</string>
+    <string name="library_import_invalid">Could not read this audio</string>
+    <string name="library_saved_ok">File saved</string>
+    <string name="library_saved_fail">Could not save the file</string>
+    <string name="library_player_play">Play</string>
+    <string name="library_player_pause">Pause</string>
+    <string name="library_player_speed">%1$sx</string>
+    <string name="library_published">Also in Music/Recordings</string>
+</resources>

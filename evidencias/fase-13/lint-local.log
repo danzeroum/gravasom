@@ -1,0 +1,3 @@
+$ ./gradlew lintDebug :core:dsp:assembleDebug detekt --no-daemon --continue
+BUILD SUCCESSFUL in 34s
+exit=0

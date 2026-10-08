@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_format">Recording format</string>
+    <string name="settings_format_M4A">M4A · light, great for voice</string>
+    <string name="settings_format_WAV">WAV · uncompressed</string>
+    <string name="settings_format_MP3">MP3 · opens anywhere</string>
+    <string name="settings_quality">Quality (kbps)</string>
+    <string name="settings_quality_note">Applies to M4A and MP3</string>
+    <string name="settings_private">Keep only in this app</string>
+    <string name="settings_private_desc">New recordings do not appear in Music, Files or other apps.</string>
+    <string name="settings_numbers_optin">Record my usage numbers</string>
+    <string name="settings_numbers_optin_desc">Stays on this device only. No audio, file names or location. Nothing is sent.</string>
+    <string name="settings_numbers_open">Your numbers</string>
+    <string name="settings_licenses">Open-source licenses</string>
+    <string name="settings_licenses_close">Close</string>
+    <string name="settings_no_internet">This app does not use the internet.</string>
+    <string name="settings_section_recording">Recording</string>
+    <string name="settings_section_privacy">Privacy</string>
+    <string name="settings_section_about">About</string>
+    <string name="numbers_title">Your numbers</string>
+    <string name="numbers_recordings">Recordings</string>
+    <string name="numbers_total_time">Total recorded time</string>
+    <string name="numbers_top_format">Most used format</string>
+    <string name="numbers_none">None yet</string>
+    <string name="numbers_usage_title">Usage on this device</string>
+    <string name="numbers_usage_off">Recording is off: no events are being stored. Turn it on in Settings to follow along.</string>
+    <string name="numbers_started">Recordings started</string>
+    <string name="numbers_shared">Shared</string>
+    <string name="numbers_searches">Searches</string>
+    <string name="numbers_imported">Imported</string>
+    <string name="numbers_time_to_record">Time to record (median)</string>
+    <string name="numbers_ms">%1$d ms</string>
+    <string name="numbers_export">Export numbers (CSV)</string>
+    <string name="numbers_clear">Erase my numbers</string>
+    <string name="numbers_exported">Numbers exported</string>
+    <string name="numbers_back">Back</string>
+    <string name="numbers_note">These numbers stay on this device only.</string>
+</resources>
