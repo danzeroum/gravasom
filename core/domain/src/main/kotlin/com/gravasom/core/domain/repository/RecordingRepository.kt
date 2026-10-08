@@ -13,6 +13,7 @@ interface RecordingRepository {
     suspend fun insert(recording: Recording): Long
     suspend fun rename(id: Long, newTitle: String)
     suspend fun setFavorite(id: Long, favorite: Boolean)
+    suspend fun setTags(id: Long, tags: List<String>)
     suspend fun moveToTrash(id: Long, nowMillis: Long)
     suspend fun restore(id: Long)
     suspend fun setPublishedUri(id: Long, uri: String?)

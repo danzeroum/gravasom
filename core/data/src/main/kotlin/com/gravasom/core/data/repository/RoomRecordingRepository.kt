@@ -29,6 +29,8 @@ class RoomRecordingRepository(private val dao: RecordingDao) : RecordingReposito
 
     override suspend fun setFavorite(id: Long, favorite: Boolean) = dao.setFavorite(id, favorite)
 
+    override suspend fun setTags(id: Long, tags: List<String>) = dao.setTags(id, tags.joinToString(","))
+
     override suspend fun moveToTrash(id: Long, nowMillis: Long) = dao.moveToTrash(id, nowMillis)
 
     override suspend fun restore(id: Long) = dao.restore(id)
