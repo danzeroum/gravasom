@@ -80,8 +80,8 @@ class AcessibilidadeTest {
         verificar() // menu de acoes aberto
         compose.onNodeWithTag("menu_renomear").performClick()
         verificar() // dialogo de renomear
-        androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
-        compose.waitForIdle()
+        compose.onNodeWithTag("cancelar_renomear").performClick() // fecha pelo botao: o Voltar so esconderia o teclado
+        UiSuporte.aguardar(compose) { !UiSuporte.existe(compose, "campo_renomear") }
         compose.onNodeWithTag("item_gravacao").performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "mini_player") }
         verificar() // mini-player

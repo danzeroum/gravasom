@@ -50,6 +50,10 @@ class CofreTest {
     private fun gravar(segundos: Int, total: Int): Recording {
         UiSuporte.gravarPelaTela(compose, segundos)
         assertTrue("a gravacao nao entrou na biblioteca", Suporte.aguardar(20_000) { gravacoes().size == total })
+        // A copia publica (cofre desligado) so e registrada depois da insercao: espera o ingestor terminar.
+        if (!runBlocking { UiSuporte.app.preferences.privateVault.first() }) {
+            assertTrue("a copia publica nao foi registrada", Suporte.aguardar(20_000) { gravacoes().maxBy { it.createdAtMillis }.publishedUri != null })
+        }
         return gravacoes().maxBy { it.createdAtMillis }
     }
 
@@ -62,7 +66,7 @@ class CofreTest {
         assertTrue("deveria estar no cofre: ${r.path}", r.isPrivate && r.path.endsWith(".gvs"))
         assertTrue(arquivo.length() > 0)
         assertNull("o arquivo cifrado nao pode abrir como audio", MediaProbe.durationMillis(arquivo))
-        val cabecalho = arquivo.inputStream().use { it.readNBytes(12) }
+        val cabecalho = ByteArray(CABECALHO_BYTES).also { buffer -> arquivo.inputStream().use { it.read(buffer) } }
         assertNotEquals("ftyp", String(cabecalho, 4, 4, Charsets.ISO_8859_1))
         val sobrouClaro = RecordingStorage.dir(Suporte.contexto).listFiles().orEmpty().filter { it.extension == "m4a" || it.extension == "tmp" }
         assertTrue("sobrou arquivo em claro: $sobrouClaro", sobrouClaro.isEmpty())
@@ -91,7 +95,7 @@ class CofreTest {
         assertEquals(noCofre.id, ainda.id)
         val claro = File(runBlocking { UiSuporte.app.files.playablePath(ainda) })
         val duracao = checkNotNull(MediaProbe.durationMillis(claro)) { "a gravacao do cofre nao decifra apos desligar" }
-        assertTrue("duracao decifrada $duracao ms", kotlin.math.abs(duracao - 3_000) <= 500)
+        assertTrue("duracao decifrada $duracao ms", duracao in 2_500..(UiSuporte.ultimaJanelaMaxMs + 500))
 
         val nova = gravar(segundos = 3, total = 2)
         assertFalse("a nova nao deveria estar no cofre", nova.isPrivate)
@@ -103,6 +107,7 @@ class CofreTest {
     fun compartilharESalvarEmEntregamOClaro() {
         ligarCofre(true)
         val r = gravar(segundos = 3, total = 1)
+        val janelaMaxMs = UiSuporte.ultimaJanelaMaxMs
 
         val uri = runBlocking { UiSuporte.app.files.shareUri(r) }
         assertEquals("content", uri.scheme)
@@ -113,7 +118,8 @@ class CofreTest {
         val destino = File(Suporte.testsOut(), "salvo_do_cofre.m4a").also { it.delete() }
         assertTrue(UiSuporte.app.files.copyTo(r, Uri.fromFile(destino)))
         val duracao = checkNotNull(MediaProbe.durationMillis(destino)) { "o arquivo salvo nao abre como audio" }
-        assertTrue("duracao salva $duracao ms", kotlin.math.abs(duracao - 3_000) <= 500)
+        // O arquivo comeca antes de a tela mostrar "Parar" e termina quando o Parar e processado: janela ate o retorno do toque.
+        assertTrue("duracao salva $duracao ms fora de [2500, ${janelaMaxMs + 500}] ms", duracao in 2_500..(janelaMaxMs + 500))
     }
 
     @Test
@@ -133,6 +139,7 @@ class CofreTest {
     }.getOrDefault(0f).let { if (it.isNaN()) 0f else it }
 
     private companion object {
+        const val CABECALHO_BYTES = 12
         const val POSICAO_MINIMA_MS = 500f
     }
 }

@@ -30,12 +30,17 @@ class PublicacaoApi28Test {
     @Test
     fun gravar10sPublicaEmMusicRecordingsVisivelParaOutrosApps() {
         val (_, gravadoMs) = UiSuporte.gravarPelaTela(compose, segundos = 10)
+        val janelaMaxMs = UiSuporte.ultimaJanelaMaxMs
         Thread.sleep(2_000)
         val pub = checkNotNull(UiSuporte.publicadoMaisRecente("m4a")) { "nada publicado no MediaStore (API legada)" }
         Suporte.medida("api_legada_m4a", "pasta", pub.pasta)
         Suporte.medida("api_legada_m4a", "duracao_ms", pub.duracaoMs)
         assertEquals("Music/Recordings/", pub.pasta)
-        assertTrue("duracao ${pub.duracaoMs} ms x relogio $gravadoMs ms", kotlin.math.abs(pub.duracaoMs - gravadoMs) <= 500)
+        // Janela [relogio visivel, do toque em Gravar ate o retorno do Parar] com +-500 ms de folga (mesmo criterio do MP3 pela tela).
+        assertTrue(
+            "duracao ${pub.duracaoMs} ms fora de [$gravadoMs, $janelaMaxMs] +-500 ms",
+            pub.duracaoMs in (gravadoMs - 500)..(janelaMaxMs + 500),
+        )
 
         // O arquivo existe de fato na pasta publica que o app Arquivos lista.
         @Suppress("DEPRECATION")

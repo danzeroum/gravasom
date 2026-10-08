@@ -266,9 +266,17 @@ private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm:
             OutlinedTextField(value = text, onValueChange = { text = it }, singleLine = true, modifier = Modifier.testTag("campo_renomear"))
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(text) }, enabled = text.isNotBlank()) { Text(stringResource(R.string.library_rename_ok)) }
+            TextButton(
+                onClick = { onConfirm(text) },
+                enabled = text.isNotBlank(),
+                modifier = Modifier.testTag("confirmar_renomear"),
+            ) { Text(stringResource(R.string.library_rename_ok)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.library_cancel)) } },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_renomear")) {
+                Text(stringResource(R.string.library_cancel))
+            }
+        },
     )
 }
 
