@@ -36,6 +36,9 @@ class CofreTest {
     @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
+
     @Before
     fun preparar() = UiSuporte.limparTudo()
 

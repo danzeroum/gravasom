@@ -19,8 +19,14 @@ import org.junit.Test
 /** ADR-011: metricas locais so com opt-in, esquema fechado, e a tela "Seus numeros" offline. */
 class MetricasLocaisTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val idioma = RegraIdioma()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
+
 
     private val metrics get() = UiSuporte.app.usageMetrics
     private val dao get() = UiSuporte.app.database.usageEventDao()

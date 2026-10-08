@@ -27,11 +27,11 @@ typealias RegraCompose = AndroidComposeTestRule<ActivityScenarioRule<MainActivit
 object UiSuporte {
 
     /** Permissoes que um usuario ja teria concedido: microfone, notificacoes (API 33+) e armazenamento (ate a API 28). */
-    fun permissoes(): androidx.test.rule.GrantPermissionRule {
+    fun permissoes(): org.junit.rules.TestRule {
         val lista = mutableListOf(android.Manifest.permission.RECORD_AUDIO)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) lista += android.Manifest.permission.POST_NOTIFICATIONS
         if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P) lista += android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-        return androidx.test.rule.GrantPermissionRule.grant(*lista.toTypedArray())
+        return org.junit.rules.RuleChain.outerRule(RegraIdioma()).around(androidx.test.rule.GrantPermissionRule.grant(*lista.toTypedArray()))
     }
 
     /** Texto de recurso no idioma do aparelho (o emulador de CI roda em ingles). */

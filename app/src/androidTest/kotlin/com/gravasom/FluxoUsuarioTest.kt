@@ -1,13 +1,11 @@
 package com.gravasom
 
-import android.Manifest
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.test.rule.GrantPermissionRule
 import com.gravasom.core.domain.audio.RecordingFormat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -20,11 +18,13 @@ import org.junit.Test
 class FluxoUsuarioTest {
 
     @get:Rule(order = 0)
-    val permissoes: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
+    val permissoes = UiSuporte.permissoes()
 
     @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
 
     @Before
     fun preparar() = UiSuporte.limparTudo()

@@ -18,8 +18,14 @@ import org.junit.Test
  */
 class PermissaoNegadaTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val idioma = RegraIdioma()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
+
 
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 

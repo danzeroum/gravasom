@@ -23,7 +23,10 @@ import java.io.File
 /** Compartilhar (FileProvider), receber audio (ACTION_SEND), atalhos e ausencia de internet (jornada: Compartilhar). */
 class EcossistemaTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val idioma = RegraIdioma()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
     @Before
