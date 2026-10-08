@@ -1,6 +1,6 @@
 # Status dos gates
 
-Atualizado: 2026-10-07 (versão instalável com telas reais; Fase 14 pausada)
+Atualizado: 2026-10-08 (release assinado e lacunas da entrega instalável; Fase 14 pausada)
 
 Estados:
 
@@ -209,3 +209,18 @@ O limite antigo de ±100 ms não era calibrado; o teste usa ±500 ms (aceite do 
 - Cofre criptografado (Tink) não está ligado; "Manter só neste app" apenas evita a cópia pública.
 - Build de release sem `signingConfig` de produção; o APK da CI é assinado com a chave de debug pública.
 - Fase 14 em diante (redutor, realçador, filtros na captação, separação) seguem pendentes.
+
+## Release assinado e lacunas da entrega instalável (em verificação — preencher com o run)
+
+Decisão do orçamento: os **25 MB valem só para o APK de release**; o APK de debug está isento (26,3 MiB medido no run 37697797597).
+
+| Item | Estado | Verificação (CI) | Validação (pessoa/aparelho) |
+| --- | --- | --- | --- |
+| APK de release assinado (`gravasom-release-apk`), ≤ 25 000 000 bytes, SHA-256 e certificado registrados | PENDENTE-HUMANO (secrets) | script testado localmente com keystore descartável: assinado (apksigner v2), 7 556 080 bytes; sem secrets o job **falha sem gerar APK**; limite estourado também falha | Cadastrar os 4 secrets (`docs/release-assinatura.md`); SHA-256 e certificado reais saem do 1º run assinado |
+| API 26–28: cópia pública via MediaStore (`WRITE_EXTERNAL_STORAGE` com `maxSdkVersion=28`) | a confirmar no run (emulador API 28) | `PublicacaoApi28Test` | Roteiro item 4 — PENDENTE-HUMANO |
+| Aviso de pouco espaço (< 100 MB) com tempo estimado, "Gravar mesmo assim" | a confirmar no run | `RecordingBudgetTest` (JVM, TDD), `EspacoLivreTest` (50 MB simulados) | Roteiro item 5 — PENDENTE-HUMANO |
+| Cofre cifrado (Tink AES-256-GCM em fluxo), ADR-012 | a confirmar no run | `VaultCryptoTest` (8 testes JVM, TDD), `CofreTest` | Roteiro itens 6–10 — PENDENTE-HUMANO |
+| AccessibilityChecks (ATF) nos testes Compose, 0 erros em en e pt-BR | a confirmar no run | `AcessibilidadeTest` + regra em Fluxo, Cofre, Espaço, Métricas, Permissão negada | TalkBack — roteiro item 13, PENDENTE-HUMANO |
+| Testes de UI em pt-BR | a confirmar no run | passada `pt-br` nas API 34 e 36 | Roteiro item 14 |
+
+Riscos residuais registrados: cópia em claro do cofre no cache privado enquanto toca/compartilha (ADR-012); gravar pelo Tile/widget não passa pelo aviso de espaço (sem tela para perguntar).
