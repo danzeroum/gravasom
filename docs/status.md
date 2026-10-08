@@ -263,12 +263,12 @@ acrescentei também `config`, `build.gradle.kts`, `settings.gradle.kts` e `gradl
 
 | Critério | Verificação (evidência) | Validação (dono, no celular) |
 | --- | --- | --- |
-| Achar trecho marcado em gravação de 60 min em ≤3 toques | `OndaMarcadoresTest.acharTrechoMarcado…` (2 toques); em verificação no run corrente da CI | Achar um marcador real numa aula longa |
-| Marcador da notificação aparece na onda | `OndaMarcadoresTest` (instrumentado); em verificação | Tocar "Marcar" com a tela bloqueada (a avaliação heurística aponta falta de confirmação — severidade 3) |
+| Achar trecho marcado em gravação de 60 min em ≤3 toques | `OndaMarcadoresTest.acharTrechoMarcado…` (2 toques); instrumentado verde em API 34 e 36 (run 37779440170, commit f26e739) | Achar um marcador real numa aula longa |
+| Marcador da notificação aparece na onda | `OndaMarcadoresTest` (instrumentado, verde em API 34 e 36, run 37779440170) | Tocar "Marcar" com a tela bloqueada (a avaliação heurística aponta falta de confirmação — severidade 3) |
 | Pular silêncio não remove fala (corpus pt-BR) e tempo economizado | Harness do VAD (ADR-014): 0 trechos de fala cortados nos níveis oferecidos; sala silenciosa economiza 46,5%; ruído contínuo 0%. Job `harness do VAD` corrigido (numpy em venv), reexecução pendente | Ouvir aulas reais com Pular silêncio |
-| 10 s de silêncio → pular ≤1 s a mais que a fala | `PularSilencioTest` (instrumentado); em verificação | — |
+| 10 s de silêncio → pular ≤1 s a mais que a fala | `PularSilencioTest` (instrumentado, verde em API 34 e 36, run 37779440170) | — |
 | Trecho exportado toca em outro player | `ExportarTrechoTest` (MediaPlayer, WAV/M4A/MP3); falhas reais achadas e corrigidas (clip além do fim) | Abrir o trecho em outro app |
-| Tags filtram a lista | `EtiquetasTest`; em verificação | — |
+| Tags filtram a lista | `EtiquetasTest` (verde em API 34 e 36, run 37779440170) | — |
 | Nota 141 rejeitada / 140 salva | `OndaMarcadoresTest.nota141…`, `MarkerDialogTest` | — |
 | Migração preserva gravações e tags | `MigracaoRoomTest` (Robolectric, DDL v3 exato) e `EdicaoRoomTest` | — |
 | Pinça na waveform de 1 h a 60 fps (Macrobenchmark) | Job `macrobenchmark-onda` só informa (emulador por software); ainda sem execução bem-sucedida | Medir no aparelho |
@@ -278,3 +278,5 @@ acrescentei também `config`, `build.gradle.kts`, `settings.gradle.kts` e `gradl
 | Spike de transcrição | ADR-013: WER e tempo no host; recomendação base q5_1 | **Bateria e temperatura: PENDENTE** (`spike/whisper/scripts/medir-no-celular.sh`) |
 
 Filtro de caminhos: nova saída `benchmark` (`macrobenchmark/**`, `app/src/benchmark/**`) liga o job do macrobenchmark; `audio` passou a incluir o próprio `ci.yml`.
+
+**Estado da CI na entrega (honesto):** no run 37779440170 (`f26e739`) os instrumentados de API 34 e 36 passaram e o detekt falhou por uma linha longa (corrigida em `efe6417`). O job de API 28 terminou em falha sem log (HTTP 404) e o macrobenchmark não subiu o emulador. O run seguinte (37785758466, `efe6417`) falhou em todos os jobs em ~4 s, sem passos executados, o que aponta para o runner e não para o código; não consegui reexecutar nem disparar por `workflow_dispatch` (403 para a integração). Falta, portanto: um run completo e verde de toda a matriz (API 28 incluída), a reexecução do harness do VAD e o macrobenchmark.
