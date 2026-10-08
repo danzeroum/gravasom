@@ -10,7 +10,7 @@ trap 'rm -rf "$TMP"' EXIT
 curl -fsSL --retry 3 -o "$TMP/src.tar.gz" "$URL"
 echo "$HASH  $TMP/src.tar.gz" | sha256sum -c - >&2
 tar xzf "$TMP/src.tar.gz" -C "$TMP" --wildcards '*/whisper.cpp'
-rm -rf "$DEST"
+rm -rf "$DEST"; mkdir -p "$(dirname "$DEST")"
 mv "$TMP"/pywhispercpp-1.5.1/whisper.cpp "$DEST"
 grep -m1 'project("whisper.cpp"' "$DEST/CMakeLists.txt" >&2
 echo "$DEST"

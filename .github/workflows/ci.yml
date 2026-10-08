@@ -41,6 +41,7 @@ jobs:
               - 'perfis/**'
               - 'scripts/**'
               - '.github/audio-suite.sha'
+              - '.github/workflows/ci.yml'
             benchmark:
               - 'app/**'
               - 'feature/player/**'
@@ -110,7 +111,7 @@ jobs:
   harness-audio-suite:
     name: harness audio-suite (calibracao e controles positivos)
     needs: [mudancas]
-    if: needs.mudancas.outputs.audio == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.mudancas.outputs.audio == 'true' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -166,7 +167,7 @@ jobs:
   harness-vad:
     name: harness do VAD (fala pt-BR com ruido, ADR-014)
     needs: [mudancas]
-    if: needs.mudancas.outputs.audio == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.mudancas.outputs.audio == 'true' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -207,7 +208,7 @@ jobs:
   macrobenchmark-onda:
     name: macrobenchmark da onda (pinca em 1 h, API 34)
     needs: [mudancas]
-    if: needs.mudancas.outputs.benchmark == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.mudancas.outputs.benchmark == 'true' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -340,7 +341,7 @@ jobs:
   instrumentados:
     name: instrumentados (API ${{ matrix.api }})
     needs: [mudancas]
-    if: needs.mudancas.outputs.app == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.mudancas.outputs.app == 'true' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
