@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sem <uses-permission>: nenhuma, e em especial NENHUM INTERNET. O modelo vem dentro do APK (decisao do dono, ADR-013). -->
+    <application
+        android:allowBackup="false"
+        android:label="Gravasom spike whisper"
+        android:extractNativeLibs="false" />
+</manifest>

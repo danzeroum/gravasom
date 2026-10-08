@@ -35,4 +35,9 @@
     <string name="record_low_space_body">%1$d MB left on the device: about %2$d min fit in this format. Free some space or record anyway.</string>
     <string name="record_low_space_confirm">Record anyway</string>
     <string name="record_low_space_cancel">Cancel</string>
+    <string name="record_btn_marker">Mark</string>
+    <plurals name="record_markers">
+        <item quantity="one">%d marker</item>
+        <item quantity="other">%d markers</item>
+    </plurals>
 </resources>

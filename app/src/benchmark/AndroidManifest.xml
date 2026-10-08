@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- SO no build "benchmark" (nunca no release): semeia uma gravacao de 1 h para o Macrobenchmark da onda. -->
+        <receiver
+            android:name=".benchmark.SeedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.gravasom.benchmark.SEED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

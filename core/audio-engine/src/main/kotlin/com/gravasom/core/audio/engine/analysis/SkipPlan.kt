@@ -1,14 +1,13 @@
 package com.gravasom.core.audio.engine.analysis
 
 /**
- * Sensibilidade do "pular silencio" exposta ao usuario = modo do WebRTC VAD (ADR-014). O corpus pt-BR (6 cenarios de
- * ruido) nao teve nenhum trecho de fala cortado em nenhum dos tres; mais forte pula mais, mas so o NORMAL e o FORTE
- * economizam algo com ruido de fundo, e o FORTE e o que mais arrisca fora do que foi medido.
+ * Sensibilidade do "pular silencio" exposta ao usuario = modo do WebRTC VAD (ADR-014). No corpus pt-BR (6 cenarios de ruido)
+ * os dois niveis abaixo nao cortaram nenhum trecho de fala com as margens padrao. O modo 3 do VAD ("forte") cortou fala
+ * em parte das margens testadas e so rendeu ~4 pontos a mais do ideal: por isso NAO e oferecido.
  */
 enum class SilenceSensitivity(val vadMode: Int) {
     GENTLE(1),
     NORMAL(2),
-    STRONG(3),
     ;
 
     companion object {
@@ -30,7 +29,7 @@ data class SkipRange(val startMillis: Long, val endMillis: Long) {
  * - [tailPadMillis]: margem mantida DEPOIS de toda fala; maior que a de antes porque o fim das frases some devagar
  *   (consoante final, reverberacao, respiracao) e o VAD o declara "silencio" antes (ADR-014, medido no corpus pt-BR).
  * - [minSkipMillis]: so pula se, depois das margens, sobrar pelo menos isto (pausas curtas entre palavras ficam).
- * As duas margens somam menos de 1 s: uma lacuna longa deixa ate 1 s de pausa natural.
+ * As duas margens somam 0,7 s: uma lacuna longa deixa 0,7 s de pausa natural (o aceite pede <= 1 s a mais que a fala).
  */
 data class SkipParams(
     val frameMillis: Int = DEFAULT_FRAME_MILLIS,
@@ -44,8 +43,8 @@ data class SkipParams(
 
     companion object {
         const val DEFAULT_FRAME_MILLIS = 20
-        const val DEFAULT_HEAD_PAD_MILLIS = 250
-        const val DEFAULT_TAIL_PAD_MILLIS = 700
+        const val DEFAULT_HEAD_PAD_MILLIS = 200
+        const val DEFAULT_TAIL_PAD_MILLIS = 500
         const val DEFAULT_MIN_SKIP_MILLIS = 800
     }
 }

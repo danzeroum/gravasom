@@ -23,10 +23,9 @@
     <string name="library_import_invalid">Could not read this audio</string>
     <string name="library_saved_ok">File saved</string>
     <string name="library_saved_fail">Could not save the file</string>
-    <string name="library_player_play">Play</string>
-    <string name="library_player_pause">Pause</string>
-    <string name="library_player_speed">%1$sx</string>
     <string name="library_published">Also in Music/Recordings</string>
     <string name="library_play_fail">Could not open this recording.</string>
     <string name="library_private_badge">In the vault</string>
+    <string name="library_no_results_tags">No recording has all of those tags.</string>
+    <string name="library_clear_tag_filter">Clear filter</string>
 </resources>

@@ -8,6 +8,8 @@ on:
   push:
     branches: [main, 'claude/**']
     tags: ['v*']
+  # Medicoes caras (spike de transcricao, ADR-013) rodam so sob demanda.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -21,6 +23,7 @@ jobs:
     outputs:
       audio: ${{ steps.filtro.outcome != 'success' && 'true' || steps.filtro.outputs.audio }}
       app: ${{ steps.filtro.outcome != 'success' && 'true' || steps.filtro.outputs.app }}
+      benchmark: ${{ steps.filtro.outcome != 'success' && 'true' || steps.filtro.outputs.benchmark }}
     steps:
       - uses: actions/checkout@v4
       # dorny/paths-filter v4.0.3, fixado por SHA. Compara com o commit anterior ao push (nao com a main), para que um commit
@@ -38,6 +41,13 @@ jobs:
               - 'perfis/**'
               - 'scripts/**'
               - '.github/audio-suite.sha'
+            benchmark:
+              - 'app/**'
+              - 'feature/player/**'
+              - 'core/audio-engine/**'
+              - 'core/service/**'
+              - 'macrobenchmark/**'
+              - '.github/workflows/ci.yml'
             app:
               - 'app/**'
               - 'feature/**'
@@ -153,6 +163,125 @@ jobs:
             tests-out/kit-escuta/
           if-no-files-found: warn
 
+  harness-vad:
+    name: harness do VAD (fala pt-BR com ruido, ADR-014)
+    needs: [mudancas]
+    if: needs.mudancas.outputs.audio == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: ffmpeg e numpy
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install --user numpy==2.5.3
+      - name: Cache do corpus (baixado por hash)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gravasom-corpus
+          key: corpus-${{ hashFiles('corpus/corpus.sha256') }}
+      - name: Testes do VAD nativo no host (ASan/UBSan)
+        run: scripts/test-vad-host.sh
+      - name: Fala pt-BR por hash e corpus com ruido
+        run: |
+          scripts/corpus-pt.sh tests-out/pt vad
+          python3 -I scripts/vad_corpus.py tests-out/pt corpus/falas_pt_vad.txt tests-out/vad-corpus
+      - name: Kotlin + JNI sobre o corpus (mede fala cortada e tempo economizado)
+        run: |
+          HOST_LIB="$(scripts/build-dsp-host.sh "$PWD/tests-out/dsp-host")"
+          mkdir -p evidencias-ci
+          export GRAVASOM_DSP_HOST_LIB="$HOST_LIB" GRAVASOM_VAD_CORPUS="$PWD/tests-out/vad-corpus" GRAVASOM_VAD_REPORT="$PWD/evidencias-ci/vad-relatorio.tsv"
+          ./gradlew :core:dsp:testDebugUnitTest --no-daemon
+          python3 -I scripts/vad_resumo.py evidencias-ci/vad-relatorio.tsv | tee evidencias-ci/vad-resumo.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: harness-vad
+          path: evidencias-ci/
+
+  macrobenchmark-onda:
+    name: macrobenchmark da onda (pinca em 1 h, API 34)
+    needs: [mudancas]
+    if: needs.mudancas.outputs.benchmark == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Macrobenchmark no emulador (so informa: o emulador renderiza por software)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim
+          disable-animations: true
+          script: >-
+            ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest --no-daemon --stacktrace
+            -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR,LOW-BATTERY
+            -Pandroid.testInstrumentationRunnerArguments.class=com.gravasom.macrobenchmark.ZoomOndaBenchmark
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macrobenchmark-onda
+          path: |
+            macrobenchmark/build/outputs/connected_android_test_additional_output/
+            macrobenchmark/build/reports/androidTests/
+          if-no-files-found: warn
+
+  spike-transcricao:
+    name: spike de transcricao (WER pt-BR no host, ADR-013)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake g++
+          python3 -m pip install --user numpy==2.5.3 jiwer==3.1.0
+      - name: Cache do corpus e dos modelos (baixados por hash)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gravasom-corpus
+          key: spike-${{ hashFiles('corpus/corpus.sha256', 'corpus/modelos.sha256') }}
+      - name: Fonte do whisper.cpp e modelos por hash
+        run: |
+          spike/whisper/scripts/buscar-whisper.sh "$PWD/tests-out/whisper-src"
+          spike/whisper/scripts/buscar-modelos.sh "$HOME/.cache/gravasom-corpus/modelos"
+      - name: Compilar whisper-cli (host)
+        run: |
+          cmake -S tests-out/whisper-src -B tests-out/whisper-build -DCMAKE_BUILD_TYPE=Release -DWHISPER_BUILD_EXAMPLES=ON -DWHISPER_BUILD_TESTS=OFF -DWHISPER_SDL2=OFF
+          cmake --build tests-out/whisper-build -j"$(nproc)" --target whisper-cli
+      - name: WER, tempo e memoria dos 4 modelos
+        run: |
+          scripts/corpus-pt.sh tests-out/pt asr
+          mkdir -p evidencias-ci
+          M="$HOME/.cache/gravasom-corpus/modelos"
+          python3 -I scripts/asr_spike.py tests-out/pt corpus/falas_pt_asr.txt tests-out/whisper-build/bin/whisper-cli evidencias-ci/asr-host.json \
+            "$M/ggml-tiny-q5_1.bin" "$M/ggml-tiny.bin" "$M/ggml-base-q5_1.bin" "$M/ggml-base.bin"
+          cat evidencias-ci/asr-host.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spike-transcricao
+          path: evidencias-ci/
+
   apk:
     name: APK de debug (gravasom-apk)
     runs-on: ubuntu-latest
@@ -195,6 +324,9 @@ jobs:
           GRAVASOM_KEYSTORE_PASSWORD: ${{ secrets.GRAVASOM_KEYSTORE_PASSWORD }}
           GRAVASOM_KEY_ALIAS: ${{ secrets.GRAVASOM_KEY_ALIAS }}
           GRAVASOM_KEY_PASSWORD: ${{ secrets.GRAVASOM_KEY_PASSWORD }}
+          # versionCode cresce a cada execucao (o APK novo instala por cima do anterior); o nome vem da tag vX.Y.Z.
+          GRAVASOM_VERSION_CODE: ${{ github.run_number }}
+          GRAVASOM_VERSION_NAME: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '0.0.0-dev' }}
         run: bash .github/scripts/release-apk.sh
       - uses: actions/upload-artifact@v4
         with:
@@ -271,16 +403,26 @@ jobs:
           if-no-files-found: warn
 
   release:
+    name: GitHub Release (APK assinado + SHA-256)
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build]
+    needs: [build, release-apk, testes-unidade]
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/download-artifact@v4
         with:
-          distribution: temurin
-          java-version: '17'
-      - name: Publicar no canal interno
-        run: ./gradlew publishReleaseBundle --no-daemon
+          name: gravasom-release-apk
+          path: release-apk
+      - name: Publicar a Release (so chega aqui com o APK assinado: o job release-apk falha sem os segredos)
         env:
-          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSAO="${GITHUB_REF_NAME#v}"
+          ARQ="gravasom-${VERSAO}.apk"
+          cp release-apk/app/build/outputs/apk/release/app-release.apk "$ARQ"
+          sha256sum "$ARQ" > "${ARQ}.sha256"
+          gh release create "$GITHUB_REF_NAME" "$ARQ" "${ARQ}.sha256" release-apk/evidencias-ci/apk-release-info.txt \
+            --repo "$GITHUB_REPOSITORY" --title "Gravasom ${VERSAO}" \
+            --notes "APK assinado (mesma chave de sempre: instala por cima da versao anterior sem perder gravacoes). SHA-256 em ${ARQ}.sha256. Verificacao pela CI (testes, lint, orcamento de 25 MB); validacao no aparelho e do dono (docs/uso.md)."

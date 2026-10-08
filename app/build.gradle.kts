@@ -8,8 +8,9 @@ android {
     namespace = "com.gravasom"
     defaultConfig {
         applicationId = "com.gravasom"
-        versionCode = 1
-        versionName = "1.0.0"
+        // A CI define estes dois ao gerar o release (versionCode cresce a cada execucao; o nome vem da tag).
+        versionCode = System.getenv("GRAVASOM_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = System.getenv("GRAVASOM_VERSION_NAME")?.removePrefix("v") ?: "1.0.0"
         // Aparelhos reais (arm64) e o emulador do CI (x86_64). Reduz o APK; x86/armv7 de 32 bits ficam de fora.
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }

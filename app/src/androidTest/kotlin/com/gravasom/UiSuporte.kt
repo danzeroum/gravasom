@@ -40,6 +40,11 @@ object UiSuporte {
         return ctx.getString(ctx.resources.getIdentifier(nome, "string", ctx.packageName))
     }
 
+    fun rotuloComArgs(nome: String, vararg args: Any): String {
+        val ctx = Suporte.contexto
+        return ctx.getString(ctx.resources.getIdentifier(nome, "string", ctx.packageName), *args)
+    }
+
     val app: GravasomApplication get() = Suporte.contexto.applicationContext as GravasomApplication
 
     /** Esvazia biblioteca (arquivos + copia publicada + linhas) e eventos de uso: cada teste parte do zero. */
@@ -61,6 +66,20 @@ object UiSuporte {
     /** False tambem quando nao ha hierarquia Compose ativa (ex.: dialogo do sistema por cima do app). */
     fun existe(rule: SemanticsNodeInteractionsProvider, tag: String): Boolean =
         runCatching { rule.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
+
+    /** Casa nos cujo testTag comeca com [prefixo] (ex.: "marcador_onda_" para os marcadores desenhados na onda). */
+    fun comPrefixo(prefixo: String) = androidx.compose.ui.test.SemanticsMatcher("testTag comeca com $prefixo") { n ->
+        n.config.getOrNull(SemanticsProperties.TestTag)?.startsWith(prefixo) == true
+    }
+
+    fun existePrefixo(rule: SemanticsNodeInteractionsProvider, prefixo: String): Boolean =
+        runCatching { rule.onAllNodes(comPrefixo(prefixo), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
+
+    /** Posicao do player em ms (a onda expoe a posicao como ProgressBarRangeInfo, a mesma via do TalkBack). */
+    fun posicaoDoPlayerMs(rule: SemanticsNodeInteractionsProvider): Float = runCatching {
+        rule.onNodeWithTag("mini_posicao", useUnmergedTree = true).fetchSemanticsNode()
+            .config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)?.current ?: 0f
+    }.getOrDefault(0f).let { if (it.isNaN()) 0f else it }
 
     /** Espera a condicao; no estouro, anexa a arvore de semantica ao erro para o log de CI mostrar o que havia na tela. */
     fun aguardar(rule: RegraCompose, timeoutMs: Long = 15_000, condicao: () -> Boolean) {

@@ -27,6 +27,9 @@ class GravasomApplication : Application() {
     @Inject lateinit var preferences: com.gravasom.core.data.preferences.PreferencesRepository
     @Inject lateinit var usageMetrics: com.gravasom.core.data.metrics.UsageMetrics
     @Inject lateinit var database: com.gravasom.core.data.db.GravasomDatabase
+    @Inject lateinit var analyzer: com.gravasom.core.service.analysis.RecordingAnalyzer
+    @Inject lateinit var markers: com.gravasom.core.domain.marker.MarkerRepository
+    @Inject lateinit var clips: com.gravasom.core.service.clip.ClipService
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

@@ -7,4 +7,11 @@
     <string name="notif_action_pause">Pause</string>
     <string name="notif_action_resume">Resume</string>
     <string name="notif_action_stop">Stop</string>
+    <string name="notif_action_marker">Mark</string>
+    <plurals name="notif_markers">
+        <item quantity="one">%d marker</item>
+        <item quantity="other">%d markers</item>
+    </plurals>
+    <string name="widget_record">Record</string>
+    <string name="widget_marker">Mark</string>
 </resources>

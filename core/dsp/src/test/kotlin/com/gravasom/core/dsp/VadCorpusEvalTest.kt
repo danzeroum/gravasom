@@ -34,7 +34,13 @@ class VadCorpusEvalTest {
         assumeTrue("corpus do VAD ausente (GRAVASOM_VAD_CORPUS)", dir.isNotEmpty())
         assumeHostLib()
         val manifest = File(dir, "manifest.tsv").readLines().filter { it.isNotBlank() }.map { it.split('\t') }
-        val paramGrid = listOf(SkipParams(), SkipParams(headPadMillis = 300, tailPadMillis = 300), SkipParams(headPadMillis = 200, tailPadMillis = 500), SkipParams(headPadMillis = 300, tailPadMillis = 500))
+        // padrao primeiro; os demais mostram o que as margens custam e por que a cauda e maior que a cabeca
+        val paramGrid = listOf(
+            SkipParams(),
+            SkipParams(headPadMillis = 300, tailPadMillis = 300),
+            SkipParams(headPadMillis = 150, tailPadMillis = 400),
+            SkipParams(headPadMillis = 250, tailPadMillis = 700),
+        )
         val rows = ArrayList<Row>()
         for (m in manifest) {
             val analysis = analyze(File(dir, m[1]))
@@ -42,8 +48,8 @@ class VadCorpusEvalTest {
             for (mode in MODES) for (p in paramGrid) rows += score(m[0], m[3], mode, p, analysis.speechFrames(MODES.indexOf(mode)), oracle, analysis.durationMillis)
         }
         report(rows)
-        // Politica (ADR-014): com os parametros padrao, NENHUM modo oferecido ao usuario corta um trecho de fala, em nenhum cenario.
-        val defaults = rows.filter { it.params == SkipParams() }
+        // Politica (ADR-014): com as margens padrao, NENHUM nivel oferecido ao usuario corta um trecho de fala, em nenhum cenario.
+        val defaults = rows.filter { it.params == SkipParams() && it.mode in OFFERED }
         assertTrue("fala cortada: " + defaults.filter { it.runsCut > 0 }.map { "${it.name}/modo ${it.mode}: ${it.runsCut}" }, defaults.all { it.runsCut == 0 })
         // E o recurso serve para alguma coisa: em sala silenciosa o modo normal captura a maior parte da economia ideal.
         val limpo = defaults.filter { it.scenario == "limpo" && it.mode == SilenceSensitivity.NORMAL.vadMode }
@@ -115,7 +121,10 @@ class VadCorpusEvalTest {
     }
 
     private companion object {
-        val MODES = SilenceSensitivity.entries.map { it.vadMode }
+        /** Os niveis oferecidos mais o modo 3 do VAD, medido so para registrar por que NAO e oferecido (ADR-014). */
+        val OFFERED = SilenceSensitivity.entries.map { it.vadMode }
+        val MODES = OFFERED + EXTRA_MODE
+        const val EXTRA_MODE = 3
         const val MIN_CAPTURE = 0.7
         const val FRAME_MS = 20
         const val MERGE_GAP_FRAMES = 5

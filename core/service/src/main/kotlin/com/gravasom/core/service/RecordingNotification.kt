@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 
-/** Constroi a notificacao persistente com pausar/retomar/parar/marcador. */
+/** Constroi a notificacao persistente com pausar/retomar, marcar e parar. */
 object RecordingNotification {
 
     const val CHANNEL_ID = "gravasom_recording"
@@ -30,7 +30,13 @@ object RecordingNotification {
      * Notificacao da gravacao. Gravando: cronometro nativo (base em [startedAtMillis]) + Pausar + Parar.
      * Pausada: sem cronometro + Retomar + Parar. Todas as acoes sao reais (PendingIntent para o RecordingService).
      */
-    fun build(context: Context, startedAtMillis: Long, paused: Boolean, actions: NotificationActions): Notification {
+    fun build(
+        context: Context,
+        startedAtMillis: Long,
+        paused: Boolean,
+        actions: NotificationActions,
+        markerCount: Int = 0,
+    ): Notification {
         val contentIntent = PendingIntent.getActivity(
             context, 0, actions.openAppIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
@@ -42,11 +48,13 @@ object RecordingNotification {
             .setContentIntent(contentIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
         if (!paused) builder.setUsesChronometer(true).setWhen(startedAtMillis)
+        if (markerCount > 0) builder.setContentText(context.resources.getQuantityString(R.plurals.notif_markers, markerCount, markerCount))
         if (paused) {
             builder.addAction(0, context.getString(R.string.notif_action_resume), actions.resumePendingIntent(context))
         } else {
             builder.addAction(0, context.getString(R.string.notif_action_pause), actions.pausePendingIntent(context))
         }
+        builder.addAction(0, context.getString(R.string.notif_action_marker), actions.markerPendingIntent(context))
         builder.addAction(0, context.getString(R.string.notif_action_stop), actions.stopPendingIntent(context))
         return builder.build()
     }
@@ -57,5 +65,6 @@ interface NotificationActions {
     val openAppIntent: Intent
     fun resumePendingIntent(context: Context): PendingIntent
     fun pausePendingIntent(context: Context): PendingIntent
+    fun markerPendingIntent(context: Context): PendingIntent
     fun stopPendingIntent(context: Context): PendingIntent
 }

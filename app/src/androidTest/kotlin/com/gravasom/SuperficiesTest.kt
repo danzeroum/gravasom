@@ -86,11 +86,11 @@ class SuperficiesTest {
             awm.requestPinAppWidget(provider!!.provider, null, null)
             val botoes = By.clazz("android.widget.Button").text(Pattern.compile("(?i)(add|adicionar).*"))
             device.wait(Until.findObject(botoes), DIALOGO_MS)?.click()
-            assertNotNull("widget nao apareceu na tela inicial", device.wait(Until.findObject(By.text("Gravar")), WIDGET_MS))
+            assertNotNull("widget nao apareceu na tela inicial", device.wait(Until.findObject(By.text(UiSuporte.rotulo("widget_record"))), WIDGET_MS))
             // O launcher redesenha o widget logo apos fixa-lo: o objeto achado pode ficar obsoleto; acha de novo e toca.
             repeat(TENTATIVAS_TOQUE) {
                 if (ControleServico.gravando()) return@repeat
-                runCatching { device.findObject(By.text("Gravar"))?.click() }
+                runCatching { device.findObject(By.text(UiSuporte.rotulo("widget_record")))?.click() }
                 ControleServico.esperarGravando(4_000)
             }
             assertTrue("widget nao iniciou a gravacao: ${com.gravasom.core.service.RecordingServiceState.state.value}",

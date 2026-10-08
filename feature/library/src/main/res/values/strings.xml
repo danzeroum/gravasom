@@ -23,10 +23,9 @@
     <string name="library_import_invalid">Não foi possível ler esse áudio</string>
     <string name="library_saved_ok">Arquivo salvo</string>
     <string name="library_saved_fail">Não foi possível salvar o arquivo</string>
-    <string name="library_player_play">Tocar</string>
-    <string name="library_player_pause">Pausar</string>
-    <string name="library_player_speed">%1$sx</string>
     <string name="library_published">Também em Músicas/Recordings</string>
     <string name="library_play_fail">Não foi possível abrir esta gravação.</string>
     <string name="library_private_badge">No cofre</string>
+    <string name="library_no_results_tags">Nenhuma gravação com essas etiquetas.</string>
+    <string name="library_clear_tag_filter">Limpar filtro</string>
 </resources>

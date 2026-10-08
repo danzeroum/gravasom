@@ -9,8 +9,10 @@ Dois testes por modelo:
      o uso real (aula/reuniao de 10 min com a decodificacao longa do whisper).
 
 Uso: asr_spike.py <dir_pt> <lista_asr.txt> <whisper-cli> <saida.json> <modelo.bin>...
+Com ASR_SO_LONGO=1 pula o teste A (por locucao) e roda so a gravacao longa.
 """
 import json
+import os
 import re
 import resource
 import subprocess
@@ -50,12 +52,14 @@ def transcrever(cli, modelo, wav, threads=4, extra=()):
     antes = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
     t0 = time.perf_counter()
     r = subprocess.run(
-        [cli, "-m", str(modelo), "-f", str(wav), "-l", "pt", "-t", str(threads), "-nt", "-np", *extra],
+        [cli, "-m", str(modelo), "-f", str(wav), "-l", "pt", "-t", str(threads), "-np", *extra],
         capture_output=True, text=True, check=True,
     )
     dt = time.perf_counter() - t0
     pico = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
-    return r.stdout.strip(), dt, pico / 1024.0 if pico > antes else None
+    # Sem "-nt": desligar os tokens de tempo faz o whisper andar a janela de 30 s as cegas e perder palavras nas emendas.
+    texto = " ".join(re.sub(r"^\[[^\]]*\]\s*", "", linha) for linha in r.stdout.splitlines())
+    return texto.strip(), dt, pico / 1024.0 if pico > antes else None
 
 
 def main():
@@ -75,19 +79,21 @@ def main():
     gravar(longo, np.concatenate([np.concatenate([ler(a), pausa]) for a in arquivos]))
     ref_longo = " ".join(referencias)
     out = {"locucoes": len(arquivos), "duracao_s": round(duracao_total, 1), "modelos": {}}
+    so_longo = os.environ.get("ASR_SO_LONGO") == "1"
     for m in modelos:
         hip = []
         t_loc = 0.0
-        for a in arquivos:
-            txt, dt, _ = transcrever(cli, m, a)
-            hip.append(normalizar(txt))
-            t_loc += dt
-        wer_loc = jiwer.wer([normalizar(r) for r in referencias], hip)
+        if not so_longo:
+            for a in arquivos:
+                txt, dt, _ = transcrever(cli, m, a)
+                hip.append(normalizar(txt))
+                t_loc += dt
+        wer_loc = None if so_longo else jiwer.wer([normalizar(r) for r in referencias], hip)
         txt, dt, pico = transcrever(cli, m, longo)
         wer_longo = jiwer.wer(normalizar(ref_longo), normalizar(txt))
         out["modelos"][m.name] = {
             "tamanho_mib": round(m.stat().st_size / 2**20, 1),
-            "wer_por_locucao": round(wer_loc, 4),
+            "wer_por_locucao": None if wer_loc is None else round(wer_loc, 4),
             "wer_gravacao_longa": round(wer_longo, 4),
             "tempo_longo_s": round(dt, 1),
             "rtf_host_longo": round(dt / (duracao_total + 0.5 * len(arquivos)), 3),

@@ -31,6 +31,7 @@ class SkipPlanTest {
     @Test
     fun `os padroes deixam menos de 1 s por lacuna de 10 s e cobrem o fim das frases`() {
         val d = SkipParams()
+        assertEquals(700, d.headPadMillis + d.tailPadMillis)
         assertTrue(d.headPadMillis + d.tailPadMillis <= 1_000)
         assertTrue(d.tailPadMillis > d.headPadMillis, "o fim das frases some devagar")
         val plan = SkipPlan.build(flags(20_000, 0 to 5_000, 15_000 to 20_000), 20_000, d)
