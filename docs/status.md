@@ -305,8 +305,9 @@ bloqueada (dependem de aparelho): são os passos A1, A9–A12 do roteiro.
 Antes dessa rodada houve duas falhas minhas, corrigidas: detekt (5 linhas longas/complexidade em código novo) e erro de
 compilação em `app/build.gradle.kts` (`java.util` dentro de `android {}`).
 
-Testes unitários (soma dos `build/test-results/testDebugUnitTest`): **71 executados, 10 pulados, 0 falhas** (os 10 pulados são os 4
-de `CapturasTest`, que só rodam com `GRAVASOM_CAPTURAS`, e casos já marcados como ignorados antes desta etapa).
+Testes unitários (soma dos `build/test-results/testDebugUnitTest`): **71 executados, 10 pulados, 0 falhas** (os 10 pulados: 4 de
+`CapturasTest`, que só rodam com `GRAVASOM_CAPTURAS`; 5 de `WebRtcVadHostTest` e 1 de `VadCorpusEvalTest`, que exigem a biblioteca nativa de host e o corpus
+(`scripts/test-vad-host.sh`) e **não rodaram nesta rodada**).
 `koverVerify` rodou nos módulos que o definem (`core:domain`, `core:audio-engine`) e passou.
 
 **Testes instrumentados: NÃO rodaram** (sem emulador nesta máquina). Lista em `docs/teste-aparelho-real.md`, parte B.
