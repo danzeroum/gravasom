@@ -135,7 +135,7 @@ class ExportarTrechoTest {
     /** Pela tela: selecionar o trecho, exportar e ver a gravacao nova na lista, com a duracao do trecho. */
     @Test
     fun exportarPelaTelaCriaGravacaoNovaComADuracaoDoTrecho() {
-        UiSuporte.inserirGravacao("Aula", segundos = 30.0)
+        UiSuporte.inserirGravacao("Aula", segundos = 300.0)
         compose.onNodeWithTag("aba_gravacoes").performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "item_gravacao") }
         compose.onNodeWithTag("item_gravacao").performClick()
