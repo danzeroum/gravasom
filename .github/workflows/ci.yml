@@ -231,7 +231,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -no-boot-anim
           disable-animations: true
           script: >-
             ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest --no-daemon --stacktrace
