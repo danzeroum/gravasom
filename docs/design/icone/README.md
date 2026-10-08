@@ -29,6 +29,7 @@ As silhuetas de 24 dp são brancas sobre transparente, como a barra de status ex
 | `app/src/main/res/mipmap/ic_launcher.xml` → `@android:drawable/ic_btn_speak_now` (ícone do sistema) | `background`, `foreground` e `monochrome` acima |
 | `app/src/main/res/values/colors.xml` → `ic_launcher_background` `#12151A` | Drawable `ic_launcher_background` (`#004E5A`) |
 | `RecordingNotification.setSmallIcon(android.R.drawable.ic_btn_speak_now)` | `ic_stat_gravando` / `ic_stat_pausado` conforme o estado |
+| Notificação de mídia do player: ícone pequeno padrão do Media3 | `ic_stat_gravasom` (R7). No Media3 1.5.0, conferir qual drawable o `DefaultMediaNotificationProvider` usa como ícone pequeno e sobrescrever esse recurso, ou passar o ícone ao provider |
 | `core/service/AndroidManifest.xml` → tile `android:icon="@android:drawable/ic_btn_speak_now"` | `ic_tile_gravar` (e `ic_tile_gravando` via `Tile.icon` quando ativo) |
 
 Os arquivos são gerados por `../ferramentas/icons.py`.

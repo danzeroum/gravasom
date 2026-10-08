@@ -95,8 +95,8 @@ isso que mantém os estados distintos para quem não vê vermelho (seção 13).
 | `marker.*.verde` | `#327932` / `#A9F59F` | `#80CA79` / `#035310` | `GREEN` |
 | `marker.*.azul` | `#1A6DB5` / `#D2E4FF` | `#85BCFF` / `#00497F` | `BLUE` |
 | `marker.*.roxo` | `#755BB5` / `#E9DDFF` | `#C4ACFF` / `#50358E` | `PURPLE` |
-| `marker.*.rosa` | `#AF4282` / `#FFD8E8` | `#FF98CE` / `#811A5C` | `RED` → desenhado como rosa |
-| `marker.*.grafite` | `#686B6C` / `#E1E3E4` | `#B7B9BA` / `#444748` | não existe (P1) |
+| `marker.*.rosa` | `#AF4282` / `#FFD8E8` | `#FF98CE` / `#811A5C` | `RED` (nome mantido) → rótulo "Rosa" |
+| `marker.*.grafite` | `#686B6C` / `#E1E3E4` | `#B7B9BA` / `#444748` | `GRAPHITE` (novo) |
 
 ### 4.4 Paleta opcional "Mixlirous"
 
@@ -126,17 +126,17 @@ O que muda e o que **não** muda:
 
 ## 5. Tipografia
 
-**Atkinson Hyperlegible Next** (OFL 1.1), uma família só, pesos 400/500/600/700 empacotados. Foi desenhada para
+**Atkinson Hyperlegible Next** (OFL 1.1), uma família só, só os pesos **400 (Regular) e 600 (SemiBold)** empacotados. Foi desenhada para
 leitores com baixa visão: letras de forma bem distinta (I/l/1, O/0), boa para ler de relance com o celular apoiado na mesa.
 
-- Escala completa do M3 em `token:typography.scale`. Diferenças em relação ao padrão: títulos e headlines em 600 (mais
-  presença sem aumentar o tamanho) e `labelSmall` com 12 sp (o M3 usa 11).
+- Escala completa do M3 em `token:typography.scale`. Diferenças em relação ao padrão: títulos, headlines e rótulos em
+  600 (o M3 usa 400/500; aqui só existem 400 e 600) e `labelSmall` com 12 sp (o M3 usa 11).
 - Estilos extras em `token:typography.extra`:
-  - `cronometro` 64/72 sp, algarismos tabulares (`tnum`): os dígitos não "dançam".
+  - `cronometro` 64/72 sp, peso 400, algarismos tabulares (`tnum`): os dígitos não "dançam".
   - `cronometroCompacto` 28/36 sp, para widget.
   - `tempo` 14/20 sp tabular, para posição, duração e tempo de marcador.
-  - `faixaEstado` 14/20 sp, 700, caixa-alta, espaçamento 1,0: "GRAVANDO", "PAUSADA".
-  - `numeroMarcador` 12/16 sp, 700, dentro da bandeira.
+  - `faixaEstado` 14/20 sp, 600, caixa-alta, espaçamento 1,0: "GRAVANDO", "PAUSADA".
+  - `numeroMarcador` 12/16 sp, 600, dentro da bandeira.
 - Respeitar o tamanho de fonte do sistema (só `sp`); testar com escala 200%: o cronômetro pode quebrar para 2 linhas, os
   botões não.
 
@@ -201,9 +201,9 @@ Inspeção da proposta, não das telas atuais. Severidade 0–4. Julgamento de e
 | 2 Mundo real | Anel = botão de gravar; ■ = parar; ❚❚ = pausa; cadeado = cofre | Petróleo no botão Gravar quebra a convenção do vermelho (D2) | 2 |
 | 3 Controle e liberdade | Parar e Pausar sempre visíveis e grandes; excluir com DESFAZER | — | 0 |
 | 4 Consistência | Um token por significado: vermelho = gravando/destrutivo; ameixa = cofre; âmbar = pausado | Com cor dinâmica ligada, o primário pode ficar parecido com um semântico | 1 |
-| 5 Prevenção de erros | Formato bloqueado durante a gravação (chips desabilitados + texto); VU "Alto demais" antes de estragar o áudio | Limiar do VU é aproximado (P3) | 2 |
+| 5 Prevenção de erros | Formato bloqueado durante a gravação (chips desabilitados + texto); VU "Alto demais" antes de estragar o áudio | — (aviso pelo pico ≥ −1 dBFS) | 1 |
 | 6 Reconhecer, não lembrar | Rótulos de texto sob todos os botões da tela Gravar; chip "Etiquetas (n)" | — | 1 |
-| 7 Eficiência | Uma mão: botões na metade de baixo; widget e bloco com estado | Depende de P2 | 2 |
+| 7 Eficiência | Uma mão: botões na metade de baixo; widget e bloco com estado | — (bloco e widget com estado real) | 1 |
 | 8 Estético e minimalista | Tela Gravar com 1 decisão por estado; o resto em Ajustes | — | 0 |
 | 9 Recuperar de erros | Cartão de erro com causa + ação (tom de voz) | Textos atuais precisam ser reescritos | 2 |
 | 10 Ajuda | Texto curto de onde a gravação fica (público × cofre) | — | 1 |

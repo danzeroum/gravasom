@@ -77,7 +77,7 @@ cofre de `semantic`, nunca de `colorScheme.tertiary`.
 ## D6 — Seis cores de marcador, nenhuma vermelha
 
 **Decisão.** `color.marker` = âmbar, verde, azul, roxo, rosa, grafite. O enum atual (`MarkerColor`) tem `RED`: ele passa a
-ser desenhado como **rosa**. A sexta cor (grafite) não existe no enum (pergunta P1). A bandeira do marcador mostra o
+ser desenhado como **rosa**. A sexta cor entra no enum como `GRAPHITE` (resposta R1). A bandeira do marcador mostra o
 **número** do marcador e a lista mostra o rótulo; cor é só agrupamento.
 
 **Trade-off.** Rosa e âmbar ficam perto de cofre (ameixa) e pausado (âmbar). Não há confusão porque aparecem em lugares
@@ -88,6 +88,7 @@ como selo com cadeado).
 
 **Decisão.** 24 segmentos (`size.vuSegmentos`) em três zonas: baixo (`vu.baixo`), ok (`vu.ok`), clipando (`vu.clipando`,
 laranja, nunca vermelho). Ao lado, um rótulo de texto: "Baixo", "Bom", "Alto demais". O segmento de pico fica aceso 1 s.
+As barras seguem o RMS; o aviso "Alto demais" segue o **pico ≥ −1 dBFS** (R3).
 
 **Trade-off.** Laranja e âmbar (pausado) são parecidos, mas não aparecem juntos: o VU só fica ativo gravando; pausado, o VU
 fica todo em `vu.trilho`.
@@ -101,6 +102,9 @@ baixa visão. Os números do cronômetro usam algarismos tabulares (`fontFeature
 **Trade-off.** Aumenta o APK (4 pesos estáticos). Alternativa sem custo: a fonte do sistema (fallback já previsto). Se o
 APK passar da meta de 25 MB, usar só Regular e SemiBold (pergunta P6).
 
+**Resolvido (R6):** o APK tem ~8 MB, mas o dono pediu só **Regular (400) e SemiBold (600)**. A escala inteira usa
+apenas esses dois pesos (`typography.fontFamilies.texto.pesosDisponiveis`).
+
 ## D9 — Ícones de interface: Material Symbols arredondados; ícones da marca originais
 
 **Decisão.** Ícones de interface continuam da biblioteca do Material que o app já usa (`material-icons-extended`,
@@ -108,12 +112,13 @@ Apache 2.0), no estilo **Rounded** (`Icons.Rounded.*`) para combinar com as form
 bloco são desenhos originais (`docs/design/icone/`). Nenhuma marca de terceiros (inclusive em "Compartilhar com WhatsApp":
 usar a folha do sistema, que mostra os ícones dos apps, nunca ícones copiados).
 
-**Ponto aberto:** P4 confirma se a biblioteca do Material conta como "ícone de terceiros" para a regra do projeto.
+**Resolvido (R4):** os Material Symbols (Apache 2.0) não contam como ícones de terceiros. Não há conjunto próprio.
 
 ## D10 — Widget e bloco mostram o estado real
 
 **Decisão.** O widget tem três estados (pronto, gravando, pausado) e o bloco tem dois (inativo, ativo). Hoje nenhum dos
-dois recebe o estado da gravação (pergunta P2). O desenho em `telas.md` assume que vai receber.
+dois recebe o estado da gravação. **Resolvido (R2):** os dois passam a refletir o estado real (gravando, pausado,
+parado); entra na implementação.
 
 ## D11 — Notificação de gravação colorida
 
@@ -142,23 +147,26 @@ claro e escuro, e todos os pares passam no AA (linhas `mixlirous-*` da tabela em
 (`#804792`) tem a mesma luminância do vermelho de gravando; por isso o botão Gravar parado usa o container claro
 (`semantic.pronto`), e a medição sem cor continua ≥ 3,5:1 entre gravando e pronto.
 
-**Ponto aberto:** P9 — confirmar que "Mixlirous" é marca do próprio projeto e pode aparecer por nome no app.
+**Resolvido (R9):** Mixlirous é marca do dono e aparece com esse nome em Ajustes › Aparência › Paleta.
 
 ---
 
-## Perguntas em aberto (não inventei a resposta)
+## Respostas do dono (2026-10-08)
 
-| # | Pergunta | Onde apareceu | O que muda com a resposta |
-| --- | --- | --- | --- |
-| P1 | Podemos acrescentar `GRAPHITE` ao enum `MarkerColor` (e tratar `RED` como rosa, ou renomeá-lo)? A cor é salva como texto no Room (`MarkerEntity.color`) e lida com `runCatching { valueOf }`, então valor novo não exige migração — mas o sidecar dos marcadores (`MarkerSidecar`) precisa ser conferido. | `core/domain/.../marker/Marker.kt` tem 5 cores; o pedido fala em 6 | Se não, o seletor mostra 5 cores e `color.marker.*.grafite` fica sem uso |
-| P2 | Quem avisa o bloco e o widget de que a gravação começou/parou? Hoje o bloco volta a "inativo" em `onStartListening` e o widget é estático. | `RecordTileService.kt`, `RecordWidget.kt` | Sem isso, o estado "gravando" do bloco e do widget (aceite) não aparece |
-| P3 | O VU recebe só o RMS (`LevelMeter.rmsDb`). Para "clipando" o certo é o pico (amostra ≥ -1 dBFS). Podemos expor o pico? Até lá, o token usa RMS > -3 dBFS como aproximação. | `core/audio-engine/.../LevelMeter.kt` | Precisão do aviso "Alto demais" |
-| P4 | Os ícones do Material (Apache 2.0, já dependência do app) contam como "ícones de terceiros"? | Regra do pedido | Se sim, desenhar um conjunto próprio (~30 ícones) |
-| P5 | Hoje não existe tela para escolher a cor do marcador (todos usam `tertiary`). O seletor proposto em `telas.md` (diálogo do marcador) entra no escopo? | `PlayerDialogs.kt` | Sem seletor, todos ficam âmbar (padrão do domínio) |
-| P6 | Há folga de tamanho no APK para 4 arquivos de fonte? | Meta ≤ 25 MB do README | Quantos pesos empacotar |
-| P7 | A notificação de mídia do player usa o ícone padrão do Media3. Podemos trocar pelo `ic_stat_gravasom` (provavelmente sobrescrevendo o drawable `media3_notification_small_icon` — confirmar na versão 1.5.0)? | `PlaybackService.kt` | Consistência do ícone na barra de status |
-| P9 | "Mixlirous" é marca sua (pode aparecer por nome em Ajustes)? Se não, a opção se chama "Estúdio" e mantém as mesmas cores. | Pedido do tema (D12) | Só o rótulo da opção |
-| P8 | Quais tamanhos de widget queremos? Hoje só existe o mínimo 110 × 40 dp. Proponho 2×1 e 4×1 responsivos. | `record_widget_info.xml` | Layout do widget |
+As perguntas P1–P9 foram respondidas. Cada linha diz o que muda para a implementação; os tokens já refletem as
+respostas.
+
+| # | Resposta | O que muda (para o agente de código) |
+| --- | --- | --- |
+| R1 | Acrescentar `GRAPHITE` ao `MarkerColor`. `RED` mantém o nome no código; na tela vira "Rosa". | Enum com 6 valores na ordem `AMBER, RED, GREEN, BLUE, PURPLE, GRAPHITE`. Cor → token por `color.marker.mapeamentoDominio`; rótulo por `color.marker.rotulos`. **`MarkerSidecar` conferido:** o arquivo `.markers` guarda só `posicaoMs<TAB>rotulo`, sem cor; os marcadores feitos durante a gravação nascem `AMBER` (padrão do domínio) ao serem ingeridos. Nada a migrar no sidecar. No Room a cor é texto lido com `runCatching { valueOf }`: valor novo não exige migração, e uma versão antiga que leia `GRAPHITE` cai em `AMBER` sem quebrar. |
+| R2 | Bloco e widget refletem o estado real (gravando, pausado, parado). | Bloco: `Tile.state`, ícone, `label` e `subtitle` por estado (`telas.md` §6), atualizados a cada mudança do estado de gravação; em `onStartListening` ler o estado atual em vez de forçar "inativo". Widget: 3 estados × 2 tamanhos (`telas.md` §5), atualizado a cada mudança de estado. |
+| R3 | Expor o pico no `LevelMeter`; "Alto demais" usa pico ≥ −1 dBFS. | `LevelMeter` ganha o pico em dBFS (maior \|amostra\| do bloco) ao lado do RMS, e o estado do serviço passa a publicar os dois. As barras do VU seguem o RMS; o aviso segue o pico. **Atenção ao M4A:** esse gravador lê `MediaRecorder.getMaxAmplitude()`, que já é um pico, não um RMS; ali o mesmo valor alimenta as barras e o aviso. |
+| R4 | Material Symbols não contam como ícones de terceiros. | Ícones de interface continuam `Icons.Rounded.*`. |
+| R5 | O seletor de cor entra no diálogo do marcador. | `telas.md` §3a. Os 6 swatches seguem `color.marker.ordem`; o padrão de um marcador novo continua `AMBER`. |
+| R6 | Empacotar só Regular e SemiBold. | `res/font`: `atkinson_next_regular` (400) e `atkinson_next_semibold` (600). Pesos 500/700 removidos da escala. |
+| R7 | Trocar o ícone da notificação de mídia por `ic_stat_gravasom`. | Ver `icone/README.md` (Media3 1.5.0: conferir o recurso que o `DefaultMediaNotificationProvider` usa como ícone pequeno e sobrescrevê-lo, ou definir o ícone no provider). |
+| R8 | Widget 2×1 e 4×1 responsivos. | `size.widget2x1`, `size.widget4x1`, `size.widgetPontoQuebra`; layouts em `telas.md` §5. |
+| R9 | "Mixlirous" é marca do dono. | Rótulo "Mixlirous" em Ajustes › Aparência › Paleta. |
 
 ## Como validar (pendente, depende do dono)
 

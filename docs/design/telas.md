@@ -107,7 +107,7 @@ Entrada e saída: `m:faixaEstadoEntra` / `m:faixaEstadoSai`.
 | --- | --- | --- | --- | --- |
 | 8 | Faixa de estado | Seção 0 | Seção 0 | Fica no topo, largura total menos margens |
 | 9 | Cronômetro | `Text` | `t:extra.cronometro`; `c:scheme.*.onSurface` | Atualiza a cada 1 s |
-| 10 | VU ativo | 24 segmentos + rótulo | Escala -60 a 0 dBFS, 2,5 dB por segmento: 1–8 (≤ -40) `c:semantic.*.vu.baixo`; 9–22 (-40 a -5) `c:semantic.*.vu.ok`; 23–24 (> -5) `c:semantic.*.vu.clipando`; apagados `c:semantic.*.vu.trilho`; `m:vuSubida`, `m:vuQueda`, `m:vuPicoRetido`; rótulo `t:scale.labelMedium` `c:scheme.*.onSurfaceVariant` | Rótulo: "Baixo" (≤ -40), "Alto demais" com ícone `Warning` (RMS > -3, ver P3), senão "Bom"; descrição de acessibilidade "Nível do microfone: bom" |
+| 10 | VU ativo | 24 segmentos + rótulo | Escala -60 a 0 dBFS, 2,5 dB por segmento: 1–8 (≤ -40) `c:semantic.*.vu.baixo`; 9–22 (-40 a -5) `c:semantic.*.vu.ok`; 23–24 (> -5) `c:semantic.*.vu.clipando`; apagados `c:semantic.*.vu.trilho`; `m:vuSubida`, `m:vuQueda`, `m:vuPicoRetido`; rótulo `t:scale.labelMedium` `c:scheme.*.onSurfaceVariant` | Rótulo: "Baixo" (RMS ≤ -40), "Alto demais" com ícone `Warning` quando o **pico ≥ -1 dBFS** (o segmento 24 acende em `vu.clipando` e fica `m:vuPicoRetido`), senão "Bom". Barras pelo RMS; descrição de acessibilidade "Nível do microfone: bom" |
 | 11 | Pausar | `FilledTonalIconButton` | `s:size.botaoTransporte` (72); `f:shape.component.botaoTransporte`; fundo `c:scheme.*.secondaryContainer`; ícone `Pause` `s:size.iconeTransporte` `c:scheme.*.onSecondaryContainer`; rótulo `t:scale.labelLarge` | "Pausar" |
 | 12 | Parar | `FilledIconButton` | `s:size.botaoParar` (96); `f:shape.component.botaoParar` (canto 28); fundo `c:semantic.*.gravando.container`; ícone `Stop` 40 dp `c:semantic.*.gravando.onContainer`; morfa a partir do 4 com `m:morfarBotao` | "Parar" |
 | 13 | Marcar | `FilledTonalIconButton` | Igual ao 11; ícone `Flag`; contador `t:scale.labelSmall` `c:scheme.*.onSurfaceVariant`; ao tocar: `m:confirmarMarcador` (bandeira cresce no ícone) + vibração | "Marcar"; "N marcadores" |
@@ -204,7 +204,7 @@ Igual a 1b com estas trocas:
 | 22 | Chips | `LazyRow` de `FilterChip`/`AssistChip` | Todos com mesmo estilo: `f:shape.component.chip`; selecionado `c:scheme.*.secondaryContainer` + ✓; rola na horizontal (não corta) | "Pular silêncio", "1,5x" (vírgula), "Etiquetas (2)" |
 | 23 | Lista de marcadores | `ListItem` | Altura ≥ 48; chip do número `c:marker.*.<cor>.container` / `c:marker.*.<cor>.onContainer`, `t:extra.numeroMarcador`; tempo `t:extra.tempo`; título `t:scale.bodyMedium`; nota `t:scale.bodySmall` `c:scheme.*.onSurfaceVariant`; editar `Edit` 48 dp | Toque na linha = ir para o ponto e tocar |
 
-### 3a. Diálogo do marcador (com cor — depende de P5)
+### 3a. Diálogo do marcador (com seletor de cor)
 
 ```
 ┌──────────────────────────────┐
@@ -220,7 +220,7 @@ Igual a 1b com estas trocas:
 
 | Elemento | Tokens | Regra |
 | --- | --- | --- |
-| Amostras | 6 círculos 32 dp dentro de alvos de 48 dp, na ordem `color.marker.ordem`; fundo `c:marker.*.<cor>.fill`; selecionada com anel 2 dp `c:scheme.*.onSurface` + ícone `Check` `c:marker.*.<cor>.onFill` | Abaixo, o nome da cor selecionada em texto (`t:scale.labelLarge`); cada amostra tem descrição "Cor âmbar, selecionada" |
+| Amostras | 6 círculos 32 dp dentro de alvos de 48 dp, na ordem `color.marker.ordem`; fundo `c:marker.*.<cor>.fill`; selecionada com anel 2 dp `c:scheme.*.onSurface` + ícone `Check` `c:marker.*.<cor>.onFill` | Abaixo, o nome da cor selecionada em texto (`t:scale.labelLarge`), de `color.marker.rotulos` (`RED` aparece como "Rosa"); cada amostra tem descrição "Cor âmbar, selecionada" |
 | Excluir marcador | `TextButton` com `c:scheme.*.error` | Excluir mostra snackbar com DESFAZER (heurística 3b) |
 
 ---
@@ -268,7 +268,7 @@ Igual a 1b com estas trocas:
 
 ## 5. Widget (Glance)
 
-Três estados × dois tamanhos (P8). Fundo e textos usam os papéis da paleta escolhida (Gravasom ou Mixlirous; com "Cores do sistema", usam Gravasom), para o vermelho
+Três estados × dois tamanhos, responsivo: largura < `s:size.widgetPontoQuebra` (250 dp) usa o 2×1 (`s:size.widget2x1`), maior usa o 4×1 (`s:size.widget4x1`). Fundo e textos usam os papéis da paleta escolhida (Gravasom ou Mixlirous; com "Cores do sistema", usam Gravasom), para o vermelho
 nunca vir do papel de parede. Canto `f:shape.component.widget` (no Android 12+ usar `system_app_widget_background_radius`).
 
 ```
@@ -305,7 +305,7 @@ RemoteViews se o Glance permitir (pergunta para o agente: se não, mostrar só "
 | Pausado | `STATE_ACTIVE` | `ic_stat_pausado` | "Pausada" | "Toque para parar" | "Gravação pausada. Toque para parar" |
 
 O sistema pinta o bloco ativo/inativo com as cores dele; o estado é dito pelo ícone (silhueta cheia × vazada) e pelo
-texto. Depende de P2 para saber o estado.
+texto. O bloco lê o estado atual ao começar a escutar e é atualizado a cada mudança (R2).
 
 ---
 
@@ -337,7 +337,7 @@ texto. Depende de P2 para saber o estado.
 
 | Elemento | Valor |
 | --- | --- |
-| Ícone pequeno | `ic_stat_gravasom` (P7) |
+| Ícone pequeno | `ic_stat_gravasom` (R7) |
 | Título | Nome da gravação; do cofre: "Gravação privada" (já existe) |
 | Cor | A do sistema para mídia (não colorir: tocar não é gravar) |
 
@@ -351,4 +351,4 @@ texto. Depende de P2 para saber o estado.
    por `onda.barra` / `onda.tocada`.
 4. Ler o cofre sempre de `color.semantic.*.cofre` (nunca de `colorScheme.tertiary`).
 5. Converter os SVGs de `docs/design/icone/` em Vector Drawables (ver `icone/README.md`).
-6. Perguntas P1–P8 em `decisoes.md` antes de implementar seletor de cor, widget com estado e bloco com estado.
+6. Seguir as respostas R1–R9 de `decisoes.md`: `GRAPHITE` no enum (R1), estado real no bloco e no widget (R2), pico no `LevelMeter` (R3), seletor de cor no diálogo (R5), só 2 pesos de fonte (R6), ícone da notificação de mídia (R7), widget responsivo (R8).
