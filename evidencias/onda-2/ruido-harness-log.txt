@@ -1,0 +1,131 @@
+/root/.cache/gravasom-corpus/fleurs-pt_br-dev.tar.gz: OK
+/root/.cache/gravasom-corpus/fleurs-pt_br-dev.tsv: OK
+/root/.cache/gravasom-corpus/fleurs-pt_br-train.tar.gz: OK
+/root/.cache/gravasom-corpus/fleurs-pt_br-train.tsv: OK
+fala pt-BR em /home/user/gravasom/tests-out/pt: 16 arquivos
+72 arquivos em /home/user/gravasom/tests-out/onda2/ruido/corpus-48k
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+e: The daemon has terminated unexpectedly on startup attempt #1 with error code: 0. The daemon process output:
+    1. Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+    2. Kotlin compile daemon is ready
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33595 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+== k0.4: SI-SDRi medio +2.42 dB (pior condicao +0.94), ganho de STOI +0.0257; fala LIMPA: STOI medio 0.9983 (pior 0.9977, teto 0.9909: OK); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +0.94 dB  STOI 0.636 -> 0.653
+   murmurio_snr10     SI-SDRi  +1.35 dB  STOI 0.849 -> 0.869
+   murmurio_snr15     SI-SDRi  +0.96 dB  STOI 0.908 -> 0.918
+   murmurio_snr5      SI-SDRi  +1.28 dB  STOI 0.758 -> 0.782
+   rosa_snr0          SI-SDRi  +3.46 dB  STOI 0.675 -> 0.734
+   rosa_snr10         SI-SDRi  +3.06 dB  STOI 0.864 -> 0.891
+   rosa_snr15         SI-SDRi  +2.39 dB  STOI 0.919 -> 0.931
+   rosa_snr5          SI-SDRi  +3.35 dB  STOI 0.783 -> 0.827
+   ventilador_snr0    SI-SDRi  +3.13 dB  STOI 0.625 -> 0.685
+   ventilador_snr10   SI-SDRi  +2.74 dB  STOI 0.829 -> 0.863
+   ventilador_snr15   SI-SDRi  +2.11 dB  STOI 0.893 -> 0.912
+   ventilador_snr5    SI-SDRi  +3.04 dB  STOI 0.738 -> 0.788
+   zumbido_snr0       SI-SDRi  +3.10 dB  STOI 0.875 -> 0.889
+   zumbido_snr10      SI-SDRi  +2.66 dB  STOI 0.940 -> 0.947
+   zumbido_snr15      SI-SDRi  +2.12 dB  STOI 0.960 -> 0.963
+   zumbido_snr5       SI-SDRi  +2.95 dB  STOI 0.912 -> 0.923
+
+== k1.0: SI-SDRi medio +4.09 dB (pior condicao -0.87), ganho de STOI +0.0429; fala LIMPA: STOI medio 0.9519 (pior 0.8490, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +1.12 dB  STOI 0.636 -> 0.632
+   murmurio_snr10     SI-SDRi  +0.96 dB  STOI 0.849 -> 0.878
+   murmurio_snr15     SI-SDRi  -0.87 dB  STOI 0.908 -> 0.916
+   murmurio_snr5      SI-SDRi  +1.46 dB  STOI 0.758 -> 0.784
+   rosa_snr0          SI-SDRi  +9.37 dB  STOI 0.675 -> 0.816
+   rosa_snr10         SI-SDRi  +4.57 dB  STOI 0.864 -> 0.906
+   rosa_snr15         SI-SDRi  +1.07 dB  STOI 0.919 -> 0.928
+   rosa_snr5          SI-SDRi  +7.28 dB  STOI 0.783 -> 0.871
+   ventilador_snr0    SI-SDRi  +7.99 dB  STOI 0.625 -> 0.786
+   ventilador_snr10   SI-SDRi  +3.98 dB  STOI 0.829 -> 0.895
+   ventilador_snr15   SI-SDRi  +0.80 dB  STOI 0.893 -> 0.919
+   ventilador_snr5    SI-SDRi  +6.33 dB  STOI 0.738 -> 0.853
+   zumbido_snr0       SI-SDRi  +8.36 dB  STOI 0.875 -> 0.885
+   zumbido_snr10      SI-SDRi  +4.65 dB  STOI 0.940 -> 0.929
+   zumbido_snr15      SI-SDRi  +1.47 dB  STOI 0.960 -> 0.939
+   zumbido_snr5       SI-SDRi  +6.89 dB  STOI 0.912 -> 0.913
+
+== k0.4: SI-SDRi medio +2.41 dB (pior condicao +0.93), ganho de STOI +0.0257; fala LIMPA: STOI medio 0.9983 (pior 0.9976, teto 0.9909: OK); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +0.93 dB  STOI 0.636 -> 0.653
+   murmurio_snr10     SI-SDRi  +1.35 dB  STOI 0.849 -> 0.869
+   murmurio_snr15     SI-SDRi  +0.96 dB  STOI 0.908 -> 0.918
+   murmurio_snr5      SI-SDRi  +1.28 dB  STOI 0.758 -> 0.782
+   rosa_snr0          SI-SDRi  +3.45 dB  STOI 0.675 -> 0.734
+   rosa_snr10         SI-SDRi  +3.04 dB  STOI 0.864 -> 0.891
+   rosa_snr15         SI-SDRi  +2.37 dB  STOI 0.919 -> 0.931
+   rosa_snr5          SI-SDRi  +3.34 dB  STOI 0.783 -> 0.827
+   ventilador_snr0    SI-SDRi  +3.13 dB  STOI 0.625 -> 0.685
+   ventilador_snr10   SI-SDRi  +2.74 dB  STOI 0.829 -> 0.863
+   ventilador_snr15   SI-SDRi  +2.11 dB  STOI 0.893 -> 0.912
+   ventilador_snr5    SI-SDRi  +3.04 dB  STOI 0.738 -> 0.788
+   zumbido_snr0       SI-SDRi  +3.10 dB  STOI 0.875 -> 0.889
+   zumbido_snr10      SI-SDRi  +2.66 dB  STOI 0.940 -> 0.947
+   zumbido_snr15      SI-SDRi  +2.12 dB  STOI 0.960 -> 0.963
+   zumbido_snr5       SI-SDRi  +2.95 dB  STOI 0.912 -> 0.923
+
+== k1.0: SI-SDRi medio +4.08 dB (pior condicao -0.87), ganho de STOI +0.0429; fala LIMPA: STOI medio 0.9517 (pior 0.8483, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +1.12 dB  STOI 0.636 -> 0.632
+   murmurio_snr10     SI-SDRi  +0.95 dB  STOI 0.849 -> 0.878
+   murmurio_snr15     SI-SDRi  -0.87 dB  STOI 0.908 -> 0.916
+   murmurio_snr5      SI-SDRi  +1.46 dB  STOI 0.758 -> 0.784
+   rosa_snr0          SI-SDRi  +9.31 dB  STOI 0.675 -> 0.816
+   rosa_snr10         SI-SDRi  +4.52 dB  STOI 0.864 -> 0.907
+   rosa_snr15         SI-SDRi  +1.02 dB  STOI 0.919 -> 0.928
+   rosa_snr5          SI-SDRi  +7.23 dB  STOI 0.783 -> 0.871
+   ventilador_snr0    SI-SDRi  +7.99 dB  STOI 0.625 -> 0.786
+   ventilador_snr10   SI-SDRi  +3.98 dB  STOI 0.829 -> 0.895
+   ventilador_snr15   SI-SDRi  +0.80 dB  STOI 0.893 -> 0.920
+   ventilador_snr5    SI-SDRi  +6.33 dB  STOI 0.738 -> 0.853
+   zumbido_snr0       SI-SDRi  +8.36 dB  STOI 0.875 -> 0.884
+   zumbido_snr10      SI-SDRi  +4.65 dB  STOI 0.940 -> 0.929
+   zumbido_snr15      SI-SDRi  +1.47 dB  STOI 0.960 -> 0.939
+   zumbido_snr5       SI-SDRi  +6.89 dB  STOI 0.912 -> 0.913
+
+== k0.4: SI-SDRi medio +2.37 dB (pior condicao +0.92), ganho de STOI +0.0257; fala LIMPA: STOI medio 0.9983 (pior 0.9976, teto 0.9909: OK); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +0.94 dB  STOI 0.636 -> 0.653
+   murmurio_snr10     SI-SDRi  +1.32 dB  STOI 0.849 -> 0.869
+   murmurio_snr15     SI-SDRi  +0.92 dB  STOI 0.908 -> 0.919
+   murmurio_snr5      SI-SDRi  +1.30 dB  STOI 0.758 -> 0.782
+   rosa_snr0          SI-SDRi  +3.40 dB  STOI 0.675 -> 0.733
+   rosa_snr10         SI-SDRi  +2.94 dB  STOI 0.864 -> 0.891
+   rosa_snr15         SI-SDRi  +2.22 dB  STOI 0.919 -> 0.931
+   rosa_snr5          SI-SDRi  +3.28 dB  STOI 0.783 -> 0.827
+   ventilador_snr0    SI-SDRi  +3.11 dB  STOI 0.625 -> 0.686
+   ventilador_snr10   SI-SDRi  +2.71 dB  STOI 0.829 -> 0.863
+   ventilador_snr15   SI-SDRi  +2.05 dB  STOI 0.893 -> 0.912
+   ventilador_snr5    SI-SDRi  +3.02 dB  STOI 0.738 -> 0.788
+   zumbido_snr0       SI-SDRi  +3.08 dB  STOI 0.875 -> 0.889
+   zumbido_snr10      SI-SDRi  +2.63 dB  STOI 0.940 -> 0.947
+   zumbido_snr15      SI-SDRi  +2.06 dB  STOI 0.960 -> 0.963
+   zumbido_snr5       SI-SDRi  +2.92 dB  STOI 0.912 -> 0.923
+
+== k1.0: SI-SDRi medio +3.82 dB (pior condicao -1.07), ganho de STOI +0.0427; fala LIMPA: STOI medio 0.9514 (pior 0.8476, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +1.10 dB  STOI 0.636 -> 0.629
+   murmurio_snr10     SI-SDRi  +0.75 dB  STOI 0.849 -> 0.877
+   murmurio_snr15     SI-SDRi  -1.07 dB  STOI 0.908 -> 0.917
+   murmurio_snr5      SI-SDRi  +1.43 dB  STOI 0.758 -> 0.782
+   rosa_snr0          SI-SDRi  +8.80 dB  STOI 0.675 -> 0.814
+   rosa_snr10         SI-SDRi  +3.95 dB  STOI 0.864 -> 0.906
+   rosa_snr15         SI-SDRi  +0.42 dB  STOI 0.919 -> 0.929
+   rosa_snr5          SI-SDRi  +6.75 dB  STOI 0.783 -> 0.869
+   ventilador_snr0    SI-SDRi  +7.91 dB  STOI 0.625 -> 0.791
+   ventilador_snr10   SI-SDRi  +3.80 dB  STOI 0.829 -> 0.896
+   ventilador_snr15   SI-SDRi  +0.54 dB  STOI 0.893 -> 0.919
+   ventilador_snr5    SI-SDRi  +6.21 dB  STOI 0.738 -> 0.855
+   zumbido_snr0       SI-SDRi  +8.26 dB  STOI 0.875 -> 0.885
+   zumbido_snr10      SI-SDRi  +4.40 dB  STOI 0.940 -> 0.928
+   zumbido_snr15      SI-SDRi  +1.14 dB  STOI 0.960 -> 0.939
+   zumbido_snr5       SI-SDRi  +6.72 dB  STOI 0.912 -> 0.911
+
+OK: intensidade padrao (40%) melhora o SI-SDRi do ruido estacionario, a fala limpa fica >= 0,9909 e a saida esta alinhada.
