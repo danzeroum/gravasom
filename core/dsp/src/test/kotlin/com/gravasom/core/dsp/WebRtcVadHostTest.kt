@@ -11,6 +11,10 @@ import kotlin.random.Random
 
 class WebRtcVadHostTest {
 
+    /** Vogal sintetica: f0 de 120 Hz com formantes em 700 e 1200 Hz. */
+    private fun voice(t: Double): Double =
+        9_000 * sin(2 * PI * 120 * t) + 6_000 * sin(2 * PI * 700 * t) + 4_000 * sin(2 * PI * 1_200 * t)
+
     private fun noise(seconds: Double, amp: Int, seed: Int): ShortArray {
         val r = Random(seed)
         return ShortArray((16_000 * seconds).toInt()) { (r.nextInt(-amp, amp + 1)).toShort() }
@@ -68,7 +72,7 @@ class WebRtcVadHostTest {
         val frames = rate * 2
         val pcm = ShortArray(frames * 2) { i ->
             val t = (i / 2).toDouble() / rate
-            if (t < 0.5 || t > 1.5) 0 else (9_000 * sin(2 * PI * 120 * t) + 6_000 * sin(2 * PI * 700 * t) + 4_000 * sin(2 * PI * 1_200 * t)).toInt().toShort()
+            if (t < 0.5 || t > 1.5) 0 else voice(t).toInt().toShort()
         }
         pipeline.add(pcm, 0, pcm.size)
         val analysis = pipeline.finish()

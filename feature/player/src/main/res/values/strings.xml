@@ -39,11 +39,11 @@
     <string name="player_marker_label">Nome (opcional)</string>
     <string name="player_marker_note">Nota</string>
     <string name="player_marker_note_counter">%1$d/%2$d</string>
-    <string name="player_marker_note_too_long">A nota passa de %1$d caracteres. Encurte para salvar.</string>
+    <string name="player_marker_note_too_long">Nota longa demais (máximo %1$d). Encurte para salvar.</string>
     <string name="player_marker_save">Salvar</string>
     <string name="player_marker_delete">Excluir marcador</string>
     <string name="player_marker_cancel">Cancelar</string>
-    <string name="player_marker_rejected_note">A nota passa de %1$d caracteres e não foi salva.</string>
+    <string name="player_marker_rejected_note">Nota longa demais (máximo %1$d): não foi salva.</string>
     <string name="player_marker_rejected_range">Esse ponto está fora da gravação.</string>
     <string name="player_marker_rejected_missing">A gravação não foi encontrada.</string>
     <string name="player_tags_button">Etiquetas</string>

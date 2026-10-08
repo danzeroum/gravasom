@@ -6,14 +6,19 @@ consoantes surdas nas pontas). Depois o ruido entra por cima (ventilador, rosa, 
 definido contra o RMS da fala. Determinista (sementes fixas). So numpy; ffmpeg faz a reamostragem das variantes de taxa.
 
 Saida em <dir>: <nome>.wav, <nome>.oraculo (um '0'/'1' por quadro de 20 ms) e manifest.tsv
-(nome, wav, oraculo, cenario, pausa_ideal_ms).
+(nome, wav, oraculo, cenario, pausa_ideal_ms) e <nome>.ref.txt (texto falado, para o WER antes/depois do pulo).
 """
 import subprocess
 import sys
 import wave
 from pathlib import Path
 
+import os
+
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(__file__))
+from asr_corpus import normalizar, referencias  # noqa: E402
 
 SR = 16000
 FRAME = 320
@@ -174,6 +179,7 @@ def main():
     homens = [pt_dir / i[1] for i in itens if i[2] == "MALE"]
     mulheres = [pt_dir / i[1] for i in itens if i[2] == "FEMALE"]
     pool = [ler(p) for p in homens + mulheres]
+    refs = referencias(pt_dir)
     rng = np.random.default_rng(20261008)
     # 6 gravacoes: 3 com vozes masculinas, 3 femininas, 4 locucoes cada
     grupos = []
@@ -205,6 +211,7 @@ def main():
                 resample(wav16, tmp, taxa)
                 tmp.replace(wav16)
             (saida / f"{nome}.oraculo").write_text("".join("1" if v else "0" for v in orc))
+            (saida / f"{nome}.ref.txt").write_text(normalizar(" ".join(refs[a.name] for a in arquivos)), encoding="utf-8")
             linhas.append(f"{nome}\t{wav16.name}\t{nome}.oraculo\t{cnome}\t{int(pausa_ms)}")
     (saida / "manifest.tsv").write_text("\n".join(linhas) + "\n")
     print(f"{len(linhas)} gravacoes de teste em {saida}")

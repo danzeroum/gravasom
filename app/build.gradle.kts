@@ -39,6 +39,14 @@ android {
         release {
             signingConfigs.findByName("release")?.let { signingConfig = it }
         }
+        // Para o Macrobenchmark: igual ao release (R8, sem depuracao) mas assinado com a chave de debug. Traz o SeedReceiver
+        // (app/src/benchmark) que semeia a gravacao de 1 h; esse receptor NAO existe no release.
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
     packaging {
         resources {

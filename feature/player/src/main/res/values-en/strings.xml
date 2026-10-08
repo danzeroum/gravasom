@@ -39,11 +39,11 @@
     <string name="player_marker_label">Name (optional)</string>
     <string name="player_marker_note">Note</string>
     <string name="player_marker_note_counter">%1$d/%2$d</string>
-    <string name="player_marker_note_too_long">The note is over %1$d characters. Shorten it to save.</string>
+    <string name="player_marker_note_too_long">Note too long (max %1$d). Shorten it to save.</string>
     <string name="player_marker_save">Save</string>
     <string name="player_marker_delete">Delete marker</string>
     <string name="player_marker_cancel">Cancel</string>
-    <string name="player_marker_rejected_note">The note is over %1$d characters and was not saved.</string>
+    <string name="player_marker_rejected_note">Note too long (max %1$d): not saved.</string>
     <string name="player_marker_rejected_range">That point is outside the recording.</string>
     <string name="player_marker_rejected_missing">The recording was not found.</string>
     <string name="player_tags_button">Tags</string>

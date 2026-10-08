@@ -6,6 +6,8 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+/** O contrato de um DAO exige uma funcao por consulta/atualizacao: o limite de funcoes por interface nao se aplica aqui. */
+@Suppress("TooManyFunctions")
 @Dao
 interface RecordingDao {
 

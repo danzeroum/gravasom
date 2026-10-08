@@ -55,14 +55,15 @@ class WaveformViewTest {
         compose.setContent {
             MaterialTheme {
                 WaveformView(
-                    waveform = Waveform(ByteArray(360_000) { (it % 200).toByte() }),
-                    durationMillis = hour,
-                    window = { window },
-                    onWindowChange = { window = it },
+                    data = WaveformData(
+                        waveform = Waveform(ByteArray(360_000) { (it % 200).toByte() }),
+                        durationMillis = hour,
+                        markers = visibleMarkers,
+                        skipRanges = emptyList(),
+                        selection = null,
+                    ),
+                    viewport = WaveformViewport({ window }, { window = it }),
                     positionMillis = { position },
-                    markers = visibleMarkers,
-                    skipRanges = emptyList(),
-                    selection = null,
                     selecting = false,
                     actions = WaveformActions(
                         onSeek = { sought += it },
@@ -115,11 +116,13 @@ class WaveformViewTest {
     @Test
     fun `acao ampliar da acessibilidade reduz a janela e reduzir a devolve`() {
         mostrar()
-        val ampliar = compose.onNodeWithTag("onda").fetchSemanticsNode().config[SemanticsActions.CustomActions].first { it.label == "ampliar" }
+        val acoes = compose.onNodeWithTag("onda").fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        val ampliar = acoes.first { it.label == "ampliar" }
         compose.runOnUiThread { ampliar.action() }
         compose.waitForIdle()
         assertEquals(hour / 2, window.spanMillis)
-        val reduzir = compose.onNodeWithTag("onda").fetchSemanticsNode().config[SemanticsActions.CustomActions].first { it.label == "reduzir" }
+        val acoesDepois = compose.onNodeWithTag("onda").fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        val reduzir = acoesDepois.first { it.label == "reduzir" }
         compose.runOnUiThread { reduzir.action() }
         compose.waitForIdle()
         assertEquals(hour, window.spanMillis)

@@ -70,7 +70,8 @@ class MarkerDialogTest {
         mostrar()
         compose.onNodeWithTag("campo_nota_marcador").performTextInput("a".repeat(MarkerNote.MAX_LENGTH + 1))
         compose.onNodeWithTag("salvar_marcador").assertIsNotEnabled()
-        compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals(texto(R.string.player_marker_note_too_long, MarkerNote.MAX_LENGTH))
+        compose.onNodeWithTag("erro_nota", useUnmergedTree = true)
+            .assertTextEquals(texto(R.string.player_marker_note_too_long, MarkerNote.MAX_LENGTH))
         compose.onNodeWithTag("contador_nota", useUnmergedTree = true).assertTextEquals("141/140")
         compose.onNodeWithTag("salvar_marcador").performClick()
         compose.waitForIdle()
@@ -93,7 +94,7 @@ class MarkerDialogTest {
     fun `a mensagem de nota longa sai em portugues`() {
         mostrar()
         compose.onNodeWithTag("campo_nota_marcador").performTextInput("a".repeat(141))
-        compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals("A nota passa de 140 caracteres. Encurte para salvar.")
+        compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals("Nota longa demais (máximo 140). Encurte para salvar.")
     }
 
     @Test
@@ -101,6 +102,6 @@ class MarkerDialogTest {
     fun `a mensagem de nota longa sai em ingles`() {
         mostrar()
         compose.onNodeWithTag("campo_nota_marcador").performTextInput("a".repeat(141))
-        compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals("The note is over 140 characters. Shorten it to save.")
+        compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals("Note too long (max 140). Shorten it to save.")
     }
 }

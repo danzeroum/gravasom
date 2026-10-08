@@ -55,22 +55,26 @@ class RecordingIngestor(
         val size = file.length()
         val name = title ?: defaultTitle(now, MediaProbe.config(file, format, duration), Locale.getDefault())
         val vaultOn = forcePrivate || prefs.privateVault.first()
-        // Cofre ligado: cifra e apaga o claro. Se a cifragem falhar, o claro fica no app, sem copia publica (nunca vaza).
-        val stored = if (vaultOn) vaultStore.protect(file) ?: file else file
-        val id = repo.insert(
-            Recording(
-                title = name, path = stored.path, format = format, durationMillis = duration,
-                sizeBytes = size, createdAtMillis = now,
-            ),
+        val base = Recording(
+            title = name, path = file.path, format = format, durationMillis = duration, sizeBytes = size, createdAtMillis = now,
         )
+        val id = store(file, base, vaultOn)
         attachMarkers(id, file, duration)
-        if (!vaultOn) {
-            publisher.publish(file, "$name.${format.extension}", format.mimeType)?.let { repo.setPublishedUri(id, it) }
-            // Onda e fala calculadas ao salvar (nao ao abrir): em segundo plano, o arquivo claro ainda existe aqui.
-            scope?.launch(Dispatchers.Default) { runCatching { analyzer.ensure(id, file, persist = true) } }
-        }
+        if (!vaultOn) publishAndAnalyze(id, file, name, format)
         metrics.record(UsageEventType.GRAVACAO_CONCLUIDA, duration, format)
         id
+    }
+
+    /** Insere a gravacao. Cofre ligado: cifra e apaga o claro; se a cifragem falhar, o claro fica no app, sem copia publica. */
+    private suspend fun store(file: File, base: Recording, vaultOn: Boolean): Long {
+        val stored = if (vaultOn) vaultStore.protect(file) ?: file else file
+        return repo.insert(base.copy(path = stored.path))
+    }
+
+    /** Copia publica no MediaStore e, em segundo plano, onda e fala (calculadas ao salvar, nao ao abrir). */
+    private suspend fun publishAndAnalyze(id: Long, file: File, name: String, format: RecordingFormat) {
+        publisher.publish(file, "$name.${format.extension}", format.mimeType)?.let { repo.setPublishedUri(id, it) }
+        scope?.launch(Dispatchers.Default) { runCatching { analyzer.ensure(id, file, persist = true) } }
     }
 
     /** Marcadores feitos durante a gravacao (tela, notificacao, widget) ficam num arquivo lateral; passam para o banco. */
@@ -78,7 +82,8 @@ class RecordingIngestor(
         val sidecar = MarkerSidecar.forAudio(audio)
         val limit = if (durationMillis > 0) durationMillis else Long.MAX_VALUE
         sidecar.read().forEach { m ->
-            markers.insert(Marker(recordingId = recordingId, positionMillis = m.positionMillis.coerceIn(0L, limit), label = m.label, note = ""))
+            val position = m.positionMillis.coerceIn(0L, limit)
+            markers.insert(Marker(recordingId = recordingId, positionMillis = position, label = m.label, note = ""))
         }
         sidecar.delete()
     }

@@ -378,7 +378,7 @@ private fun Controls(state: RecordUiState, cb: RecordCallbacks) {
             )
             LabeledRoundButton(
                 Icons.Filled.Flag, stringResource(R.string.record_btn_marker), "botao_marcar", cb.onMarker,
-                caption = if (state.markerCount > 0) pluralStringResource(R.plurals.record_markers, state.markerCount, state.markerCount) else null,
+                caption = state.markerCount.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.record_markers, it, it) },
             )
             LabeledRoundButton(Icons.Filled.Stop, stringResource(R.string.record_btn_stop), "botao_parar", cb.onStop)
         }

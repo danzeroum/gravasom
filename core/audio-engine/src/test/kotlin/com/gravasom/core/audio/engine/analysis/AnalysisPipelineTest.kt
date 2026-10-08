@@ -53,7 +53,8 @@ class AnalysisPipelineTest {
         val a = analyze(pcm.size)
         val b = analyze(4_099)
         assertEquals(300, a.waveform.peaks.size) // 3 s a 100 janelas/s
-        assertTrue(a.waveform.peak(50) == 0 && a.waveform.peak(150) in 150..160 && a.waveform.peak(250) == 0, "picos ${a.waveform.peak(50)} ${a.waveform.peak(150)} ${a.waveform.peak(250)}")
+        val picos = listOf(50, 150, 250).map { a.waveform.peak(it) }
+        assertTrue(picos[0] == 0 && picos[1] in 150..160 && picos[2] == 0, "picos $picos")
         assertArrayEquals(a.waveform.peaks, b.waveform.peaks)
         assertEquals(2, a.speechByMode.size)
         val frames = a.speechFrames(0)

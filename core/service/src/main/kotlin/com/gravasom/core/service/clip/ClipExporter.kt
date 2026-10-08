@@ -22,23 +22,29 @@ class ClipExporter {
         if (endMillis <= startMillis) return ClipResult.Failed("intervalo vazio")
         if (format == RecordingFormat.WAV) return WavClipper.clip(source, startMillis, endMillis, destination)
         val tmp = File(destination.path + ".tmp")
-        return try {
+        val result = runCatchingKnown("formato nao suportado") {
             destination.parentFile?.mkdirs()
             val duration = copyFrames(source, format, startMillis, endMillis, tmp)
             if (duration <= 0L) {
-                tmp.delete()
                 ClipResult.Failed("nenhum audio no intervalo")
             } else {
                 java.nio.file.Files.move(tmp.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
                 ClipResult.Done(destination, duration)
             }
-        } catch (e: IOException) {
-            tmp.delete()
-            ClipResult.Failed(e.message ?: "erro de E/S")
-        } catch (e: RuntimeException) {
-            tmp.delete()
-            ClipResult.Failed(e.message ?: "formato nao suportado")
         }
+        if (result !is ClipResult.Done) tmp.delete()
+        return result
+    }
+
+    /** Falhas esperadas de E/S e do MediaExtractor/MediaMuxer viram [ClipResult.Failed]; o resto sobe. */
+    private fun runCatchingKnown(fallback: String, block: () -> ClipResult): ClipResult = try {
+        block()
+    } catch (e: IOException) {
+        ClipResult.Failed(e.message ?: "erro de E/S")
+    } catch (e: IllegalStateException) {
+        ClipResult.Failed(e.message ?: fallback)
+    } catch (e: IllegalArgumentException) {
+        ClipResult.Failed(e.message ?: fallback)
     }
 
     /** Devolve a duracao copiada em ms (0 se nada coube). */
@@ -79,7 +85,7 @@ class ClipExporter {
                 val time = extractor.sampleTime
                 if (size < 0 || time < 0 || time >= limitUs) break
                 if (firstUs < 0) firstUs = time
-                info.set(0, size, time - firstUs, extractor.sampleFlags)
+                info.set(0, size, time - firstUs, bufferFlags(extractor.sampleFlags))
                 muxer.writeSampleData(out, buffer, info)
                 lastUs = time - firstUs
                 extractor.advance()
@@ -112,6 +118,10 @@ class ClipExporter {
         }
         return if (firstUs < 0) 0L else (lastUs + FRAME_US) / MICROS
     }
+
+    /** Marca de quadro-chave do extrator -> do codec (todo quadro AAC e chave). */
+    private fun bufferFlags(sampleFlags: Int): Int =
+        if (sampleFlags and MediaExtractor.SAMPLE_FLAG_SYNC != 0) MediaCodec.BUFFER_FLAG_KEY_FRAME else 0
 
     private companion object {
         const val MICROS = 1000L

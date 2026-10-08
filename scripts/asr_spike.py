@@ -25,6 +25,9 @@ from pathlib import Path
 import jiwer
 import numpy as np
 
+sys.path.insert(0, os.path.dirname(__file__))
+from asr_corpus import montar  # noqa: E402
+
 SR = 16000
 
 
@@ -75,9 +78,9 @@ def main():
     referencias = [refs[a.name] for a in arquivos]
     duracao_total = sum(len(ler(a)) for a in arquivos) / SR
     longo = pt_dir / "_longo.wav"
-    pausa = np.zeros(SR // 2, dtype="<i2")
-    gravar(longo, np.concatenate([np.concatenate([ler(a), pausa]) for a in arquivos]))
-    ref_longo = " ".join(referencias)
+    pcm_longo, ref_longo, usadas = montar(pt_dir, lista, 600)  # a MESMA gravacao de 10 min do celular
+    gravar(longo, pcm_longo)
+    duracao_longo = len(pcm_longo) / SR
     out = {"locucoes": len(arquivos), "duracao_s": round(duracao_total, 1), "modelos": {}}
     so_longo = os.environ.get("ASR_SO_LONGO") == "1"
     for m in modelos:
@@ -96,7 +99,8 @@ def main():
             "wer_por_locucao": None if wer_loc is None else round(wer_loc, 4),
             "wer_gravacao_longa": round(wer_longo, 4),
             "tempo_longo_s": round(dt, 1),
-            "rtf_host_longo": round(dt / (duracao_total + 0.5 * len(arquivos)), 3),
+            "locucoes_na_gravacao_longa": len(usadas),
+            "rtf_host_longo": round(dt / duracao_longo, 3),
             "pico_memoria_mib": round(pico, 0) if pico else None,
         }
         print(m.name, out["modelos"][m.name], flush=True)

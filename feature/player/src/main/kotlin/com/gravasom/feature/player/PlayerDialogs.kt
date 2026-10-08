@@ -46,8 +46,7 @@ fun MarkerDialog(
     var label by rememberSaveable(marker.id) { mutableStateOf(marker.label) }
     var rejected by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val length = MarkerNote.length(note)
-    val tooLong = length > MarkerNote.MAX_LENGTH || rejected
+    val tooLong = MarkerNote.length(note) > MarkerNote.MAX_LENGTH || rejected
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.player_marker_dialog_title, ClipTitle.time(marker.positionMillis))) },
@@ -58,32 +57,12 @@ fun MarkerDialog(
                     label = { Text(stringResource(R.string.player_marker_label)) },
                     modifier = Modifier.fillMaxWidth().testTag("campo_nome_marcador"),
                 )
-                OutlinedTextField(
-                    value = note,
-                    onValueChange = { note = it; rejected = false },
-                    label = { Text(stringResource(R.string.player_marker_note)) },
-                    isError = tooLong,
-                    minLines = 2,
-                    supportingText = {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(
-                                if (tooLong) stringResource(R.string.player_marker_note_too_long, MarkerNote.MAX_LENGTH) else "",
-                                modifier = Modifier.weight(1f).testTag("erro_nota"),
-                            )
-                            Text(stringResource(R.string.player_marker_note_counter, length, MarkerNote.MAX_LENGTH), modifier = Modifier.testTag("contador_nota"))
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth().testTag("campo_nota_marcador"),
-                )
+                NoteField(note, tooLong) { note = it; rejected = false }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    scope.launch {
-                        if (onSave(note, label) is MarkerResult.Saved) onDismiss() else rejected = true
-                    }
-                },
+                onClick = { scope.launch { if (onSave(note, label) is MarkerResult.Saved) onDismiss() else rejected = true } },
                 enabled = !tooLong,
                 modifier = Modifier.testTag("salvar_marcador"),
             ) { Text(stringResource(R.string.player_marker_save)) }
@@ -98,6 +77,31 @@ fun MarkerDialog(
                 }
             }
         },
+    )
+}
+
+/** Campo da nota: contador n/140 e, acima do limite, o erro em texto (nao so na cor). */
+@Composable
+private fun NoteField(note: String, tooLong: Boolean, onChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = note,
+        onValueChange = onChange,
+        label = { Text(stringResource(R.string.player_marker_note)) },
+        isError = tooLong,
+        minLines = 2,
+        supportingText = {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    if (tooLong) stringResource(R.string.player_marker_note_too_long, MarkerNote.MAX_LENGTH) else "",
+                    modifier = Modifier.weight(1f).testTag("erro_nota"),
+                )
+                Text(
+                    stringResource(R.string.player_marker_note_counter, MarkerNote.length(note), MarkerNote.MAX_LENGTH),
+                    modifier = Modifier.testTag("contador_nota"),
+                )
+            }
+        },
+        modifier = Modifier.fillMaxWidth().testTag("campo_nota_marcador"),
     )
 }
 
@@ -125,7 +129,10 @@ fun TagsDialog(
                 val suggestions = known.filter { it !in text.split(',').map { t -> t.trim().lowercase() } }
                 if (suggestions.isNotEmpty()) {
                     Text(stringResource(R.string.player_tags_existing), style = MaterialTheme.typography.labelMedium)
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                         suggestions.forEach { tag ->
                             AssistChip(
                                 onClick = { text = if (text.isBlank()) tag else text.trimEnd().trimEnd(',') + ", " + tag },
@@ -143,7 +150,9 @@ fun TagsDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_etiquetas")) { Text(stringResource(R.string.player_tags_cancel)) }
+            TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_etiquetas")) {
+                Text(stringResource(R.string.player_tags_cancel))
+            }
         },
     )
 }

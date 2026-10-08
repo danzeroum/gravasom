@@ -77,7 +77,9 @@ object PcmDecoder {
         }
     }
 
-    private class Output(var sampleRate: Int, var channels: Int, var float: Boolean)
+    private class Output(var sampleRate: Int, var channels: Int, var float: Boolean) {
+        var chunk = ShortArray(0)
+    }
 
     private fun pump(
         extractor: MediaExtractor,
@@ -91,38 +93,42 @@ object PcmDecoder {
         listener.onFormat(out.sampleRate, out.channels)
         val info = MediaCodec.BufferInfo()
         var inputDone = false
-        var chunk = ShortArray(0)
-        while (true) {
-            if (cancelled()) return false
+        while (!cancelled()) {
             if (!inputDone) inputDone = feed(extractor, codec)
             val index = codec.dequeueOutputBuffer(info, TIMEOUT_US)
-            when {
-                index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                    val f = codec.outputFormat
-                    val rate = f.getInteger(MediaFormat.KEY_SAMPLE_RATE)
-                    val ch = f.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
-                    out.float = f.containsKey(MediaFormat.KEY_PCM_ENCODING) &&
-                        f.getInteger(MediaFormat.KEY_PCM_ENCODING) == AudioFormat.ENCODING_PCM_FLOAT
-                    if (rate != out.sampleRate || ch != out.channels) {
-                        out.sampleRate = rate
-                        out.channels = ch
-                        listener.onFormat(rate, ch)
-                    }
-                }
-                index >= 0 -> {
-                    if (info.size > 0) {
-                        val buffer = requireNotNull(codec.getOutputBuffer(index))
-                        buffer.position(info.offset).limit(info.offset + info.size)
-                        val samples = info.size / (if (out.float) FLOAT_BYTES else SHORT_BYTES)
-                        if (chunk.size < samples) chunk = ShortArray(samples)
-                        toShorts(buffer, out.float, chunk, samples)
-                        sink.onPcm(chunk, samples)
-                    }
-                    codec.releaseOutputBuffer(index, false)
-                    if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) return true
-                }
+            if (index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                onFormatChanged(codec.outputFormat, out, listener)
+            } else if (index >= 0) {
+                emit(codec, index, info, out, sink)
+                if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) return true
             }
         }
+        return false
+    }
+
+    private fun onFormatChanged(f: MediaFormat, out: Output, listener: FormatListener) {
+        val rate = f.getInteger(MediaFormat.KEY_SAMPLE_RATE)
+        val ch = f.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+        out.float = f.containsKey(MediaFormat.KEY_PCM_ENCODING) &&
+            f.getInteger(MediaFormat.KEY_PCM_ENCODING) == AudioFormat.ENCODING_PCM_FLOAT
+        if (rate != out.sampleRate || ch != out.channels) {
+            out.sampleRate = rate
+            out.channels = ch
+            listener.onFormat(rate, ch)
+        }
+    }
+
+    /** Entrega o PCM de um buffer de saida e o devolve ao codec. */
+    private fun emit(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo, out: Output, sink: PcmSink) {
+        if (info.size > 0) {
+            val buffer = requireNotNull(codec.getOutputBuffer(index))
+            buffer.position(info.offset).limit(info.offset + info.size)
+            val samples = info.size / (if (out.float) FLOAT_BYTES else SHORT_BYTES)
+            if (out.chunk.size < samples) out.chunk = ShortArray(samples)
+            toShorts(buffer, out.float, out.chunk, samples)
+            sink.onPcm(out.chunk, samples)
+        }
+        codec.releaseOutputBuffer(index, false)
     }
 
     /** Entrega uma amostra comprimida ao decodificador; true quando acabou a entrada. */

@@ -51,7 +51,8 @@ class MigracaoRoomTest {
                         "`deletedAtMillis` INTEGER, `publishedUri` TEXT)",
                 )
                 db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS `edit_projects` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `recordingId` INTEGER NOT NULL, " +
+                    "CREATE TABLE IF NOT EXISTS `edit_projects` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`recordingId` INTEGER NOT NULL, " +
                         "`schemaVersion` INTEGER NOT NULL, `stepsEncoded` TEXT NOT NULL, `updatedAtMillis` INTEGER NOT NULL, " +
                         "FOREIGN KEY(`recordingId`) REFERENCES `recordings`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
                 )
@@ -77,10 +78,13 @@ class MigracaoRoomTest {
     fun `gravacoes e tags existentes sobrevivem a migracao v3 para v4`() = runBlocking {
         criarV3 { sql ->
             sql.execSQL(
-                "INSERT INTO recordings VALUES (1, 'Aula de fisica', '/x/a.m4a', 'M4A', 3600000, 57600000, 1000, 1, 'estudo', 'aula,fisica', NULL, 'content://media/1')",
+                "INSERT INTO recordings VALUES (1, 'Aula de fisica', '/x/a.m4a', 'M4A', 3600000, 57600000, 1000, 1, " +
+                    "'estudo', 'aula,fisica', NULL, 'content://media/1')",
             )
             sql.execSQL("INSERT INTO recordings VALUES (2, 'Ideia', '/x/b.wav', 'WAV', 12000, 1056000, 2000, 0, NULL, '', NULL, NULL)")
-            sql.execSQL("INSERT INTO recordings VALUES (3, 'Na lixeira', '/x/c.mp3', 'MP3', 5000, 80000, 3000, 0, NULL, 'velha', 99999, NULL)")
+            sql.execSQL(
+                "INSERT INTO recordings VALUES (3, 'Na lixeira', '/x/c.mp3', 'MP3', 5000, 80000, 3000, 0, NULL, 'velha', 99999, NULL)",
+            )
             sql.execSQL("INSERT INTO edit_projects VALUES (1, 1, 1, 'passo', 5)")
             sql.execSQL("INSERT INTO usage_events VALUES (1, 'GRAVACAO_CONCLUIDA', 7, 3600000, 'M4A')")
         }
@@ -104,7 +108,9 @@ class MigracaoRoomTest {
 
     @Test
     fun `tabelas novas nascem vazias e funcionam depois da migracao`() = runBlocking {
-        criarV3 { sql -> sql.execSQL("INSERT INTO recordings VALUES (1, 'a', '/x/a.m4a', 'M4A', 60000, 1, 1, 0, NULL, 'aula', NULL, NULL)") }
+        criarV3 { sql ->
+            sql.execSQL("INSERT INTO recordings VALUES (1, 'a', '/x/a.m4a', 'M4A', 60000, 1, 1, 0, NULL, 'aula', NULL, NULL)")
+        }
         val banco = abrirV4()
         val markers = RoomMarkerRepository(banco.markerDao())
         assertTrue(markers.list(1).isEmpty())

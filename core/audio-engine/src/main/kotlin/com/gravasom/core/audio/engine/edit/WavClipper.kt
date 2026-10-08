@@ -20,32 +20,15 @@ object WavClipper {
         val tmp = File(destination.path + ".tmp")
         return try {
             val info = WavReader.read(source)
-            val bytesPerFrame = info.channels * WavInfo.BYTES_PER_SAMPLE
-            val totalMillis = info.frames * MILLIS / info.sampleRate
-            val from = startMillis.coerceIn(0L, totalMillis)
-            val to = endMillis.coerceIn(0L, totalMillis)
-            if (to <= from) return ClipResult.Failed("intervalo vazio")
-            val firstFrame = from * info.sampleRate / MILLIS
-            val lastFrame = (to * info.sampleRate / MILLIS).coerceAtMost(info.frames)
-            val bytes = (lastFrame - firstFrame) * bytesPerFrame
-            if (bytes <= 0) return ClipResult.Failed("intervalo vazio")
-            destination.parentFile?.mkdirs()
-            RandomAccessFile(source, "r").use { input ->
-                input.seek(info.dataOffset + firstFrame * bytesPerFrame)
-                tmp.outputStream().buffered(BUFFER).use { out ->
-                    out.write(WavHeaderWriter.build(info.sampleRate, info.channels, WavInfo.BITS, bytes))
-                    val buf = ByteArray(BUFFER)
-                    var left = bytes
-                    while (left > 0) {
-                        val n = input.read(buf, 0, minOf(left, buf.size.toLong()).toInt())
-                        if (n < 0) throw IOException("arquivo menor que o cabecalho declara")
-                        out.write(buf, 0, n)
-                        left -= n
-                    }
-                }
+            val span = frameSpan(info, startMillis, endMillis)
+            if (span == null) {
+                ClipResult.Failed("intervalo vazio")
+            } else {
+                destination.parentFile?.mkdirs()
+                copyFrames(source, info, span, tmp)
+                java.nio.file.Files.move(tmp.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                ClipResult.Done(destination, span.frames * MILLIS / info.sampleRate)
             }
-            java.nio.file.Files.move(tmp.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            ClipResult.Done(destination, (lastFrame - firstFrame) * MILLIS / info.sampleRate)
         } catch (e: IOException) {
             tmp.delete()
             ClipResult.Failed(e.message ?: "erro de E/S")
@@ -53,6 +36,45 @@ object WavClipper {
             tmp.delete()
             ClipResult.Failed(e.message ?: "arquivo invalido")
         }
+    }
+
+    /** Quadros [primeiro, ultimo) que o intervalo cobre, limitados ao arquivo; null se vazio. */
+    private fun frameSpan(info: WavInfo, startMillis: Long, endMillis: Long): FrameSpan? {
+        val totalMillis = info.frames * MILLIS / info.sampleRate
+        val from = startMillis.coerceIn(0L, totalMillis)
+        val to = endMillis.coerceIn(0L, totalMillis)
+        val first = from * info.sampleRate / MILLIS
+        val last = (to * info.sampleRate / MILLIS).coerceAtMost(info.frames)
+        return if (to > from && last > first) FrameSpan(first, last) else null
+    }
+
+    /** Copia os quadros de [span] para [tmp] com cabecalho novo, em blocos. */
+    private fun copyFrames(source: File, info: WavInfo, span: FrameSpan, tmp: File) {
+        val bytesPerFrame = info.channels * WavInfo.BYTES_PER_SAMPLE
+        val bytes = span.frames * bytesPerFrame
+        RandomAccessFile(source, "r").use { input ->
+            input.seek(info.dataOffset + span.first * bytesPerFrame)
+            tmp.outputStream().buffered(BUFFER).use { out ->
+                out.write(WavHeaderWriter.build(info.sampleRate, info.channels, WavInfo.BITS, bytes))
+                pump(input, out, bytes)
+            }
+        }
+    }
+
+    private fun pump(input: RandomAccessFile, out: java.io.OutputStream, bytes: Long) {
+        val buf = ByteArray(BUFFER)
+        var left = bytes
+        while (left > 0) {
+            val n = input.read(buf, 0, minOf(left, buf.size.toLong()).toInt())
+            if (n < 0) throw IOException("arquivo menor que o cabecalho declara")
+            out.write(buf, 0, n)
+            left -= n
+        }
+    }
+
+    /** Quadros [first, endExclusive). */
+    private class FrameSpan(val first: Long, val endExclusive: Long) {
+        val frames: Long get() = endExclusive - first
     }
 
     private const val MILLIS = 1000L

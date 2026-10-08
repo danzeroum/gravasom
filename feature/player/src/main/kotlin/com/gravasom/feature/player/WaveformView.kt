@@ -1,6 +1,7 @@
 package com.gravasom.feature.player
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -19,7 +19,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -37,9 +41,11 @@ import androidx.compose.ui.unit.dp
 import com.gravasom.core.audio.engine.analysis.SkipRange
 import com.gravasom.core.audio.engine.analysis.ViewWindow
 import com.gravasom.core.audio.engine.analysis.Waveform
+import com.gravasom.core.domain.clip.ClipTitle
 import com.gravasom.core.domain.marker.Marker
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /** Acoes que a onda oferece (tambem como acoes de acessibilidade: pinca nao e possivel no TalkBack). */
 class WaveformActions(
@@ -59,176 +65,133 @@ class WaveformLabels(
     val zoomOut: String,
 )
 
+/** O que a onda desenha. */
+class WaveformData(
+    val waveform: Waveform?,
+    val durationMillis: Long,
+    val markers: List<Marker>,
+    val skipRanges: List<SkipRange>,
+    val selection: TimeSelection?,
+)
+
+/** Janela visivel (lida so na fase de desenho/layout) e como muda-la. */
+class WaveformViewport(val window: () -> ViewWindow, val onWindowChange: (ViewWindow) -> Unit)
+
+private class Palette(
+    val bar: Color, val played: Color, val skip: Color, val marker: Color, val selection: Color, val handle: Color,
+)
+
 /**
  * Onda com zoom por pinca, arrasto, toque para ir ao ponto, marcadores e trecho selecionado.
  * O estado quente (janela e posicao) so e lido na fase de DESENHO: pinca e reproducao redesenham a tela sem recompor.
  */
 @Composable
 fun WaveformView(
-    waveform: Waveform?,
-    durationMillis: Long,
-    window: () -> ViewWindow,
-    onWindowChange: (ViewWindow) -> Unit,
+    data: WaveformData,
+    viewport: WaveformViewport,
     positionMillis: () -> Long,
-    markers: List<Marker>,
-    skipRanges: List<SkipRange>,
-    selection: TimeSelection?,
     selecting: Boolean,
     actions: WaveformActions,
     labels: WaveformLabels,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
-    val barColor = colors.primary
-    val playedColor = colors.onSurface
-    val skipColor = colors.onSurface.copy(alpha = SKIP_ALPHA)
-    val markerColor = colors.tertiary
-    val selectionColor = colors.secondary.copy(alpha = SELECTION_ALPHA)
-    val handleColor = colors.secondary
+    val palette = Palette(
+        bar = colors.primary, played = colors.onSurface, skip = colors.onSurface.copy(alpha = SKIP_ALPHA), marker = colors.tertiary,
+        selection = colors.secondary.copy(alpha = SELECTION_ALPHA), handle = colors.secondary,
+    )
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val currentWindow by rememberUpdatedState(window)
-    val currentOnWindow by rememberUpdatedState(onWindowChange)
+    val currentData by rememberUpdatedState(data)
     val currentActions by rememberUpdatedState(actions)
-    val currentSelection by rememberUpdatedState(selection)
-    val density = LocalDensity.current
-    val handleReach = with(density) { HANDLE_REACH_DP.dp.toPx() }
-    val markerWidthPx = with(density) { MARKER_TARGET_DP.dp.roundToPx() }
+    val reachPx = with(LocalDensity.current) { HANDLE_REACH_DP.dp.toPx() }
     val columns = remember { FloatArray(MAX_COLUMNS) }
-
     Box(
         modifier = modifier
             .onSizeChanged { size = it }
-            .semantics {
-                contentDescription = labels.description
-                progressBarRangeInfo = ProgressBarRangeInfo(positionMillis().toFloat(), 0f..durationMillis.toFloat().coerceAtLeast(1f))
-                setProgress { target -> actions.onSeek(target.toLong()); true }
-                customActions = listOf(
-                    CustomAccessibilityAction(labels.previousMarker) { actions.onPreviousMarker(); true },
-                    CustomAccessibilityAction(labels.nextMarker) { actions.onNextMarker(); true },
-                    CustomAccessibilityAction(labels.zoomIn) { zoomBy(currentWindow(), currentOnWindow, ZOOM_STEP); true },
-                    CustomAccessibilityAction(labels.zoomOut) { zoomBy(currentWindow(), currentOnWindow, 1f / ZOOM_STEP); true },
-                )
-            }
-            .pointerInput(selecting, durationMillis) {
-                if (selecting) {
-                    selectionGestures(currentWindow, { currentSelection }, handleReach) { a, b -> currentActions.onSelection(a, b) }
-                } else {
-                    // Pinca (zoom ancorado no ponto entre os dedos) e arrasto com um dedo (rolagem).
-                    detectTransformGestures { centroid, pan, zoom, _ ->
-                        val w = currentWindow()
-                        val width = this.size.width.toFloat()
-                        var next = w
-                        if (zoom != 1f) next = next.zoom(zoom, next.millisAt(centroid.x, width))
-                        if (pan.x != 0f) next = next.pan((-pan.x / width * next.spanMillis).toLong())
-                        if (next != w) currentOnWindow(next)
-                    }
-                }
-            }
-            .pointerInput(selecting, durationMillis) {
-                detectTapGestures { offset ->
-                    val millis = currentWindow().millisAt(offset.x, this.size.width.toFloat())
-                    currentActions.onSeek(millis)
-                }
+            .waveformSemantics(data.durationMillis, viewport, positionMillis, actions, labels)
+            .waveformGestures(selecting, data.durationMillis, viewport, { currentData.selection }, reachPx) { currentActions }
+            .pointerInput(selecting, data.durationMillis) {
+                detectTapGestures { currentActions.onSeek(viewport.window().millisAt(it.x, this.size.width.toFloat())) }
             },
     ) {
-        Canvas(Modifier.fillMaxSize()) {
-            val w = window()
-            val width = this.size.width
-            val height = this.size.height
-            val mid = height / 2f
-            val pos = positionMillis()
-            // Trechos que o pular silencio vai saltar: mais apagados.
-            skipRanges.forEach { r ->
-                val x0 = w.xFor(r.startMillis, width).coerceIn(0f, width)
-                val x1 = w.xFor(r.endMillis, width).coerceIn(0f, width)
-                if (x1 > x0) drawRect(skipColor, Offset(x0, 0f), androidx.compose.ui.geometry.Size(x1 - x0, height))
-            }
-            selection?.let { s ->
-                val x0 = w.xFor(s.startMillis, width).coerceIn(0f, width)
-                val x1 = w.xFor(s.endMillis, width).coerceIn(0f, width)
-                drawRect(selectionColor, Offset(x0, 0f), androidx.compose.ui.geometry.Size(x1 - x0, height))
-            }
-            if (waveform != null && w.spanMillis > 0) {
-                val step = BAR_STEP_DP.dp.toPx()
-                val n = (width / step).toInt().coerceIn(1, MAX_COLUMNS)
-                val amps = waveform.columns(w.startMillis, w.endMillis, n, columns)
-                val playedX = w.xFor(pos, width)
-                for (i in 0 until n) {
-                    val x = (i + 0.5f) * width / n
-                    // Raiz quadrada: fala baixa continua visivel ao lado de picos altos.
-                    val h = (kotlin.math.sqrt(amps[i].toDouble()).toFloat() * mid).coerceAtLeast(MIN_BAR_PX)
-                    drawLine(if (x <= playedX) playedColor else barColor, Offset(x, mid - h), Offset(x, mid + h), step * BAR_FILL, StrokeCap.Butt)
-                }
-            }
-            markers.forEach { m ->
-                val x = w.xFor(m.positionMillis, width)
-                if (x in 0f..width) {
-                    drawLine(markerColor, Offset(x, 0f), Offset(x, height), MARKER_STROKE_DP.dp.toPx())
-                    drawCircle(markerColor, MARKER_HEAD_DP.dp.toPx(), Offset(x, MARKER_HEAD_DP.dp.toPx()))
-                }
-            }
-            selection?.let { s ->
-                listOf(s.startMillis, s.endMillis).forEach { t ->
-                    val x = w.xFor(t, width)
-                    if (x in 0f..width) {
-                        drawLine(handleColor, Offset(x, 0f), Offset(x, height), HANDLE_STROKE_DP.dp.toPx())
-                        drawCircle(handleColor, HANDLE_HEAD_DP.dp.toPx(), Offset(x, height - HANDLE_HEAD_DP.dp.toPx()))
-                    }
-                }
-            }
-            val px = w.xFor(pos, width)
-            if (px in 0f..width) drawLine(playedColor, Offset(px, 0f), Offset(px, height), PLAYHEAD_DP.dp.toPx())
-        }
-        // Alvos de toque de 48 dp sobre cada marcador visivel (acessibilidade e testes): a posicao so e lida no layout.
-        val visible by remember(markers) {
-            derivedStateOf { markers.filter { m -> window().let { w -> m.positionMillis in w.startMillis..w.endMillis } } }
-        }
-        visible.forEach { m ->
-            Box(
-                Modifier
-                    .offset { IntOffset((window().xFor(m.positionMillis, size.width.toFloat()) - markerWidthPx / 2f).roundToInt(), 0) }
-                    .size(MARKER_TARGET_DP.dp, MARKER_TARGET_DP.dp)
-                    .testTag("marcador_onda_${m.id}")
-                    .semantics { contentDescription = markerDescription(m) }
-                    .clickable { actions.onMarkerClick(m) },
-            )
+        Canvas(Modifier.fillMaxSize()) { drawWaveform(data, viewport.window(), positionMillis(), palette, columns) }
+        MarkerTargets(data.markers, viewport.window, { size.width }, actions.onMarkerClick)
+    }
+}
+
+private fun Modifier.waveformSemantics(
+    durationMillis: Long,
+    viewport: WaveformViewport,
+    positionMillis: () -> Long,
+    actions: WaveformActions,
+    labels: WaveformLabels,
+): Modifier = semantics {
+    contentDescription = labels.description
+    progressBarRangeInfo = ProgressBarRangeInfo(positionMillis().toFloat(), 0f..durationMillis.toFloat().coerceAtLeast(1f))
+    setProgress { target -> actions.onSeek(target.toLong()); true }
+    customActions = listOf(
+        CustomAccessibilityAction(labels.previousMarker) { actions.onPreviousMarker(); true },
+        CustomAccessibilityAction(labels.nextMarker) { actions.onNextMarker(); true },
+        CustomAccessibilityAction(labels.zoomIn) { zoomBy(viewport, ZOOM_STEP); true },
+        CustomAccessibilityAction(labels.zoomOut) { zoomBy(viewport, 1f / ZOOM_STEP); true },
+    )
+}
+
+private fun zoomBy(viewport: WaveformViewport, factor: Float) {
+    val w = viewport.window()
+    viewport.onWindowChange(w.zoom(factor, w.startMillis + w.spanMillis / 2))
+}
+
+/** Pinca (zoom ancorado no ponto entre os dedos) e arrasto (rolagem); em modo de selecao, o arrasto escolhe o trecho. */
+private fun Modifier.waveformGestures(
+    selecting: Boolean,
+    durationMillis: Long,
+    viewport: WaveformViewport,
+    selection: () -> TimeSelection?,
+    reachPx: Float,
+    actions: () -> WaveformActions,
+): Modifier = pointerInput(selecting, durationMillis) {
+    if (selecting) {
+        selectionGestures(viewport.window, selection, reachPx) { a, b -> actions().onSelection(a, b) }
+    } else {
+        detectTransformGestures { centroid, pan, zoom, _ ->
+            val w = viewport.window()
+            val width = this.size.width.toFloat()
+            var next = w
+            if (zoom != 1f) next = next.zoom(zoom, next.millisAt(centroid.x, width))
+            if (pan.x != 0f) next = next.pan((-pan.x / width * next.spanMillis).toLong())
+            if (next != w) viewport.onWindowChange(next)
         }
     }
 }
 
-private fun markerDescription(m: Marker): String =
-    listOf(com.gravasom.core.domain.clip.ClipTitle.time(m.positionMillis), m.label, m.note).filter { it.isNotBlank() }.joinToString(" · ")
+private enum class Grab { START, END, NEW }
 
-private fun zoomBy(w: ViewWindow, set: (ViewWindow) -> Unit, factor: Float) {
-    set(w.zoom(factor, w.startMillis + w.spanMillis / 2))
+/** Qual ponta do trecho esta sob o dedo (ou nenhuma: comeca um trecho novo). */
+private fun grabAt(selection: TimeSelection?, window: ViewWindow, x: Float, width: Float, reachPx: Float): Grab = when {
+    selection != null && abs(window.xFor(selection.startMillis, width) - x) <= reachPx -> Grab.START
+    selection != null && abs(window.xFor(selection.endMillis, width) - x) <= reachPx -> Grab.END
+    else -> Grab.NEW
 }
 
 /** Arrastar cria o trecho (ou move a ponta mais proxima se o toque comecou perto de uma). */
-private suspend fun androidx.compose.ui.input.pointer.PointerInputScope.selectionGestures(
+private suspend fun PointerInputScope.selectionGestures(
     window: () -> ViewWindow,
     selection: () -> TimeSelection?,
     reachPx: Float,
     onChange: (Long, Long) -> Unit,
 ) {
     var anchor = 0L
-    var moving: Int = NONE
     detectDragGestures(
         onDragStart = { start ->
             val w = window()
-            val width = size.width.toFloat()
-            val s = selection()
-            val t = w.millisAt(start.x, width)
-            moving = when {
-                s != null && abs(w.xFor(s.startMillis, width) - start.x) <= reachPx -> START
-                s != null && abs(w.xFor(s.endMillis, width) - start.x) <= reachPx -> END
-                else -> NEW
+            val current = selection()
+            val touched = w.millisAt(start.x, size.width.toFloat())
+            anchor = when (grabAt(current, w, start.x, size.width.toFloat(), reachPx)) {
+                Grab.START -> current?.endMillis ?: touched
+                Grab.END -> current?.startMillis ?: touched
+                Grab.NEW -> touched.also { onChange(it, it) }
             }
-            anchor = when (moving) {
-                START -> s!!.endMillis
-                END -> s!!.startMillis
-                else -> t
-            }
-            if (moving == NEW) onChange(t, t)
         },
         onDrag = { change, _ ->
             change.consume()
@@ -237,10 +200,82 @@ private suspend fun androidx.compose.ui.input.pointer.PointerInputScope.selectio
     )
 }
 
-private const val NONE = 0
-private const val START = 1
-private const val END = 2
-private const val NEW = 3
+private fun DrawScope.drawWaveform(data: WaveformData, w: ViewWindow, position: Long, palette: Palette, columns: FloatArray) {
+    drawRanges(data.skipRanges.map { it.startMillis to it.endMillis }, w, palette.skip)
+    data.selection?.let { drawRanges(listOf(it.startMillis to it.endMillis), w, palette.selection) }
+    if (data.waveform != null && w.spanMillis > 0) drawBars(data.waveform, w, position, palette, columns)
+    drawMarkers(data.markers, w, palette.marker)
+    data.selection?.let { drawHandles(it, w, palette.handle) }
+    val x = w.xFor(position, size.width)
+    if (x in 0f..size.width) drawLine(palette.played, Offset(x, 0f), Offset(x, size.height), PLAYHEAD_DP.dp.toPx())
+}
+
+private fun DrawScope.drawRanges(ranges: List<Pair<Long, Long>>, w: ViewWindow, color: Color) {
+    ranges.forEach { (start, end) ->
+        val x0 = w.xFor(start, size.width).coerceIn(0f, size.width)
+        val x1 = w.xFor(end, size.width).coerceIn(0f, size.width)
+        if (x1 > x0) drawRect(color, Offset(x0, 0f), Size(x1 - x0, size.height))
+    }
+}
+
+private fun DrawScope.drawBars(waveform: Waveform, w: ViewWindow, position: Long, palette: Palette, columns: FloatArray) {
+    val step = BAR_STEP_DP.dp.toPx()
+    val n = (size.width / step).toInt().coerceIn(1, MAX_COLUMNS)
+    val amps = waveform.columns(w.startMillis, w.endMillis, n, columns)
+    val mid = size.height / 2f
+    val playedX = w.xFor(position, size.width)
+    for (i in 0 until n) {
+        val x = (i + 0.5f) * size.width / n
+        // Raiz quadrada: fala baixa continua visivel ao lado de picos altos.
+        val h = (sqrt(amps[i].toDouble()).toFloat() * mid).coerceAtLeast(MIN_BAR_PX)
+        drawLine(if (x <= playedX) palette.played else palette.bar, Offset(x, mid - h), Offset(x, mid + h), step * BAR_FILL, StrokeCap.Butt)
+    }
+}
+
+private fun DrawScope.drawMarkers(markers: List<Marker>, w: ViewWindow, color: Color) {
+    val head = MARKER_HEAD_DP.dp.toPx()
+    markers.forEach { m ->
+        val x = w.xFor(m.positionMillis, size.width)
+        if (x in 0f..size.width) {
+            drawLine(color, Offset(x, 0f), Offset(x, size.height), MARKER_STROKE_DP.dp.toPx())
+            drawCircle(color, head, Offset(x, head))
+        }
+    }
+}
+
+private fun DrawScope.drawHandles(selection: TimeSelection, w: ViewWindow, color: Color) {
+    val head = HANDLE_HEAD_DP.dp.toPx()
+    listOf(selection.startMillis, selection.endMillis).forEach { t ->
+        val x = w.xFor(t, size.width)
+        if (x in 0f..size.width) {
+            drawLine(color, Offset(x, 0f), Offset(x, size.height), HANDLE_STROKE_DP.dp.toPx())
+            drawCircle(color, head, Offset(x, size.height - head))
+        }
+    }
+}
+
+/** Alvos de toque de 48 dp sobre cada marcador visivel (acessibilidade e testes): a posicao so e lida no layout. */
+@Composable
+private fun MarkerTargets(markers: List<Marker>, window: () -> ViewWindow, widthPx: () -> Int, onClick: (Marker) -> Unit) {
+    val visible by remember(markers) {
+        derivedStateOf { markers.filter { m -> window().let { w -> m.positionMillis in w.startMillis..w.endMillis } } }
+    }
+    val half = with(LocalDensity.current) { MARKER_TARGET_DP.dp.toPx() / 2f }
+    visible.forEach { m ->
+        Box(
+            Modifier
+                .offset { IntOffset((window().xFor(m.positionMillis, widthPx().toFloat()) - half).roundToInt(), 0) }
+                .size(MARKER_TARGET_DP.dp, MARKER_TARGET_DP.dp)
+                .testTag("marcador_onda_${m.id}")
+                .semantics { contentDescription = markerDescription(m) }
+                .clickable { onClick(m) },
+        )
+    }
+}
+
+private fun markerDescription(m: Marker): String =
+    listOf(ClipTitle.time(m.positionMillis), m.label, m.note).filter { it.isNotBlank() }.joinToString(" · ")
+
 private const val MAX_COLUMNS = 1_600
 private const val BAR_STEP_DP = 3f
 private const val BAR_FILL = 0.7f

@@ -17,24 +17,23 @@ import kotlinx.coroutines.flow.asStateFlow
  * Pular silencio: com um [SkipPlan] e o pulo ligado, a posicao e conferida a cada [POLL_MS] enquanto toca; ao entrar numa
  * lacuna o player salta para o fim dela. O plano vem da analise feita ao salvar (WebRTC VAD), nunca do nivel do VU.
  */
-class PlayerController(context: Context) {
+class PlayerController(context: Context) : PlayerPort {
 
     private val player: ExoPlayer = ExoPlayer.Builder(context).build()
     private val handler = Handler(Looper.getMainLooper())
 
     private val _isPlaying = MutableStateFlow(false)
-    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+    override val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
     private val _positionMillis = MutableStateFlow(0L)
-    val positionMillis: StateFlow<Long> = _positionMillis.asStateFlow()
+    override val positionMillis: StateFlow<Long> = _positionMillis.asStateFlow()
 
     private val _durationMillis = MutableStateFlow(0L)
-    val durationMillis: StateFlow<Long> = _durationMillis.asStateFlow()
+    override val durationMillis: StateFlow<Long> = _durationMillis.asStateFlow()
 
     private val _skippedMillis = MutableStateFlow(0L)
 
-    /** Silencio ja pulado desde que a gravacao foi carregada (medida de tempo economizado). */
-    val skippedMillis: StateFlow<Long> = _skippedMillis.asStateFlow()
+    override val skippedMillis: StateFlow<Long> = _skippedMillis.asStateFlow()
 
     private var plan: SkipPlan? = null
     private var skipEnabled = false
@@ -67,24 +66,24 @@ class PlayerController(context: Context) {
     }
 
     /** Define o plano de pulo e se ele vale. Pode ser chamado a qualquer momento (ex.: usuario liga o pulo tocando). */
-    fun setSkip(plan: SkipPlan?, enabled: Boolean) {
+    override fun setSkip(plan: SkipPlan?, enabled: Boolean) {
         this.plan = plan
         this.skipEnabled = enabled
     }
 
-    fun play() = player.play()
-    fun pause() = player.pause()
-    fun seekTo(millis: Long) {
+    override fun play() = player.play()
+    override fun pause() = player.pause()
+    override fun seekTo(millis: Long) {
         player.seekTo(millis.coerceAtLeast(0L))
         _positionMillis.value = millis.coerceAtLeast(0L)
     }
 
-    fun seekToAndPlay(millis: Long) {
+    override fun seekToAndPlay(millis: Long) {
         seekTo(millis)
         player.play()
     }
 
-    fun setSpeed(speed: Float) {
+    override fun setSpeed(speed: Float) {
         player.setPlaybackSpeed(speed.coerceIn(0.5f, 2.0f))
     }
 

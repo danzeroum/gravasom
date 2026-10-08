@@ -69,7 +69,9 @@ class AnalysisStoreTest {
     @Test
     fun `versao antiga ou dados truncados contam como sem analise`() = runBlocking {
         val id = gravacao()
-        db.analysisDao().upsert(RecordingAnalysisEntity(id, version = 0, peaks = ByteArray(5), frameMillis = 20, frameCount = 8, speech = ByteArray(3)))
+        db.analysisDao().upsert(
+            RecordingAnalysisEntity(id, version = 0, peaks = ByteArray(5), frameMillis = 20, frameCount = 8, speech = ByteArray(3)),
+        )
         assertNull(store.load(id))
         assertFalse(store.has(id))
         db.analysisDao().upsert(RecordingAnalysisEntity(id, AnalysisStore.VERSION, ByteArray(5), 20, 800, ByteArray(7)))

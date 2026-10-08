@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,15 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
-import com.gravasom.core.domain.marker.MarkerRejection
-import com.gravasom.core.domain.marker.MarkerResult
-import com.gravasom.feature.player.MarkerDialog
-import com.gravasom.feature.player.PlayerCallbacks
 import com.gravasom.feature.player.PlayerController
-import com.gravasom.feature.player.PlayerEvent
-import com.gravasom.feature.player.PlayerPanel
 import com.gravasom.feature.player.PlayerViewModel
-import com.gravasom.feature.player.TagsDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,37 +68,81 @@ fun LibraryScreen(
     val query by viewModel.query.collectAsStateWithLifecycle()
     val availableTags by viewModel.availableTags.collectAsStateWithLifecycle()
     val selectedTags by viewModel.selectedTags.collectAsStateWithLifecycle()
-    val playerState by playerViewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val player = rememberPlayer()
+    var currentId by remember { mutableStateOf<Long?>(null) }
+    var renaming by remember { mutableStateOf<Recording?>(null) }
+    val actions = rememberRowActions(viewModel, playerViewModel, player, snackbar, { currentId }, { currentId = it }) { renaming = it }
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            SearchField(query, viewModel::setQuery)
+            TagFilterRow(availableTags, selectedTags, viewModel::toggleTag)
+            Box(Modifier.weight(1f)) { RecordingList(items, query, selectedTags, viewModel::clearTags, currentId, actions) }
+            // A gravacao aberta e sempre lida da lista: renomear ou mudar etiquetas aparece no painel sem reabrir.
+            val current = items.firstOrNull { it.id == currentId }
+            if (current != null) {
+                PlayerDock(current, player, playerViewModel) { player.pause(); currentId = null; playerViewModel.close() }
+            }
+        }
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+    }
+    PlayerEventsEffect(playerViewModel, snackbar)
+    renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
+}
+
+@Composable
+private fun rememberPlayer(): PlayerController {
+    val context = LocalContext.current
     val player = remember { PlayerController(context) }
     DisposableEffect(Unit) { onDispose { player.release() } }
-    var currentId by remember { mutableStateOf<Long?>(null) }
-    // A gravacao aberta e sempre lida da lista: renomear ou mudar etiquetas aparece no painel sem reabrir.
-    val current = items.firstOrNull { it.id == currentId } ?: playerState.recording?.takeIf { it.id == currentId }
-    var editingMarkerId by remember { mutableStateOf<Long?>(null) }
-    var editingTags by remember { mutableStateOf(false) }
-    var renaming by remember { mutableStateOf<Recording?>(null) }
+    return player
+}
+
+/** Acoes de cada linha: tocar (abre o player), renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
+@Composable
+private fun rememberRowActions(
+    viewModel: LibraryViewModel,
+    playerViewModel: PlayerViewModel,
+    player: PlayerController,
+    snackbar: SnackbarHostState,
+    currentId: () -> Long?,
+    setCurrentId: (Long?) -> Unit,
+    onRename: (Recording) -> Unit,
+): RowActions {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var saving by remember { mutableStateOf<Recording?>(null) }
     val savedOk = stringResource(R.string.library_saved_ok)
     val savedFail = stringResource(R.string.library_saved_fail)
     val playFail = stringResource(R.string.library_play_fail)
+    val deletedText = stringResource(R.string.library_deleted)
+    val undoText = stringResource(R.string.library_undo)
     val saveLauncher = rememberLauncherForActivityResult(CreateAudioDocument()) { uri ->
         val target = saving
         saving = null
         if (uri != null && target != null) scope.launch { snackbar.showSnackbar(if (viewModel.saveTo(target, uri)) savedOk else savedFail) }
     }
-    val deletedText = stringResource(R.string.library_deleted)
-    val undoText = stringResource(R.string.library_undo)
-    val actions = RowActions(
-        onPlay = { r -> scope.launch { if (openAndPlay(viewModel, player, r)) { currentId = r.id; playerViewModel.open(r) } else snackbar.showSnackbar(playFail) } },
-        onRename = { renaming = it },
+    return RowActions(
+        onPlay = { r ->
+            scope.launch {
+                if (openAndPlay(viewModel, player, r)) {
+                    setCurrentId(r.id)
+                    playerViewModel.open(r)
+                } else {
+                    snackbar.showSnackbar(playFail)
+                }
+            }
+        },
+        onRename = onRename,
         onFavorite = viewModel::toggleFavorite,
         onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
-            if (currentId == r.id) { player.pause(); currentId = null; playerViewModel.close() }
+            if (currentId() == r.id) {
+                player.pause()
+                setCurrentId(null)
+                playerViewModel.close()
+            }
             viewModel.delete(r)
             scope.launch {
                 snackbar.currentSnackbarData?.dismiss()
@@ -115,103 +151,6 @@ fun LibraryScreen(
             }
         },
     )
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
-            SearchField(query, viewModel::setQuery)
-            TagFilterRow(availableTags, selectedTags, viewModel::toggleTag)
-            Box(Modifier.weight(1f)) { RecordingList(items, query, selectedTags, viewModel::clearTags, currentId, actions) }
-            if (current != null && playerState.recording?.id == current.id) {
-                BoxWithConstraints {
-                    PlayerPanel(
-                        controller = player,
-                        state = playerState,
-                        callbacks = playerCallbacks(
-                            playerViewModel, player, scope,
-                            onClose = { player.pause(); currentId = null; playerViewModel.close() },
-                            onEditMarker = { editingMarkerId = it.id },
-                            onEditTags = { editingTags = true },
-                            onMarkerCreated = { id -> editingMarkerId = id },
-                        ),
-                        maxHeight = maxHeight * PANEL_FRACTION,
-                        modifier = Modifier.padding(12.dp),
-                    )
-                }
-            }
-        }
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
-    }
-    val editing = playerState.markers.firstOrNull { it.id == editingMarkerId }
-    if (editing != null) {
-        MarkerDialog(
-            marker = editing,
-            onDismiss = { editingMarkerId = null },
-            onSave = { note, label -> playerViewModel.saveMarker(editing, note, label) },
-            onDelete = { playerViewModel.deleteMarker(editing) },
-        )
-    }
-    if (editingTags && current != null) {
-        TagsDialog(
-            currentTags = current.tags,
-            knownTags = playerViewModel::knownTags,
-            onSave = playerViewModel::setTags,
-            onDismiss = { editingTags = false },
-        )
-    }
-    PlayerEventsEffect(playerViewModel, snackbar)
-    renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
-}
-
-private const val PANEL_FRACTION = 0.62f
-
-/** Liga o painel ao ViewModel e ao ExoPlayer. */
-private fun playerCallbacks(
-    vm: PlayerViewModel,
-    player: PlayerController,
-    scope: kotlinx.coroutines.CoroutineScope,
-    onClose: () -> Unit,
-    onEditMarker: (com.gravasom.core.domain.marker.Marker) -> Unit,
-    onEditTags: () -> Unit,
-    onMarkerCreated: (Long) -> Unit,
-) = PlayerCallbacks(
-    onClose = onClose,
-    onAddMarker = { position ->
-        scope.launch { (vm.addMarker(position) as? MarkerResult.Saved)?.let { onMarkerCreated(it.id) } }
-    },
-    onEditMarker = onEditMarker,
-    onToggleSelecting = { on, position -> vm.setSelecting(on, position) },
-    onSelection = vm::setSelection,
-    onExport = vm::exportSelection,
-    onSkipEnabled = vm::setSkipEnabled,
-    onSensitivity = vm::setSensitivity,
-    onEditTags = onEditTags,
-    onSelectToNextMarker = vm::selectFromMarker,
-)
-
-/** Avisos do player (marcador rejeitado, trecho exportado...) como snackbar. */
-@Composable
-private fun PlayerEventsEffect(vm: PlayerViewModel, snackbar: SnackbarHostState) {
-    val noteTooLong = stringResource(com.gravasom.feature.player.R.string.player_marker_rejected_note, com.gravasom.core.domain.marker.MarkerNote.MAX_LENGTH)
-    val outOfRange = stringResource(com.gravasom.feature.player.R.string.player_marker_rejected_range)
-    val missing = stringResource(com.gravasom.feature.player.R.string.player_marker_rejected_missing)
-    val clipFailed = stringResource(com.gravasom.feature.player.R.string.player_clip_failed)
-    val analysisFailed = stringResource(com.gravasom.feature.player.R.string.player_analysis_failed)
-    val clipSavedFormat = stringResource(com.gravasom.feature.player.R.string.player_clip_saved, "%s")
-    LaunchedEffect(vm) {
-        vm.events.collect { e ->
-            val text = when (e) {
-                is PlayerEvent.MarkerRejected -> when (e.reason) {
-                    MarkerRejection.NOTE_TOO_LONG -> noteTooLong
-                    MarkerRejection.OUT_OF_RANGE -> outOfRange
-                    MarkerRejection.RECORDING_NOT_FOUND -> missing
-                }
-                is PlayerEvent.ClipSaved -> clipSavedFormat.format(e.title)
-                PlayerEvent.ClipFailed -> clipFailed
-                PlayerEvent.AnalysisFailed -> analysisFailed
-            }
-            snackbar.currentSnackbarData?.dismiss()
-            snackbar.showSnackbar(text)
-        }
-    }
 }
 
 /** Filtro por etiquetas: toque numa etiqueta para ver so as gravacoes que a tem (varias = todas). */
@@ -286,7 +225,11 @@ private fun RecordingList(
             query.isBlank() -> stringResource(R.string.library_empty)
             else -> stringResource(R.string.library_no_results, query)
         }
-        Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            Modifier.fillMaxSize().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
             Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("lista_vazia"))
             if (selectedTags.isNotEmpty()) {
                 TextButton(onClick = onClearTags, modifier = Modifier.testTag("limpar_filtro_etiquetas")) {

@@ -39,7 +39,12 @@ Gravador de áudio para Android, nativo em Kotlin, que grava em **M4A (AAC)**, *
 
 **Biblioteca e player**
 - Lista com busca, ordenação, favoritos, renomear e excluir com **Desfazer**.
-- Player com forma de onda, marcadores e velocidade de 0,5x a 2x.
+- **Etiquetas** por gravação e filtro por elas (a gravação precisa ter todas as escolhidas); nome automático "data · formato" (ex.: `08/10/2026 14:32 · M4A 128 kbps mono`).
+- **Forma de onda** calculada ao salvar, com zoom por pinça (ou botões + e −), arrasto e toque para ir ao ponto.
+- **Marcadores com nota** (até 140 caracteres): criados pela tela, pelo botão **Marcar** da notificação (grava com a tela apagada) e pelo widget; aparecem na onda e numa lista; anterior/próximo marcador.
+- **Pular silêncio** ao ouvir (WebRTC VAD, analisado ao salvar; níveis Suave e Normal): mostra quanto vai pular. Em ambiente barulhento (ventilador, murmúrio) o VAD enxerga tudo como fala e quase não pula — ver [ADR-014](docs/adr/014-vad-webrtc-pular-silencio.md).
+- **Exportar trecho**: selecione na onda (ou "do marcador até o próximo") e salve como gravação nova, sem reencodar (M4A, MP3 e WAV).
+- Velocidade de 0,5x a 2x.
 - Edição não destrutiva (cortar trechos) com histórico; o arquivo original nunca é alterado.
 - Conversão entre formatos (ex.: WAV → MP3).
 - Compartilhar com qualquer app (WhatsApp, e-mail, Drive) e "Salvar em…" (Arquivos, Drive).
@@ -153,7 +158,7 @@ app/                    Aplicação, navegação, Hilt, atalhos
 feature/
   record/               Tela Gravar
   library/              Tela Gravações
-  player/               Player e edição
+  player/               Player: onda com zoom, marcadores, pular silêncio, trecho
   settings/             Ajustes e "Seus números"
 core/
   domain/               Casos de uso e modelos (JVM puro)
@@ -164,7 +169,8 @@ core/
   service/              Serviço em primeiro plano, tile, widget
   ui/                   Tema e componentes
 baselineprofile/        Geração do Baseline Profile
-macrobenchmark/         Medição de inicialização
+macrobenchmark/         Inicialização e zoom da onda (1 h)
+spike/whisper/          Prova de conceito de transcrição (ADR-013), só com -Pspike
 build-logic/            Plugins de convenção do Gradle
 config/detekt/          Regras de análise estática
 corpus/ · perfis/       Corpus de áudio e tetos calibrados do harness

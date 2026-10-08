@@ -59,7 +59,10 @@ abstract class GravasomDatabase : RoomDatabase() {
                         "`note` TEXT NOT NULL, `color` TEXT NOT NULL, " +
                         "FOREIGN KEY(`recordingId`) REFERENCES `recordings`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
                 )
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_markers_recordingId_positionMillis` ON `markers` (`recordingId`, `positionMillis`)")
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_markers_recordingId_positionMillis` " +
+                        "ON `markers` (`recordingId`, `positionMillis`)",
+                )
                 db.execSQL(
                     "CREATE TABLE IF NOT EXISTS `recording_analysis` (`recordingId` INTEGER NOT NULL, `version` INTEGER NOT NULL, " +
                         "`peaks` BLOB NOT NULL, `frameMillis` INTEGER NOT NULL, `frameCount` INTEGER NOT NULL, `speech` BLOB NOT NULL, " +

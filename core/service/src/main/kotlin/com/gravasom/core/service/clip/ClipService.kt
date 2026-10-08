@@ -28,7 +28,8 @@ class ClipService(
 ) {
 
     suspend fun export(recording: Recording, startMillis: Long, endMillis: Long): ClipOutcome = withContext(Dispatchers.IO) {
-        val source = runCatching { File(files.playablePath(recording)) }.getOrNull() ?: return@withContext ClipOutcome.Failed("origem ilegivel")
+        val source = runCatching { File(files.playablePath(recording)) }.getOrNull()
+            ?: return@withContext ClipOutcome.Failed("origem ilegivel")
         val target = File(RecordingStorage.dir(context), "trecho_${System.currentTimeMillis()}.${recording.format.extension}")
         when (val r = exporter.export(source, recording.format, startMillis, endMillis, target)) {
             is ClipResult.Failed -> ClipOutcome.Failed(r.reason)

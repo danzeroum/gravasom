@@ -51,7 +51,8 @@ data class SkipParams(
 
 /**
  * Onde pular numa gravacao, calculado dos quadros fala/nao-fala do VAD. Qualquer quadro de fala, por isolado que seja,
- * protege a vizinhanca ([SkipParams.headPadMillis] antes, [SkipParams.tailPadMillis] depois): erra para o lado de NAO pular, nunca para o de cortar fala.
+ * protege a vizinhanca ([SkipParams.headPadMillis] antes, [SkipParams.tailPadMillis] depois): erra para o lado de NAO pular,
+ * nunca para o de cortar fala.
  */
 class SkipPlan private constructor(val ranges: List<SkipRange>, val totalMillis: Long) {
 
@@ -86,16 +87,20 @@ class SkipPlan private constructor(val ranges: List<SkipRange>, val totalMillis:
             return SkipPlan(gaps, durationMillis)
         }
 
+        private fun mergeInto(out: MutableList<Pair<Long, Long>>, start: Long, end: Long) {
+            val last = out.lastOrNull()
+            if (last != null && start <= last.second) out[out.size - 1] = last.first to maxOf(last.second, end) else out += start to end
+        }
+
         /** Faixas com fala, expandidas pela margem e fundidas, limitadas a [0, durationMillis]. */
         private fun keptIntervals(frames: BooleanArray, durationMillis: Long, p: SkipParams): List<Pair<Long, Long>> {
             val out = mutableListOf<Pair<Long, Long>>()
-            for (i in frames.indices) {
-                if (!frames[i]) continue
+            for (i in frames.indices.filter { frames[it] }) {
                 val start = (i.toLong() * p.frameMillis - p.headPadMillis).coerceAtLeast(0L)
-                if (start >= durationMillis) break
-                val end = ((i + 1L) * p.frameMillis + p.tailPadMillis).coerceAtMost(durationMillis)
-                val last = out.lastOrNull()
-                if (last != null && start <= last.second) out[out.size - 1] = last.first to maxOf(last.second, end) else out += start to end
+                if (start < durationMillis) {
+                    val end = ((i + 1L) * p.frameMillis + p.tailPadMillis).coerceAtMost(durationMillis)
+                    mergeInto(out, start, end)
+                }
             }
             return out
         }
