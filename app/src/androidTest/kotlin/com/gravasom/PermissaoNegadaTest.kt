@@ -32,8 +32,9 @@ class PermissaoNegadaTest {
     /** Nega todos os dialogos de permissao que aparecerem (microfone e, no Android 13+, notificacoes). */
     private fun negarDialogos() {
         val negar = By.res(java.util.regex.Pattern.compile("com\\.android\\.permissioncontroller:id/permission_deny(_and_dont_ask_again)?_button"))
-        repeat(MAX_DIALOGOS) {
-            val botao = device.wait(Until.findObject(negar), DIALOGO_MS) ?: return
+        repeat(MAX_DIALOGOS) { indice ->
+            // O 1o dialogo pode demorar a aparecer em emulador carregado; os seguintes abrem logo apos o fechamento do anterior.
+            val botao = device.wait(Until.findObject(negar), if (indice == 0) PRIMEIRO_DIALOGO_MS else DIALOGO_MS) ?: return
             botao.click()
             Thread.sleep(PAUSA_ENTRE_DIALOGOS_MS) // o proximo dialogo (notificacoes) abre logo apos o fechamento do anterior
         }
@@ -58,6 +59,7 @@ class PermissaoNegadaTest {
 
     private companion object {
         const val MAX_DIALOGOS = 3
+        const val PRIMEIRO_DIALOGO_MS = 20_000L
         const val DIALOGO_MS = 6_000L
         const val PAUSA_ENTRE_DIALOGOS_MS = 1_200L
         const val SETTINGS_MS = 8_000L
