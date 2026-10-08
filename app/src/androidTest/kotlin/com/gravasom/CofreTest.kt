@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gravasom.core.domain.model.Recording
@@ -79,7 +80,15 @@ class CofreTest {
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "item_gravacao") }
         assertTrue("sem o selo do cofre na linha", UiSuporte.existe(compose, "selo_cofre"))
         compose.onNodeWithTag("item_gravacao").performClick()
-        UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "mini_player") }
+        // O snackbar de falha dura poucos segundos: observa os dois desfechos juntos para saber qual aconteceu.
+        val textoFalha = UiSuporte.rotulo("library_play_fail")
+        var falhou = false
+        val abriu = Suporte.aguardar(15_000) {
+            falhou = falhou || compose.onAllNodesWithText(textoFalha).fetchSemanticsNodes().isNotEmpty()
+            falhou || UiSuporte.existe(compose, "mini_player")
+        }
+        assertFalse("o app mostrou '$textoFalha' ao tocar a gravacao do cofre", falhou)
+        assertTrue("nem mini-player nem aviso de falha em 15 s", abriu)
         val andou = Suporte.aguardar(10_000) { posicaoDoPlayerMs() > POSICAO_MINIMA_MS }
         Suporte.medida("cofre", "posicao_apos_tocar_ms", posicaoDoPlayerMs().toLong())
         assertTrue("o player nao avancou: ${posicaoDoPlayerMs()} ms", andou)
