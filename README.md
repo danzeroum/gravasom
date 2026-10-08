@@ -273,6 +273,7 @@ Pipeline em GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.ym
 | [`docs/adr/`](docs/adr/) | Decisões de arquitetura, com trade-offs explícitos |
 | [`docs/architecture/`](docs/architecture/) | Diagramas C4 e de sequência |
 | [`docs/ux/`](docs/ux/) | Personas, Crazy 8s, wireframes, jornadas, análise heurística |
+| [`docs/design/`](docs/design/) | Identidade visual: tokens (cores, tipo, formas, movimento), ícones, telas com tokens, decisões |
 | [`docs/aprendizado.md`](docs/aprendizado.md) | Ciclos de hipótese, medição e decisão |
 | [`docs/teste-aparelho-real.md`](docs/teste-aparelho-real.md) | Roteiro e resultados dos testes em aparelho real |
 | [`docs/licencas/`](docs/licencas/) | Licenças de terceiros |
