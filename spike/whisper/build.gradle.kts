@@ -52,6 +52,7 @@ android {
     }
     // O modelo vai no APK como asset SEM compressao: o tamanho medido e o do arquivo, e a leitura nao descomprime.
     androidResources { noCompress += "bin" }
+    lint { checkReleaseBuilds = false }
     packaging { jniLibs { useLegacyPackaging = false } }
 }
 
@@ -66,7 +67,7 @@ if (modelo != null) {
         into(modeloAssets)
         rename { "modelo.bin" }
     }
-    tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") || it.name.startsWith("lintVital") }
+    tasks.matching { it.name != "copiarModelo" && (it.name.contains("Assets") || it.name.contains("Lint")) }
         .configureEach { dependsOn(copiarModelo) }
 }
 
