@@ -16,6 +16,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
         extensions.configure<LibraryExtension> {
             compileSdk = 36
+            // Mesma versao que o AGP 8.7.3 usa por padrao, agora explicita: a CI instala exatamente esta (.github/scripts/garantir-ndk.sh).
+            ndkVersion = "27.0.12077973"
             defaultConfig {
                 minSdk = 26
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
