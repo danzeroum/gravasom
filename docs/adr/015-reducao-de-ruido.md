@@ -25,7 +25,7 @@ Tamanho no APK:
 
 | Motor | Biblioteca/modelo | Observação |
 | --- | --- | --- |
-| RNNoise completo | **5,34 MB** por ABI (arm64-v8a e x86_64, NDK r27, `-O3`, sem strip de símbolos de debug) | pesos float e int8 dentro do `.so` |
+| RNNoise completo | **5,34 MB** por ABI (arm64-v8a e x86_64, NDK r27, `-O3`, `-Wl,--gc-sections -Wl,-s`) | pesos float e int8 dentro do `.so` |
 | RNNoise leve | 2,74 MB por ABI | |
 | DeepFilterNet3 | modelo: 8,0 MB (ONNX, `DeepFilterNet3_onnx.tar.gz`, 7 983 136 bytes) ou 8,7 MB (float32); **runtime não medido** | só roda com o `libDF` em Rust + tract; não consegui compilá-lo para Android aqui (o crate publicado em crates.io é outra versão, sem inferência; o fonte oficial está no GitHub, bloqueado nesta máquina) |
 

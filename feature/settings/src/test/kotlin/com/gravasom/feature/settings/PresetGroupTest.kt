@@ -49,9 +49,13 @@ class PresetGroupTest {
     }
 
     @Test
-    fun `aula liga os efeitos e musica avisa que nao tem efeitos de voz`() {
+    fun `aula liga os efeitos por padrao`() {
         show(FormatPreset.CLASS)
         compose.onNodeWithTag("preset_efeitos").assertText(text(R.string.settings_preset_effects_on))
+    }
+
+    @Test
+    fun `musica avisa que nao tem efeitos de voz`() {
         show(FormatPreset.MUSIC)
         compose.onNodeWithTag("preset_efeitos").assertText(text(R.string.settings_preset_effects_off))
     }
