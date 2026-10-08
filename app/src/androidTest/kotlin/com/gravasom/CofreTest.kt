@@ -89,7 +89,9 @@ class CofreTest {
         }
         assertFalse("o app mostrou '$textoFalha' ao tocar a gravacao do cofre", falhou)
         assertTrue("nem mini-player nem aviso de falha em 15 s", abriu)
-        val andou = Suporte.aguardar(10_000) { posicaoDoPlayerMs() > POSICAO_MINIMA_MS }
+        // O laco que atualiza a posicao usa delay() dentro do Compose, que roda no relogio do teste: ele so anda dentro de
+        // waitUntil/waitForIdle (um sleep real nao o faz avancar).
+        val andou = runCatching { compose.waitUntil(10_000) { posicaoDoPlayerMs() > POSICAO_MINIMA_MS } }.isSuccess
         Suporte.medida("cofre", "posicao_apos_tocar_ms", posicaoDoPlayerMs().toLong())
         assertTrue("o player nao avancou: ${posicaoDoPlayerMs()} ms", andou)
     }
