@@ -27,4 +27,6 @@
     <string name="library_player_pause">Pause</string>
     <string name="library_player_speed">%1$sx</string>
     <string name="library_published">Also in Music/Recordings</string>
+    <string name="library_play_fail">Could not open this recording.</string>
+    <string name="library_private_badge">In the vault</string>
 </resources>

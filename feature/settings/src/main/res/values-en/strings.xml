@@ -6,8 +6,8 @@
     <string name="settings_format_MP3">MP3 · opens anywhere</string>
     <string name="settings_quality">Quality (kbps)</string>
     <string name="settings_quality_note">Applies to M4A and MP3</string>
-    <string name="settings_private">Keep only in this app</string>
-    <string name="settings_private_desc">New recordings do not appear in Music, Files or other apps.</string>
+    <string name="settings_private">Encrypted vault</string>
+    <string name="settings_private_desc">New recordings are encrypted (AES-256) and stay only in this app: they do not appear in Music, Files or other apps. Recordings already in the vault stay there when you turn it off.</string>
     <string name="settings_numbers_optin">Record my usage numbers</string>
     <string name="settings_numbers_optin_desc">Stays on this device only. No audio, file names or location. Nothing is sent.</string>
     <string name="settings_numbers_open">Your numbers</string>

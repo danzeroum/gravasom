@@ -15,7 +15,7 @@
     <string name="record_input_change">Trocar entrada</string>
     <string name="record_input_auto">Automática</string>
     <string name="record_where">As gravações ficam também em Músicas/Recordings, visíveis no app Arquivos.</string>
-    <string name="record_where_private">Modo privado: as gravações ficam só neste app.</string>
+    <string name="record_where_private">Cofre ligado: as gravações ficam cifradas, só neste app.</string>
     <string name="record_perm_denied_title">Precisamos do microfone para gravar</string>
     <string name="record_perm_denied_body">Toque em Gravar de novo e permita o acesso ao microfone.</string>
     <string name="record_perm_permanent_title">Microfone bloqueado</string>

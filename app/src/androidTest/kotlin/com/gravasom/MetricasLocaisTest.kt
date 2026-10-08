@@ -55,7 +55,7 @@ class MetricasLocaisTest {
         compose.onNodeWithTag("aba_gravacoes").performClick()
         compose.onNodeWithTag("campo_busca").performTextInput("SEGREDO")
         UiSuporte.aguardar(compose) { UiSuporte.textos(compose, "titulo_item") == listOf(segredo) }
-        UiSuporte.app.files.shareIntent(gravacao)
+        runBlocking { UiSuporte.app.files.shareIntent(gravacao) }
         runBlocking {
             UsageEventType.entries.forEach { metrics.record(it, value = 1234L, label = RecordingFormat.M4A) }
             metrics.record(UsageEventType.COMPARTILHADO, label = ShareChannel.SALVAR_EM)

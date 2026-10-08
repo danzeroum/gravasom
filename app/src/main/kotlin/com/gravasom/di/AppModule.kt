@@ -5,11 +5,13 @@ import com.gravasom.core.data.db.GravasomDatabase
 import com.gravasom.core.data.metrics.UsageMetrics
 import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.data.repository.RoomRecordingRepository
+import com.gravasom.core.data.vault.VaultCrypto
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.library.AudioImporter
 import com.gravasom.core.service.library.MediaStorePublisher
 import com.gravasom.core.service.library.RecordingFiles
 import com.gravasom.core.service.library.RecordingIngestor
+import com.gravasom.core.service.library.VaultStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,13 +39,26 @@ object AppModule {
     @Provides @Singleton
     fun publisher(@ApplicationContext context: Context): MediaStorePublisher = MediaStorePublisher(context)
 
+    /** A chave do cofre so e criada no Android Keystore quando o cofre e usado pela primeira vez. */
     @Provides @Singleton
-    fun recordingFiles(@ApplicationContext context: Context, repo: RecordingRepository, publisher: MediaStorePublisher): RecordingFiles =
-        RecordingFiles(context, repo, publisher)
+    fun vaultStore(@ApplicationContext context: Context): VaultStore = VaultStore(context, lazy { VaultCrypto.forContext(context) })
 
     @Provides @Singleton
-    fun audioImporter(@ApplicationContext context: Context, repo: RecordingRepository, metrics: UsageMetrics): AudioImporter =
-        AudioImporter(context, repo, metrics)
+    fun recordingFiles(
+        @ApplicationContext context: Context,
+        repo: RecordingRepository,
+        publisher: MediaStorePublisher,
+        vaultStore: VaultStore,
+    ): RecordingFiles = RecordingFiles(context, repo, publisher, vaultStore)
+
+    @Provides @Singleton
+    fun audioImporter(
+        @ApplicationContext context: Context,
+        repo: RecordingRepository,
+        metrics: UsageMetrics,
+        prefs: PreferencesRepository,
+        vaultStore: VaultStore,
+    ): AudioImporter = AudioImporter(context, repo, metrics, prefs, vaultStore)
 
     @Provides @Singleton
     fun ingestor(
@@ -51,6 +66,7 @@ object AppModule {
         prefs: PreferencesRepository,
         metrics: UsageMetrics,
         publisher: MediaStorePublisher,
+        vaultStore: VaultStore,
     ): RecordingIngestor =
-        RecordingIngestor(repo, prefs, metrics, publisher)
+        RecordingIngestor(repo, prefs, metrics, publisher, vaultStore)
 }

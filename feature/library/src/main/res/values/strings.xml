@@ -27,4 +27,6 @@
     <string name="library_player_pause">Pausar</string>
     <string name="library_player_speed">%1$sx</string>
     <string name="library_published">Também em Músicas/Recordings</string>
+    <string name="library_play_fail">Não foi possível abrir esta gravação.</string>
+    <string name="library_private_badge">No cofre</string>
 </resources>

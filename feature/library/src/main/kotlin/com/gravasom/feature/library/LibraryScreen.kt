@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -69,6 +70,7 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
     var saving by remember { mutableStateOf<Recording?>(null) }
     val savedOk = stringResource(R.string.library_saved_ok)
     val savedFail = stringResource(R.string.library_saved_fail)
+    val playFail = stringResource(R.string.library_play_fail)
     val saveLauncher = rememberLauncherForActivityResult(CreateAudioDocument()) { uri ->
         val target = saving
         saving = null
@@ -78,14 +80,21 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
     val undoText = stringResource(R.string.library_undo)
     val actions = RowActions(
         onPlay = { r ->
-            current = r
-            player.load(r.path)
-            player.play()
-            viewModel.played()
+            scope.launch {
+                val path = runCatching { viewModel.playablePath(r) }.getOrNull()
+                if (path == null) {
+                    snackbar.showSnackbar(playFail)
+                } else {
+                    current = r
+                    player.load(path)
+                    player.play()
+                    viewModel.played()
+                }
+            }
         },
         onRename = { renaming = it },
         onFavorite = viewModel::toggleFavorite,
-        onShare = { context.startActivity(viewModel.shareIntent(it)) },
+        onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
             if (current?.id == r.id) { player.pause(); current = null }
@@ -165,6 +174,12 @@ private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(r.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("titulo_item"))
                 if (r.isFavorite) Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.padding(start = 4.dp))
+                if (r.isPrivate) {
+                    Icon(
+                        Icons.Filled.Lock, contentDescription = stringResource(R.string.library_private_badge),
+                        modifier = Modifier.padding(start = 4.dp).testTag("selo_cofre"),
+                    )
+                }
             }
             Text(
                 stringResource(R.string.library_item_meta, formatDuration(r.durationMillis), r.format.name, formatSize(r.sizeBytes)),

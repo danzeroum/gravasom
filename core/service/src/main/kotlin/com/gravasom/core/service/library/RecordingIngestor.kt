@@ -19,7 +19,8 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Leva cada gravacao finalizada para a biblioteca: Room + copia publica no MediaStore (se o cofre privado estiver desligado).
+ * Leva cada gravacao finalizada para a biblioteca: Room + copia publica no MediaStore (cofre desligado)
+ * ou arquivo cifrado no cofre (cofre ligado).
  * Escuta [RecordingServiceState.saved], entao funciona tambem para gravacoes iniciadas pelo Tile, widget ou atalho.
  */
 class RecordingIngestor(
@@ -27,6 +28,7 @@ class RecordingIngestor(
     private val prefs: PreferencesRepository,
     private val metrics: UsageMetrics,
     private val publisher: MediaStorePublisher,
+    private val vaultStore: VaultStore,
 ) {
 
     fun start(scope: CoroutineScope) {
@@ -39,13 +41,17 @@ class RecordingIngestor(
         val duration = MediaProbe.durationMillis(file) ?: 0L
         val now = System.currentTimeMillis()
         val title = defaultTitle(now)
+        val size = file.length()
+        val vaultOn = prefs.privateVault.first()
+        // Cofre ligado: cifra e apaga o claro. Se a cifragem falhar, o claro fica no app, sem copia publica (nunca vaza).
+        val stored = if (vaultOn) vaultStore.protect(file) ?: file else file
         val id = repo.insert(
             Recording(
-                title = title, path = file.path, format = format, durationMillis = duration,
-                sizeBytes = file.length(), createdAtMillis = now,
+                title = title, path = stored.path, format = format, durationMillis = duration,
+                sizeBytes = size, createdAtMillis = now,
             ),
         )
-        if (!prefs.privateVault.first()) {
+        if (!vaultOn) {
             publisher.publish(file, "$title.${format.extension}", format.mimeType)?.let { repo.setPublishedUri(id, it) }
         }
         metrics.record(UsageEventType.GRAVACAO_CONCLUIDA, duration, format)
