@@ -15,9 +15,11 @@ import com.gravasom.core.audio.engine.RecordingError
 import com.gravasom.core.audio.engine.RecordingState
 import com.gravasom.core.data.metrics.UsageMetrics
 import com.gravasom.core.data.preferences.PreferencesRepository
+import com.gravasom.core.domain.audio.RecordingBudget
 import com.gravasom.core.domain.audio.RecordingFormat
 import com.gravasom.core.domain.metrics.UsageEventType
 import com.gravasom.core.service.AudioInputs
+import com.gravasom.core.service.FreeSpace
 import com.gravasom.core.service.InputOption
 import com.gravasom.core.service.RecordingService
 import com.gravasom.core.service.RecordingServiceState
@@ -51,6 +53,8 @@ data class RecordUiState(
     val privateMode: Boolean = false,
     val activeInput: InputOption = InputOption(-1, ""),
     val inputs: List<InputOption> = emptyList(),
+    /** Preenchido quando o espaco livre e baixo: a tela pergunta antes de gravar. */
+    val lowSpace: LowSpaceWarning? = null,
 ) {
     val isBusy: Boolean get() = status != RecordStatus.Ready && status !is RecordStatus.Failed
 
@@ -58,6 +62,9 @@ data class RecordUiState(
         const val MIN_DB = -60f
     }
 }
+
+/** Aviso de pouco espaco: quanto sobra e quantos minutos isso rende no formato escolhido. */
+data class LowSpaceWarning(val freeMegabytes: Long, val estimatedMinutes: Int)
 
 /**
  * Tela Gravar. Etapas da jornada: Abrir e Gravar. Hipotese H1 (docs/ux/jornada.md): do toque em Gravar ate o estado
@@ -146,6 +153,26 @@ class RecordViewModel @Inject constructor(
         prefs.setPreferredInputId(option?.id ?: PreferencesRepository.NO_INPUT)
     }
 
+    /** Ponto de entrada do botao Gravar: avisa se o espaco livre e baixo; senao grava. */
+    fun requestStart() {
+        viewModelScope.launch {
+            val free = FreeSpace.bytes(context)
+            if (RecordingBudget.isLow(free)) {
+                val estimate = RecordingBudget.estimatedMinutes(free, prefs.format.first(), prefs.sampleRate.first(), prefs.bitrate.first())
+                _state.update { it.copy(lowSpace = LowSpaceWarning(free / BYTES_PER_MEGABYTE, estimate)) }
+            } else {
+                start()
+            }
+        }
+    }
+
+    fun confirmLowSpace() {
+        _state.update { it.copy(lowSpace = null) }
+        start()
+    }
+
+    fun dismissLowSpace() = _state.update { it.copy(lowSpace = null) }
+
     fun start() {
         tappedAt = SystemClock.elapsedRealtime()
         _state.update { it.copy(justSaved = false) }
@@ -172,6 +199,7 @@ class RecordViewModel @Inject constructor(
 
     private companion object {
         const val TICK_MS = 200L
+        const val BYTES_PER_MEGABYTE = 1024L * 1024L
     }
 }
 

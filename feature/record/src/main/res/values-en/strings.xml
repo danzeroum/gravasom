@@ -31,4 +31,8 @@
     <string name="record_err_ENCODER_FAILURE">audio encoding failed</string>
     <string name="record_err_UNKNOWN">unknown error</string>
     <string name="record_see_library">See in Recordings</string>
+    <string name="record_low_space_title">Low storage</string>
+    <string name="record_low_space_body">%1$d MB left on the device: about %2$d min fit in this format. Free some space or record anyway.</string>
+    <string name="record_low_space_confirm">Record anyway</string>
+    <string name="record_low_space_cancel">Cancel</string>
 </resources>

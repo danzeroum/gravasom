@@ -31,4 +31,8 @@
     <string name="record_err_ENCODER_FAILURE">falha ao codificar o áudio</string>
     <string name="record_err_UNKNOWN">erro desconhecido</string>
     <string name="record_see_library">Ver em Gravações</string>
+    <string name="record_low_space_title">Pouco espaço livre</string>
+    <string name="record_low_space_body">Restam %1$d MB no aparelho: cabem cerca de %2$d min neste formato. Libere espaço ou grave mesmo assim.</string>
+    <string name="record_low_space_confirm">Gravar mesmo assim</string>
+    <string name="record_low_space_cancel">Cancelar</string>
 </resources>

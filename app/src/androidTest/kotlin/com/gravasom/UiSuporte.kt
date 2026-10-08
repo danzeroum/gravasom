@@ -26,6 +26,14 @@ typealias RegraCompose = AndroidComposeTestRule<ActivityScenarioRule<MainActivit
 /** Atalhos dos testes de UI: acesso aos servicos do app, biblioteca limpa e o fluxo "gravar pela tela". */
 object UiSuporte {
 
+    /** Permissoes que um usuario ja teria concedido: microfone, notificacoes (API 33+) e armazenamento (ate a API 28). */
+    fun permissoes(): androidx.test.rule.GrantPermissionRule {
+        val lista = mutableListOf(android.Manifest.permission.RECORD_AUDIO)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) lista += android.Manifest.permission.POST_NOTIFICATIONS
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P) lista += android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        return androidx.test.rule.GrantPermissionRule.grant(*lista.toTypedArray())
+    }
+
     /** Texto de recurso no idioma do aparelho (o emulador de CI roda em ingles). */
     fun rotulo(nome: String): String {
         val ctx = Suporte.contexto
@@ -103,7 +111,11 @@ object UiSuporte {
     /** Procura no MediaStore a copia publicada mais recente cujo nome termina em [extensao]. */
     fun publicadoMaisRecente(extensao: String): Publicado? {
         val resolver = Suporte.contexto.contentResolver
-        val colunas = arrayOf(MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.RELATIVE_PATH)
+        // Antes da API 29 nao existe RELATIVE_PATH: a pasta vem do caminho (DATA).
+        val legado = android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q
+        @Suppress("DEPRECATION")
+        val colunaPasta = if (legado) MediaStore.Audio.Media.DATA else MediaStore.Audio.Media.RELATIVE_PATH
+        val colunas = arrayOf(MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DISPLAY_NAME, colunaPasta)
         resolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, colunas, "${MediaStore.Audio.Media.DISPLAY_NAME} LIKE ?", arrayOf("%.$extensao"),
             "${MediaStore.Audio.Media.DATE_ADDED} DESC",
@@ -117,7 +129,14 @@ object UiSuporte {
             } finally {
                 mmr.release()
             }
-            return Publicado(uri, c.getString(1), c.getString(2).orEmpty(), dur)
+            val bruto = c.getString(2).orEmpty()
+            @Suppress("DEPRECATION")
+            val pasta = if (legado) {
+                bruto.substringBeforeLast('/').removePrefix(android.os.Environment.getExternalStorageDirectory().path + "/") + "/"
+            } else {
+                bruto
+            }
+            return Publicado(uri, c.getString(1), pasta, dur)
         }
         return null
     }
