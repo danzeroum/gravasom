@@ -12,14 +12,13 @@ modelos ggml por hash (`corpus/modelos.sha256`): tiny e base, f16 e quantizado q
 Corpus: 60 locuções FLEURS pt-BR (CC BY 4.0, 10,9 min) e uma gravação longa de 10 min montada com elas.
 Medição no **host** (CPU x86 do runner/contêiner), não no celular.
 
-| Modelo | Arquivo | WER por locução | WER gravação 10 min | Tempo 10 min (host) | RTF host | Pico de memória | APK do spike |
+| Modelo | Arquivo | WER por locução | WER gravação 10 min | Tempo 10 min (host) | RTF host | Pico de memória | APK do spike (MB, 10^6) |
 |---|---|---|---|---|---|---|---|
-| tiny f16 | 74,1 MiB | 21,2% | 24,8% | 63,8 s | 0,107 | 320 MiB | 79,8 MB |
+| tiny f16 | 74,1 MiB | 21,2% | 24,8% | 63,8 s | 0,107 | 320 MiB | 83,7 MB |
 | tiny q5_1 | 30,7 MiB | 23,7% | 26,3% | 53,2 s | 0,089 | 274 MiB | 38,1 MB |
 | base f16 | 141,1 MiB | 10,5% | 12,0% | 101,5 s | 0,170 | 428 MiB | 153,9 MB |
 | base q5_1 | 56,9 MiB | 9,9% | 12,4% | 89,8 s | 0,150 | 341 MiB | 65,7 MB |
 
-(Tamanho do APK do spike = bytes em `spike-sizes`: tiny 83,65 MB, tiny-q5_1 38,11 MB, base 153,91 MB, base-q5_1 65,67 MB.)
 Observação metodológica: a primeira rodada usou `-nt` e distorceu o WER da gravação longa; os números acima são da rodada corrigida.
 
 ## Pendente (só o aparelho do dono mede)
