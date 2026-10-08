@@ -1,14 +1,14 @@
 name: CI
 
-# Gatilho unico: push (main, claude/**) e tags v*. Os checks do push aparecem no PR quando a branch e do mesmo repositorio;
-# por isso NAO ha gatilho pull_request (rodava a CI inteira duas vezes por commit).
-# Os testes caros (emuladores, harness de audio) so rodam quando o que eles cobrem muda, ou em main e em tags v*.
-# O filtro esta no job "mudancas" (docs/status.md, secao "Filtro de caminhos da CI"): nao desfazer sem medir.
+# CI DESLIGADA POR DECISAO DO DONO (limite de gasto da conta do GitHub): nenhum push, tag ou pull request dispara este workflow.
+# A verificacao e feita localmente (./gradlew detekt lintDebug testDebugUnitTest koverVerify; docs/status.md registra a saida)
+# e a validacao e feita pelo dono no celular (docs/teste-aparelho-real.md). Para ligar de novo: restaurar os gatilhos
+# `push` (main, claude/**) e `tags: v*` abaixo. O filtro de caminhos (job "mudancas") continua valendo para execucoes manuais.
+# on:
+#   push:
+#     branches: [main, 'claude/**']
+#     tags: ['v*']
 on:
-  push:
-    branches: [main, 'claude/**']
-    tags: ['v*']
-  # Medicoes caras (spike de transcricao, ADR-013) rodam so sob demanda.
   workflow_dispatch:
 
 concurrency:

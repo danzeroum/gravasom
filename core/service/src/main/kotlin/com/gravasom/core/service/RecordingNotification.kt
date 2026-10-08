@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import com.gravasom.core.service.marker.MarkerFeedback
 
 /** Constroi a notificacao persistente com pausar/retomar, marcar e parar. */
 object RecordingNotification {
@@ -36,6 +37,7 @@ object RecordingNotification {
         paused: Boolean,
         actions: NotificationActions,
         markerCount: Int = 0,
+        lastMarkerMillis: Long? = null,
     ): Notification {
         val contentIntent = PendingIntent.getActivity(
             context, 0, actions.openAppIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -48,7 +50,17 @@ object RecordingNotification {
             .setContentIntent(contentIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
         if (!paused) builder.setUsesChronometer(true).setWhen(startedAtMillis)
-        if (markerCount > 0) builder.setContentText(context.resources.getQuantityString(R.plurals.notif_markers, markerCount, markerCount))
+        // Confirma o toque em "Marcar" com o numero e o instante ("Marcador 3 as 12:40"): com a tela bloqueada e o canal em
+        // importancia baixa, e o unico sinal visual de que o marcador foi gravado (a vibracao e o sinal tatil).
+        if (markerCount > 0) {
+            builder.setContentText(
+                if (lastMarkerMillis != null) {
+                    MarkerFeedback.text(context, markerCount, lastMarkerMillis)
+                } else {
+                    context.resources.getQuantityString(R.plurals.notif_markers, markerCount, markerCount)
+                },
+            )
+        }
         if (paused) {
             builder.addAction(0, context.getString(R.string.notif_action_resume), actions.resumePendingIntent(context))
         } else {

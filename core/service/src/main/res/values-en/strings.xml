@@ -8,6 +8,7 @@
     <string name="notif_action_resume">Resume</string>
     <string name="notif_action_stop">Stop</string>
     <string name="notif_action_marker">Mark</string>
+    <string name="notif_marker_added">Marker %1$d at %2$s</string>
     <plurals name="notif_markers">
         <item quantity="one">%d marker</item>
         <item quantity="other">%d markers</item>

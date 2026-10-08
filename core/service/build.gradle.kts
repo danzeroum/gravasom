@@ -19,3 +19,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.glance.appwidget)
 }
+
+dependencies {
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+}

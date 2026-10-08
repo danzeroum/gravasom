@@ -26,6 +26,8 @@ import com.gravasom.core.domain.audio.AudioRecorder
 import com.gravasom.core.domain.audio.AudioRecorderFactory
 import com.gravasom.core.domain.audio.RecordingConfig
 import com.gravasom.core.domain.audio.RecordingFormat
+import com.gravasom.core.service.marker.Haptics
+import com.gravasom.core.service.marker.SystemHaptics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,6 +54,8 @@ class RecordingService : Service() {
     private val clock = RecordingClock(SystemClock::elapsedRealtime)
     private var sidecar: MarkerSidecar? = null
     private var markerCount = 0
+    private var lastMarkerMillis: Long? = null
+    private val haptics: Haptics by lazy { SystemHaptics(this) }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -94,6 +98,7 @@ class RecordingService : Service() {
             val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
             sidecar = MarkerSidecar.forAudio(File(path)).also { it.delete() }
             markerCount = 0
+            lastMarkerMillis = null
             RecordingServiceState.updateMarkerCount(0)
             val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
             val rec = factory.create(format)
@@ -166,9 +171,12 @@ class RecordingService : Service() {
             if (machine.state == RecordingState.Idle) stopSelf()
             return
         }
-        file.append(PendingMarker(clock.elapsedMillis(), label = ""))
+        val position = clock.elapsedMillis()
+        file.append(PendingMarker(position, label = ""))
         markerCount++
+        lastMarkerMillis = position
         RecordingServiceState.updateMarkerCount(markerCount)
+        haptics.tick()
         refreshNotification(paused = machine.state is RecordingState.Paused)
     }
 
@@ -199,7 +207,7 @@ class RecordingService : Service() {
 
     private fun notification(paused: Boolean) =
         RecordingNotification.build(
-            this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this), markerCount,
+            this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this), markerCount, lastMarkerMillis,
         )
 
     /** Atualiza a notificacao quando o estado muda (pausa/retomada/inicio efetivo). */

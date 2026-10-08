@@ -53,6 +53,7 @@ data class PlayerUiState(
 /** Avisos pontuais para a tela (snackbar). */
 sealed interface PlayerEvent {
     data class MarkerRejected(val reason: MarkerRejection) : PlayerEvent
+    data object MarkerDeleted : PlayerEvent
     data class ClipSaved(val title: String) : PlayerEvent
     data object ClipFailed : PlayerEvent
     data object AnalysisFailed : PlayerEvent
@@ -80,6 +81,9 @@ class PlayerViewModel @Inject constructor(
 
     private val addMarker = AddMarker(markerRepo, durationOf = { repo.getById(it)?.durationMillis })
     private val updateMarker = UpdateMarker(markerRepo)
+
+    /** Dialogo de marcador (rascunho ate Salvar) e desfazer da exclusao. */
+    val markerEditor = MarkerEditor(markerRepo, addMarker, updateMarker, viewModelScope)
     private var loading: Job? = null
     private var markersJob: Job? = null
     private var analysisSpeech: Map<SilenceSensitivity, BooleanArray> = emptyMap()
@@ -130,6 +134,7 @@ class PlayerViewModel @Inject constructor(
         loading?.cancel()
         markersJob?.cancel()
         analysisSpeech = emptyMap()
+        markerEditor.dismiss()
         _state.value = _state.value.copy(
             recording = null, waveform = null, analyzing = false, markers = emptyList(), plan = null,
             selecting = false, selection = null, exporting = false,
@@ -153,20 +158,31 @@ class PlayerViewModel @Inject constructor(
 
     // --- marcadores ---
 
-    /** Cria um marcador na posicao dada. A nota pode ser vazia; acima de 140 caracteres e rejeitada com aviso. */
-    suspend fun addMarker(positionMillis: Long, note: String = "", label: String = ""): MarkerResult? {
-        val recording = _state.value.recording ?: return null
-        val result = addMarker(recording.id, positionMillis.coerceIn(0L, recording.durationMillis), note, label)
+    /** "Marcar aqui": abre o dialogo com um RASCUNHO na posicao dada; so Salvar grava (cancelar nao deixa marcador vazio). */
+    fun beginMarker(positionMillis: Long) {
+        val recording = _state.value.recording ?: return
+        markerEditor.beginAdd(recording.id, positionMillis.coerceIn(0L, recording.durationMillis))
+    }
+
+    fun editMarker(marker: Marker) = markerEditor.beginEdit(marker)
+
+    fun dismissMarkerDialog() = markerEditor.dismiss()
+
+    /** Devolve o resultado para o dialogo decidir se fecha (salvo) ou mostra o erro (rejeitado). */
+    suspend fun saveMarker(target: MarkerDialogTarget, note: String, label: String): MarkerResult {
+        val result = markerEditor.save(target, note, label)
         if (result is MarkerResult.Rejected) _events.tryEmit(PlayerEvent.MarkerRejected(result.reason))
         return result
     }
 
-    /** Devolve o resultado para o dialogo decidir se fecha (salvo) ou mostra o erro (rejeitado). */
-    suspend fun saveMarker(marker: Marker, note: String, label: String): MarkerResult =
-        updateMarker(marker.copy(note = note, label = label))
-
+    /** Exclui com "Desfazer" por [MarkerEditor.UNDO_WINDOW_MILLIS]. */
     fun deleteMarker(marker: Marker) {
-        viewModelScope.launch { markerRepo.delete(marker.id) }
+        markerEditor.delete(marker)
+        _events.tryEmit(PlayerEvent.MarkerDeleted)
+    }
+
+    fun undoMarkerDelete() {
+        viewModelScope.launch { markerEditor.undoDelete() }
     }
 
     // --- tags ---

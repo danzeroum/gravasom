@@ -2,6 +2,8 @@ package com.gravasom.feature.player
 
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -34,16 +36,20 @@ class MarkerDialogTest {
     private var saved: Pair<String, String>? = null
     private var dismissed = false
 
-    private fun mostrar() {
+    private var deleted = false
+
+    private fun mostrar(deletable: Boolean = true) {
         saved = null
         dismissed = false
+        deleted = false
         compose.setContent {
             MaterialTheme {
                 MarkerDialog(
                     marker = marker,
                     onDismiss = { dismissed = true },
                     onSave = { note, label -> saved = note to label; MarkerResult.Saved(marker.id) },
-                    onDelete = {},
+                    onDelete = { deleted = true },
+                    deletable = deletable,
                 )
             }
         }
@@ -103,5 +109,29 @@ class MarkerDialogTest {
         mostrar()
         compose.onNodeWithTag("campo_nota_marcador").performTextInput("a".repeat(141))
         compose.onNodeWithTag("erro_nota", useUnmergedTree = true).assertTextEquals("Note too long (max 140). Shorten it to save.")
+    }
+
+    @Test
+    fun `cancelar um marcador novo fecha sem salvar e sem excluir`() {
+        mostrar(deletable = false)
+        compose.onNodeWithTag("campo_nota_marcador").performTextInput("nota digitada")
+        compose.onNodeWithTag("cancelar_marcador").performClick()
+        assertTrue(dismissed)
+        assertEquals(null, saved)
+        assertTrue(!deleted)
+    }
+
+    @Test
+    fun `marcador novo ainda rascunho nao oferece excluir`() {
+        mostrar(deletable = false)
+        compose.onAllNodesWithTag("excluir_marcador").assertCountEquals(0)
+    }
+
+    @Test
+    fun `marcador existente oferece excluir e avisa quem trata o desfazer`() {
+        mostrar(deletable = true)
+        compose.onNodeWithTag("excluir_marcador").performClick()
+        assertTrue(deleted)
+        assertTrue(dismissed)
     }
 }

@@ -32,7 +32,7 @@ import com.gravasom.core.domain.marker.MarkerResult
 import kotlinx.coroutines.launch
 
 /**
- * Editar nota, nome e (se quiser) excluir um marcador. A nota aceita ate [MarkerNote.MAX_LENGTH] caracteres: acima disso o
+ * Editar nota, nome e (se quiser) excluir um marcador; com [deletable] falso (marcador novo, ainda rascunho) nao ha o que excluir. A nota aceita ate [MarkerNote.MAX_LENGTH] caracteres: acima disso o
  * campo mostra o erro, o contador fica vermelho e Salvar fica desativado (prevencao de erro com mensagem clara).
  */
 @Composable
@@ -41,6 +41,7 @@ fun MarkerDialog(
     onDismiss: () -> Unit,
     onSave: suspend (note: String, label: String) -> MarkerResult,
     onDelete: () -> Unit,
+    deletable: Boolean = true,
 ) {
     var note by rememberSaveable(marker.id) { mutableStateOf(marker.note) }
     var label by rememberSaveable(marker.id) { mutableStateOf(marker.label) }
@@ -69,8 +70,10 @@ fun MarkerDialog(
         },
         dismissButton = {
             Row {
-                TextButton(onClick = { onDelete(); onDismiss() }, modifier = Modifier.testTag("excluir_marcador")) {
-                    Text(stringResource(R.string.player_marker_delete))
+                if (deletable) {
+                    TextButton(onClick = { onDelete(); onDismiss() }, modifier = Modifier.testTag("excluir_marcador")) {
+                        Text(stringResource(R.string.player_marker_delete))
+                    }
                 }
                 TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_marcador")) {
                     Text(stringResource(R.string.player_marker_cancel))
