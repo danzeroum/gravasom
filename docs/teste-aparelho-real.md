@@ -1,19 +1,72 @@
 # Roteiro de teste em aparelho real (e com pessoas)
 
-Tudo aqui é **PENDENTE-HUMANO**: a CI verifica em emulador, mas **nada abaixo foi executado em aparelho real**.
-Não marque como aprovado sem preencher a coluna "Resultado" (data, aparelho, versão do Android, observação).
+> **Mudança de regime (2026-10-08):** a CI do GitHub está desligada (limite de gasto da conta; o workflow só roda por
+> `workflow_dispatch`). A **verificação** agora é local (`./gradlew detekt lintDebug testDebugUnitTest koverVerify`, saída em
+> `docs/status.md`) e a **validação** é sua, instalando o APK no celular. **Nenhum teste instrumentado (emulador) rodou nesta
+> entrega**: não há emulador nesta máquina. Tudo o que está marcado PENDENTE-HUMANO abaixo nunca foi executado em aparelho real.
 
-**Verificação** = a CI provou em emulador (coluna "Verificação"). **Validação** = uma pessoa confirma no aparelho (este roteiro).
+Não marque como aprovado sem preencher a coluna "Resultado" (data, aparelho, versão do Android, observação).
 
 ## Antes de começar
 
-1. Baixe o APK: artefato `gravasom-apk` (debug) do último run verde, ou `gravasom-release-apk` (assinado) quando os secrets estiverem cadastrados (`docs/release-assinatura.md`).
-2. Instale (`adb install -r app-debug.apk` ou pelo arquivo). Se já havia uma versão com outra assinatura, desinstale antes.
+1. Instale o APK recebido (`app-release.apk`): toque no arquivo, ou `adb install -r app-release.apk`. Ele é assinado com a
+   chave de debug do repositório (`config/debug.keystore`, pública), a **mesma** de todas as entregas: cada versão nova instala
+   **por cima** da anterior, sem perder as gravações. (Se já houver uma versão assinada com outra chave, desinstale antes.)
+2. Confira o SHA-256 do arquivo com o que veio na mensagem de entrega (`sha256sum app-release.apk`).
 3. Anote: modelo, versão do Android, versão do app (`Ajustes`).
+4. Permita **microfone** e **notificações** quando o app pedir.
 
-## Roteiro
+## A. Roteiro curto da Onda 1 (~15 min) — os 4 achados de severidade 3 + o núcleo da onda
 
-| # | Passo | O que deve acontecer | Verificação (CI) | Resultado (preencher) |
+| # | Passo | O que deve acontecer | Resultado (preencher) |
+| --- | --- | --- | --- |
+| A1 | **Gravar** → bloquear a tela → puxar a notificação → tocar **Marcar** | O texto da notificação muda para **"Marcador 1 às 00:07"** (número e instante) e o aparelho **vibra uma vez**, com a tela bloqueada | PENDENTE-HUMANO |
+| A2 | Tocar **Marcar** mais 2 vezes (também pelo widget, se tiver) | "Marcador 2 às …", "Marcador 3 às …", uma vibração a cada toque | PENDENTE-HUMANO |
+| A3 | **Parar** → abrir a gravação na lista | Os 3 marcadores aparecem na onda e na lista de marcadores, nos instantes mostrados na notificação | PENDENTE-HUMANO |
+| A4 | No player, tocar **Marcar** → no diálogo digitar uma nota → **Cancelar** | Nenhum marcador novo aparece (antes ficava um marcador vazio) | PENDENTE-HUMANO |
+| A5 | No player, tocar **Marcar** → digitar uma nota → **Salvar** | Exatamente 1 marcador novo, com a nota, na posição em que você tocou | PENDENTE-HUMANO |
+| A6 | Nota com 141 caracteres | Mensagem de erro e **Salvar** desativado; com 140, salva | PENDENTE-HUMANO |
+| A7 | Tocar num marcador → **Editar** → **Excluir marcador** | Aparece **"Marcador excluído — Desfazer"** por 5 s | PENDENTE-HUMANO |
+| A8 | Tocar **Desfazer** dentro de 5 s | O marcador volta **com a mesma nota, cor e posição**. Excluir de novo e **esperar 6 s**: o aviso some e o marcador não volta | PENDENTE-HUMANO |
+| A9 | Tocar a gravação para tocar → tocar o **X** do player | O painel fecha e **o áudio continua**; aparece a notificação de mídia | PENDENTE-HUMANO |
+| A10 | Na notificação de mídia, tocar **Pausar** (e **Tocar** de novo) | O áudio pausa/retoma. Com a tela bloqueada também funciona | PENDENTE-HUMANO |
+| A11 | Tocar uma gravação **privada** (cofre) e fechar o painel | A notificação de mídia mostra **"Gravação privada"**, nunca o nome da gravação | PENDENTE-HUMANO |
+| A12 | Tocando em segundo plano, trocar de aba (Gravar/Ajustes) e voltar | O áudio não para ao trocar de aba | PENDENTE-HUMANO |
+| A13 | Abrir uma gravação longa (ideal: 30–60 min) → **pinçar** a onda → tocar num marcador | Zoom suave; o toque no marcador leva ao ponto em ≤3 toques desde a lista | PENDENTE-HUMANO |
+| A14 | Ligar **Pular silêncio** numa aula/reunião real | O silêncio é pulado e **nenhuma fala é cortada** (ouça atento o começo das frases) | PENDENTE-HUMANO |
+| A15 | Selecionar um trecho → **Exportar** → abrir o trecho em **outro player** | O trecho toca fora do app, com a duração escolhida | PENDENTE-HUMANO |
+| A16 | Etiquetas: pôr "aula" em 2 gravações e filtrar pela etiqueta | A lista mostra só as com a etiqueta | PENDENTE-HUMANO |
+| A17 | Instalar a **próxima** versão por cima | Instala sem desinstalar e as gravações continuam lá | PENDENTE-HUMANO |
+
+**Limitações conhecidas para não estranhar** (descritas, não corrigidas nesta etapa):
+
+- O **pular silêncio só atua com o painel do player aberto**: com o painel fechado (áudio em segundo plano) a reprodução segue sem pular.
+- Fora do painel não há botão de pausa dentro do app: pausa-se pela notificação de mídia (ou reabrindo a gravação).
+- "Marcar" no **widget** fora de uma gravação em curso é ignorado em silêncio.
+- A transcrição (modelo base q5_1) **não** está nesta versão.
+
+## B. Casos que só rodam em emulador/aparelho (instrumentados) e NÃO rodaram nesta entrega
+
+Estes testes existem em `app/src/androidTest` e precisam de emulador ou aparelho conectado
+(`./gradlew :app:connectedDebugAndroidTest`, com um AVD API 28/34/36 ligado). Foram verdes na CI em API 34 e 36
+(run 37779440170, commit `f26e739`, **antes** das mudanças desta etapa); depois dela **não foram reexecutados**. Os casos
+impactados pelas mudanças desta etapa — rodar primeiro:
+
+| Teste | O que cobre | Impacto desta etapa |
+| --- | --- | --- |
+| `OndaMarcadoresTest.nota141CaracteresRejeitadaE140Salva`, `marcarAquiPeloPlayerCriaMarcadorNaOnda` | Marcar pelo player e nota 140/141 | O marcador agora só nasce ao **Salvar** (rascunho) |
+| `OndaMarcadoresTest` (marcador da notificação na onda) | Marcar pela notificação | A notificação ganhou texto "Marcador N às mm:ss" e vibração |
+| `NotificacaoTest`, `SuperficiesTest` | Ações da notificação e do widget | Texto do conteúdo da notificação mudou |
+| `PlayerMedia3Test` | Player com Media3 | O ExoPlayer agora é do `PlaybackHub`; `release()` não o libera |
+| `EdicaoRoomTest`, `ExportarTrechoTest`, `PularSilencioTest`, `EtiquetasTest` | Migração, exportar, pular silêncio, etiquetas | Sem mudança de código nesta etapa (corrigidos no run anterior) |
+| `AcessibilidadeTest`, `CofreTest`, `FluxoUsuarioTest`, `CiclosInterrupcaoTest` | Fluxos gerais | Sem mudança de código |
+
+Também **nunca executado**: o Macrobenchmark da pinça na onda de 1 h (`macrobenchmark/`), e o job de API 28 da CI.
+
+## C. Roteiro das fases anteriores (ainda valem)
+
+
+| # | Passo | O que deve acontecer | Verificação (CI, histórica) | Resultado (preencher) |
 | --- | --- | --- | --- | --- |
 | 1 | Abrir o app → **Gravar** → aceitar microfone (e notificações no Android 13+) | Pedido de permissão aparece **no primeiro toque em Gravar**, não antes; gravação começa | FluxoUsuarioTest, PermissaoNegadaTest | PENDENTE-HUMANO |
 | 2 | Gravar 10 s → **Parar** | Item na aba Gravações com ~10 s; tocar com 1 toque | FluxoUsuarioTest | PENDENTE-HUMANO |
