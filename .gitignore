@@ -25,3 +25,10 @@ local.properties
 # Logs
 *.log
 !evidencias/**/*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Kotlin
+.kotlin/
