@@ -22,6 +22,22 @@ android {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
         }
+        // Release: keystore e senhas SO por variaveis de ambiente (GitHub Secrets na CI); nada disso entra no repositorio.
+        // Sem as variaveis, o release nao e assinado aqui e o job "release-apk" da CI recusa gerar o artefato.
+        val keystorePath = System.getenv("GRAVASOM_KEYSTORE_FILE")
+        if (!keystorePath.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("GRAVASOM_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("GRAVASOM_KEY_ALIAS")
+                keyPassword = System.getenv("GRAVASOM_KEY_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+        }
     }
     packaging {
         resources {
@@ -65,5 +81,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4.accessibility)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

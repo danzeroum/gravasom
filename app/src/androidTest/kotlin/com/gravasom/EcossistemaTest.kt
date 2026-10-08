@@ -9,6 +9,7 @@ import android.os.SystemClock
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ActivityScenario
 import com.gravasom.core.service.library.RecordingFiles
 import org.junit.Assert.assertEquals
@@ -22,7 +23,10 @@ import java.io.File
 /** Compartilhar (FileProvider), receber audio (ACTION_SEND), atalhos e ausencia de internet (jornada: Compartilhar). */
 class EcossistemaTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val idioma = RegraIdioma()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
     @Before
@@ -31,7 +35,7 @@ class EcossistemaTest {
     @Test
     fun compartilharUsaContentUriSemExporCaminhoBruto() {
         val gravacao = UiSuporte.inserirGravacao("Entrevista", segundos = 1.0)
-        val intent = UiSuporte.app.files.shareIntent(gravacao)
+        val intent = runBlocking { UiSuporte.app.files.shareIntent(gravacao) }
         val envio = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT) ?: error("chooser sem intent de envio")
         assertEquals(Intent.ACTION_SEND, envio.action)
         val uri = envio.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: error("sem EXTRA_STREAM")

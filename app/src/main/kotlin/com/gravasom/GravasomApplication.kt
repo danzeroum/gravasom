@@ -37,6 +37,7 @@ class GravasomApplication : Application() {
         }
         ingestor.start(appScope)
         appScope.launch {
+            files.clearTemp() // copias em claro do cofre que sobraram de uma sessao anterior
             recoverInterrupted()
             purgeOldTrash()
         }

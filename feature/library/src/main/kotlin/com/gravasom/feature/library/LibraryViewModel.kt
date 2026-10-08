@@ -70,10 +70,14 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch { metrics.record(UsageEventType.REPRODUCAO_INICIADA) }
     }
 
-    fun shareIntent(recording: Recording): Intent {
+    /** No cofre, a copia em claro para o destinatario e gerada num cache privado (fora do thread principal). */
+    suspend fun shareIntent(recording: Recording): Intent {
         viewModelScope.launch { metrics.record(UsageEventType.COMPARTILHADO, label = ShareChannel.FOLHA_DO_SISTEMA) }
         return files.shareIntent(recording)
     }
+
+    /** Caminho que o player consegue abrir (decifra para o cache privado se a gravacao estiver no cofre). */
+    suspend fun playablePath(recording: Recording): String = files.playablePath(recording)
 
     fun saveTo(recording: Recording, destination: Uri): Boolean {
         val ok = files.copyTo(recording, destination)

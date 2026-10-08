@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -53,7 +54,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
 import com.gravasom.feature.player.PlayerController
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = hiltViewModel()) {
@@ -69,6 +72,7 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
     var saving by remember { mutableStateOf<Recording?>(null) }
     val savedOk = stringResource(R.string.library_saved_ok)
     val savedFail = stringResource(R.string.library_saved_fail)
+    val playFail = stringResource(R.string.library_play_fail)
     val saveLauncher = rememberLauncherForActivityResult(CreateAudioDocument()) { uri ->
         val target = saving
         saving = null
@@ -77,15 +81,10 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
     val deletedText = stringResource(R.string.library_deleted)
     val undoText = stringResource(R.string.library_undo)
     val actions = RowActions(
-        onPlay = { r ->
-            current = r
-            player.load(r.path)
-            player.play()
-            viewModel.played()
-        },
+        onPlay = { r -> scope.launch { if (openAndPlay(viewModel, player, r)) current = r else snackbar.showSnackbar(playFail) } },
         onRename = { renaming = it },
         onFavorite = viewModel::toggleFavorite,
-        onShare = { context.startActivity(viewModel.shareIntent(it)) },
+        onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
             if (current?.id == r.id) { player.pause(); current = null }
@@ -106,6 +105,17 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
+}
+
+/** Decifra (se preciso) fora da thread principal e toca NA principal (o ExoPlayer exige); false se nao abriu. */
+private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerController, recording: Recording): Boolean {
+    val path = runCatching { viewModel.playablePath(recording) }.getOrNull() ?: return false
+    withContext(Dispatchers.Main) {
+        player.load(path)
+        player.play()
+        viewModel.played()
+    }
+    return true
 }
 
 private data class RowActions(
@@ -165,6 +175,12 @@ private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(r.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("titulo_item"))
                 if (r.isFavorite) Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.padding(start = 4.dp))
+                if (r.isPrivate) {
+                    Icon(
+                        Icons.Filled.Lock, contentDescription = stringResource(R.string.library_private_badge),
+                        modifier = Modifier.padding(start = 4.dp).testTag("selo_cofre"),
+                    )
+                }
             }
             Text(
                 stringResource(R.string.library_item_meta, formatDuration(r.durationMillis), r.format.name, formatSize(r.sizeBytes)),
@@ -251,9 +267,17 @@ private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm:
             OutlinedTextField(value = text, onValueChange = { text = it }, singleLine = true, modifier = Modifier.testTag("campo_renomear"))
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(text) }, enabled = text.isNotBlank()) { Text(stringResource(R.string.library_rename_ok)) }
+            TextButton(
+                onClick = { onConfirm(text) },
+                enabled = text.isNotBlank(),
+                modifier = Modifier.testTag("confirmar_renomear"),
+            ) { Text(stringResource(R.string.library_rename_ok)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.library_cancel)) } },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_renomear")) {
+                Text(stringResource(R.string.library_cancel))
+            }
+        },
     )
 }
 

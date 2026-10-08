@@ -1,13 +1,11 @@
 package com.gravasom
 
-import android.Manifest
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.test.rule.GrantPermissionRule
 import com.gravasom.core.domain.audio.RecordingFormat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -20,11 +18,13 @@ import org.junit.Test
 class FluxoUsuarioTest {
 
     @get:Rule(order = 0)
-    val permissoes: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
+    val permissoes = UiSuporte.permissoes()
 
     @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
 
     @Before
     fun preparar() = UiSuporte.limparTudo()
@@ -50,12 +50,14 @@ class FluxoUsuarioTest {
 
     @Test
     fun gravacaoPublicadaNoMediaStoreEmMusicRecordings() {
-        UiSuporte.gravarPelaTela(compose, segundos = 3)
+        val (_, gravadoMs) = UiSuporte.gravarPelaTela(compose, segundos = 3)
+        val janelaMaxMs = UiSuporte.ultimaJanelaMaxMs
         Thread.sleep(1_500)
         val pub = checkNotNull(UiSuporte.publicadoMaisRecente("m4a")) { "nada publicado no MediaStore" }
         Suporte.medida("mediastore_m4a", "pasta", pub.pasta)
         assertTrue("pasta=${pub.pasta}", pub.pasta.startsWith("Music/Recordings"))
-        assertTrue("duracao ${pub.duracaoMs} ms", kotlin.math.abs(pub.duracaoMs - 3_000) <= 500)
+        // Janela [relogio visivel, do toque em Gravar ate o retorno do Parar] com +-500 ms de folga (como no MP3 pela tela).
+        assertTrue("duracao ${pub.duracaoMs} ms fora de [$gravadoMs, $janelaMaxMs] +-500 ms", pub.duracaoMs in (gravadoMs - 500)..(janelaMaxMs + 500))
     }
 
     @Test

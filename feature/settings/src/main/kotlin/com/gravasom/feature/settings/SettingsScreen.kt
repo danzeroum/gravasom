@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -36,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.audio.RecordingFormat
 
 private val Bitrates = listOf(64, 128, 192)
+private val MIN_TOUCH_TARGET = 48.dp
 
 @Composable
 fun SettingsScreen(onOpenNumbers: () -> Unit, modifier: Modifier = Modifier, viewModel: SettingsViewModel = hiltViewModel()) {
@@ -88,6 +90,7 @@ private fun FormatGroup(selected: RecordingFormat, onSelect: (RecordingFormat) -
         RecordingFormat.entries.forEach { f ->
             Row(
                 Modifier.fillMaxWidth()
+                    .heightIn(min = MIN_TOUCH_TARGET) // area de toque minima de 48 dp (acessibilidade)
                     .selectable(selected == f, onClick = { onSelect(f) }, role = Role.RadioButton)
                     .padding(vertical = 4.dp).testTag("formato_${f.name}"),
                 verticalAlignment = Alignment.CenterVertically,

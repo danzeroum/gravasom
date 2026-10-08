@@ -15,7 +15,7 @@
     <string name="record_input_change">Trocar entrada</string>
     <string name="record_input_auto">Automática</string>
     <string name="record_where">As gravações ficam também em Músicas/Recordings, visíveis no app Arquivos.</string>
-    <string name="record_where_private">Modo privado: as gravações ficam só neste app.</string>
+    <string name="record_where_private">Cofre ligado: as gravações ficam cifradas, só neste app.</string>
     <string name="record_perm_denied_title">Precisamos do microfone para gravar</string>
     <string name="record_perm_denied_body">Toque em Gravar de novo e permita o acesso ao microfone.</string>
     <string name="record_perm_permanent_title">Microfone bloqueado</string>
@@ -31,4 +31,8 @@
     <string name="record_err_ENCODER_FAILURE">falha ao codificar o áudio</string>
     <string name="record_err_UNKNOWN">erro desconhecido</string>
     <string name="record_see_library">Ver em Gravações</string>
+    <string name="record_low_space_title">Pouco espaço livre</string>
+    <string name="record_low_space_body">Restam %1$d MB no aparelho: cabem cerca de %2$d min neste formato. Libere espaço ou grave mesmo assim.</string>
+    <string name="record_low_space_confirm">Gravar mesmo assim</string>
+    <string name="record_low_space_cancel">Cancelar</string>
 </resources>

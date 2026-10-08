@@ -6,8 +6,8 @@
     <string name="settings_format_MP3">MP3 · abre em qualquer lugar</string>
     <string name="settings_quality">Qualidade (kbps)</string>
     <string name="settings_quality_note">Vale para M4A e MP3</string>
-    <string name="settings_private">Manter só neste app</string>
-    <string name="settings_private_desc">As gravações novas não aparecem em Músicas, Arquivos nem em outros apps.</string>
+    <string name="settings_private">Cofre cifrado</string>
+    <string name="settings_private_desc">As gravações novas ficam cifradas (AES-256) só neste app: não aparecem em Músicas, Arquivos nem em outros apps. As que já estão no cofre continuam nele ao desligar.</string>
     <string name="settings_numbers_optin">Registrar meus números de uso</string>
     <string name="settings_numbers_optin_desc">Fica só neste aparelho. Sem áudio, nomes de arquivo ou localização. Nada é enviado.</string>
     <string name="settings_numbers_open">Seus números</string>

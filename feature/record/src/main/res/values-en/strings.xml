@@ -15,7 +15,7 @@
     <string name="record_input_change">Change input</string>
     <string name="record_input_auto">Automatic</string>
     <string name="record_where">Recordings are also in Music/Recordings, visible in the Files app.</string>
-    <string name="record_where_private">Private mode: recordings stay only in this app.</string>
+    <string name="record_where_private">Vault on: recordings are encrypted and stay only in this app.</string>
     <string name="record_perm_denied_title">We need the microphone to record</string>
     <string name="record_perm_denied_body">Tap Record again and allow microphone access.</string>
     <string name="record_perm_permanent_title">Microphone blocked</string>
@@ -31,4 +31,8 @@
     <string name="record_err_ENCODER_FAILURE">audio encoding failed</string>
     <string name="record_err_UNKNOWN">unknown error</string>
     <string name="record_see_library">See in Recordings</string>
+    <string name="record_low_space_title">Low storage</string>
+    <string name="record_low_space_body">%1$d MB left on the device: about %2$d min fit in this format. Free some space or record anyway.</string>
+    <string name="record_low_space_confirm">Record anyway</string>
+    <string name="record_low_space_cancel">Cancel</string>
 </resources>

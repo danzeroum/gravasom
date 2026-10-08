@@ -1,11 +1,9 @@
 package com.gravasom
 
-import android.Manifest
 import android.app.NotificationManager
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.rule.GrantPermissionRule
 import com.gravasom.core.audio.engine.RecordingState
 import com.gravasom.core.service.RecordingNotification
 import com.gravasom.core.service.RecordingServiceState
@@ -19,8 +17,7 @@ import org.junit.Test
 class NotificacaoTest {
 
     @get:Rule(order = 0)
-    val permissoes: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
+    val permissoes = UiSuporte.permissoes()
 
     @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()

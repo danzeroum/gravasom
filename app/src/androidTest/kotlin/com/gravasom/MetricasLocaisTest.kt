@@ -19,8 +19,14 @@ import org.junit.Test
 /** ADR-011: metricas locais so com opt-in, esquema fechado, e a tela "Seus numeros" offline. */
 class MetricasLocaisTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val idioma = RegraIdioma()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule(order = 2)
+    val acessibilidade = RegraAcessibilidade(compose)
+
 
     private val metrics get() = UiSuporte.app.usageMetrics
     private val dao get() = UiSuporte.app.database.usageEventDao()
@@ -55,7 +61,7 @@ class MetricasLocaisTest {
         compose.onNodeWithTag("aba_gravacoes").performClick()
         compose.onNodeWithTag("campo_busca").performTextInput("SEGREDO")
         UiSuporte.aguardar(compose) { UiSuporte.textos(compose, "titulo_item") == listOf(segredo) }
-        UiSuporte.app.files.shareIntent(gravacao)
+        runBlocking { UiSuporte.app.files.shareIntent(gravacao) }
         runBlocking {
             UsageEventType.entries.forEach { metrics.record(it, value = 1234L, label = RecordingFormat.M4A) }
             metrics.record(UsageEventType.COMPARTILHADO, label = ShareChannel.SALVAR_EM)
