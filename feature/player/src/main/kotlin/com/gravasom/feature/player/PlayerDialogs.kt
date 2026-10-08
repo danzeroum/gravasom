@@ -32,8 +32,9 @@ import com.gravasom.core.domain.marker.MarkerResult
 import kotlinx.coroutines.launch
 
 /**
- * Editar nota, nome e (se quiser) excluir um marcador; com [deletable] falso (marcador novo, ainda rascunho) nao ha o que excluir. A nota aceita ate [MarkerNote.MAX_LENGTH] caracteres: acima disso o
- * campo mostra o erro, o contador fica vermelho e Salvar fica desativado (prevencao de erro com mensagem clara).
+ * Editar nota, nome e (se quiser) excluir um marcador; com [deletable] falso (marcador novo, ainda rascunho) nao ha o que
+ * excluir. A nota aceita ate [MarkerNote.MAX_LENGTH] caracteres: acima disso o campo mostra o erro, o contador fica vermelho
+ * e Salvar fica desativado (prevencao de erro com mensagem clara).
  */
 @Composable
 fun MarkerDialog(

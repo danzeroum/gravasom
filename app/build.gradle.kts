@@ -8,9 +8,12 @@ android {
     namespace = "com.gravasom"
     defaultConfig {
         applicationId = "com.gravasom"
-        // A CI define estes dois ao gerar o release (versionCode cresce a cada execucao; o nome vem da tag).
-        versionCode = System.getenv("GRAVASOM_VERSION_CODE")?.toIntOrNull() ?: 1
-        versionName = System.getenv("GRAVASOM_VERSION_NAME")?.removePrefix("v") ?: "1.0.0"
+        // Sem CI: a versao vem de app/version.properties (versionCode sobe a cada entrega). O workflow manual pode sobrepor por ambiente.
+        val version = java.util.Properties().apply {
+            load(providers.fileContents(layout.projectDirectory.file("version.properties")).asText.get().reader())
+        }
+        versionCode = System.getenv("GRAVASOM_VERSION_CODE")?.toIntOrNull() ?: version.getProperty("versionCode").toInt()
+        versionName = System.getenv("GRAVASOM_VERSION_NAME")?.removePrefix("v") ?: version.getProperty("versionName")
         // Aparelhos reais (arm64) e o emulador do CI (x86_64). Reduz o APK; x86/armv7 de 32 bits ficam de fora.
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
@@ -37,7 +40,9 @@ android {
     }
     buildTypes {
         release {
-            signingConfigs.findByName("release")?.let { signingConfig = it }
+            // Com chave de release (variaveis de ambiente) assina com ela; SEM ela, assina com a chave de debug do repositorio,
+            // para que cada entrega instale por cima da anterior. A chave de debug e publica: nao e uma chave de producao.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
         // Para o Macrobenchmark: igual ao release (R8, sem depuracao) mas assinado com a chave de debug. Traz o SeedReceiver
         // (app/src/benchmark) que semeia a gravacao de 1 h; esse receptor NAO existe no release.

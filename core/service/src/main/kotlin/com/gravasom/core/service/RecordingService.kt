@@ -207,7 +207,8 @@ class RecordingService : Service() {
 
     private fun notification(paused: Boolean) =
         RecordingNotification.build(
-            this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this), markerCount, lastMarkerMillis,
+            this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this),
+            markerCount, lastMarkerMillis,
         )
 
     /** Atualiza a notificacao quando o estado muda (pausa/retomada/inicio efetivo). */

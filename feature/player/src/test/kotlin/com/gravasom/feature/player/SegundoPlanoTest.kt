@@ -138,6 +138,7 @@ class SegundoPlanoTest {
     fun omanifestDeclaraOServicoComoMidiaENaoExportado() {
         val info = context.packageManager.getServiceInfo(ComponentName(context, PlaybackService::class.java), PackageManager.GET_META_DATA)
         assertFalse("outros apps nao podem controlar a reproducao", info.exported)
-        assertEquals(ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK, info.foregroundServiceType and ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        val mediaPlayback = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+        assertEquals(mediaPlayback, info.foregroundServiceType and mediaPlayback)
     }
 }

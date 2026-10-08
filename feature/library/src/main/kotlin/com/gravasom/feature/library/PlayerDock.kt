@@ -66,7 +66,8 @@ internal fun PlayerDock(current: Recording, player: PlayerController, vm: Player
     }
     target?.let { dialogTarget ->
         val marker = when (dialogTarget) {
-            is MarkerDialogTarget.Draft -> Marker(recordingId = dialogTarget.recordingId, positionMillis = dialogTarget.positionMillis, label = "", note = "")
+            is MarkerDialogTarget.Draft ->
+                Marker(recordingId = dialogTarget.recordingId, positionMillis = dialogTarget.positionMillis, label = "", note = "")
             is MarkerDialogTarget.Existing -> state.markers.firstOrNull { it.id == dialogTarget.marker.id } ?: dialogTarget.marker
         }
         MarkerDialog(
@@ -82,36 +83,50 @@ internal fun PlayerDock(current: Recording, player: PlayerController, vm: Player
     }
 }
 
-/** Avisos do player (marcador rejeitado, trecho exportado...) como snackbar. */
+/** Textos dos avisos do player, ja resolvidos (strings do modulo do player). */
+private class EventTexts(
+    val noteTooLong: String,
+    val outOfRange: String,
+    val missing: String,
+    val clipFailed: String,
+    val analysisFailed: String,
+    val clipSaved: String,
+    val markerDeleted: String,
+) {
+    fun of(e: PlayerEvent): String = when (e) {
+        is PlayerEvent.MarkerRejected -> when (e.reason) {
+            MarkerRejection.NOTE_TOO_LONG -> noteTooLong
+            MarkerRejection.OUT_OF_RANGE -> outOfRange
+            MarkerRejection.RECORDING_NOT_FOUND -> missing
+        }
+        is PlayerEvent.ClipSaved -> clipSaved.format(e.title)
+        PlayerEvent.ClipFailed -> clipFailed
+        PlayerEvent.AnalysisFailed -> analysisFailed
+        PlayerEvent.MarkerDeleted -> markerDeleted
+    }
+}
+
+/** Avisos do player (marcador rejeitado, trecho exportado, marcador excluido com Desfazer...) como snackbar. */
 @Composable
 internal fun PlayerEventsEffect(vm: PlayerViewModel, snackbar: SnackbarHostState) {
-    val noteTooLong = stringResource(PlayerR.string.player_marker_rejected_note, MarkerNote.MAX_LENGTH)
-    val outOfRange = stringResource(PlayerR.string.player_marker_rejected_range)
-    val missing = stringResource(PlayerR.string.player_marker_rejected_missing)
-    val clipFailed = stringResource(PlayerR.string.player_clip_failed)
-    val analysisFailed = stringResource(PlayerR.string.player_analysis_failed)
-    val clipSaved = stringResource(PlayerR.string.player_clip_saved, "%s")
-    val markerDeleted = stringResource(PlayerR.string.player_marker_deleted)
+    val texts = EventTexts(
+        noteTooLong = stringResource(PlayerR.string.player_marker_rejected_note, MarkerNote.MAX_LENGTH),
+        outOfRange = stringResource(PlayerR.string.player_marker_rejected_range),
+        missing = stringResource(PlayerR.string.player_marker_rejected_missing),
+        clipFailed = stringResource(PlayerR.string.player_clip_failed),
+        analysisFailed = stringResource(PlayerR.string.player_analysis_failed),
+        clipSaved = stringResource(PlayerR.string.player_clip_saved, "%s"),
+        markerDeleted = stringResource(PlayerR.string.player_marker_deleted),
+    )
     val undo = stringResource(PlayerR.string.player_marker_undo)
     LaunchedEffect(vm) {
         vm.events.collect { e ->
             if (e == PlayerEvent.MarkerDeleted) {
-                launch { showUndo(snackbar, markerDeleted, undo, vm::undoMarkerDelete) }
-                return@collect
+                launch { showUndo(snackbar, texts.markerDeleted, undo, vm::undoMarkerDelete) }
+            } else {
+                snackbar.currentSnackbarData?.dismiss()
+                snackbar.showSnackbar(texts.of(e))
             }
-            val text = when (e) {
-                is PlayerEvent.MarkerRejected -> when (e.reason) {
-                    MarkerRejection.NOTE_TOO_LONG -> noteTooLong
-                    MarkerRejection.OUT_OF_RANGE -> outOfRange
-                    MarkerRejection.RECORDING_NOT_FOUND -> missing
-                }
-                is PlayerEvent.ClipSaved -> clipSaved.format(e.title)
-                PlayerEvent.ClipFailed -> clipFailed
-                PlayerEvent.AnalysisFailed -> analysisFailed
-                PlayerEvent.MarkerDeleted -> markerDeleted
-            }
-            snackbar.currentSnackbarData?.dismiss()
-            snackbar.showSnackbar(text)
         }
     }
 }
