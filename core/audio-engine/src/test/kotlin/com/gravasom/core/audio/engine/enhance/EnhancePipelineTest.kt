@@ -188,4 +188,27 @@ class EnhancePipelineTest {
         assertTrue(r.report.gainDb > 10.0)
         assertTrue(r.report.passes in 1..4)
     }
+
+    @Test
+    fun ganhoFixoAplicaExatamenteEsseGanhoSemMedirOArquivo() {
+        val orig = original(rmsDbfs = -34.0)
+        val antes = medida(orig).lufs!!
+        val r = pipeline().run(
+            orig, normaliza(), File(dir, "fixo.wav"), File(dir, "work"), options = EnhanceOptions(fixedNormalizeGainDb = 6.0),
+        ) as EnhanceResult.Done
+        assertEquals(6.0, r.report.gainDb, 0.0)
+        assertEquals(1, r.report.passes)
+        assertEquals(antes + 6.0, medida(r.file).lufs!!, 0.1)
+    }
+
+    @Test
+    fun ganhoFixoAindaRespeitaOTetoDePicoVerdadeiro() {
+        val fala = Sinais.fala(taxa, 10.0, -30.0)
+        for (i in 7_000 until fala.size step 30_000) fala[i] = 0.08f
+        val orig = WavTeste.escrever(File(dir, "picos2.wav"), taxa, fala)
+        val r = pipeline().run(
+            orig, normaliza(), File(dir, "fixo2.wav"), File(dir, "work"), options = EnhanceOptions(fixedNormalizeGainDb = 24.0),
+        ) as EnhanceResult.Done
+        assertTrue(medida(r.file).truePeakDbtp <= -1.0 + 0.01, "pico ${medida(r.file).truePeakDbtp}")
+    }
 }

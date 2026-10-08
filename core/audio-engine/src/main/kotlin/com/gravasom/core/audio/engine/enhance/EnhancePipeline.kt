@@ -27,6 +27,12 @@ data class EnhanceReport(
     val passes: Int,
 )
 
+/**
+ * [fixedNormalizeGainDb]: usa EXATAMENTE este ganho na normalizacao (so confere o pico verdadeiro), em vez de medir o arquivo. A
+ * previa de um trecho usa o ganho que a gravacao INTEIRA pede; medir so o trecho daria outro ganho.
+ */
+data class EnhanceOptions(val fixedNormalizeGainDb: Double? = null)
+
 sealed interface EnhanceResult {
     data class Done(val file: File, val report: EnhanceReport) : EnhanceResult
     data object Cancelled : EnhanceResult
@@ -50,11 +56,12 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         workDir: File,
         cancelled: () -> Boolean = { false },
         onProgress: (Float) -> Unit = {},
+        options: EnhanceOptions = EnhanceOptions(),
     ): EnhanceResult {
         workDir.mkdirs()
         val created = mutableListOf<File>()
         return try {
-            execute(original, project, destination, workDir, created, cancelled, onProgress)
+            execute(original, project, destination, workDir, created, cancelled, onProgress, options)
         } catch (e: IOException) {
             File(destination.path + ".tmp").delete()
             EnhanceResult.Failed(e.message ?: "erro de E/S")
@@ -74,6 +81,7 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         created: MutableList<File>,
         cancelled: () -> Boolean,
         onProgress: (Float) -> Unit,
+        options: EnhanceOptions,
     ): EnhanceResult {
         val active = project.steps.filter { it.enabled && !it.isNoOp }
         val nr = active.firstOrNull { it.type == StepType.NOISE_REDUCTION }
@@ -90,7 +98,7 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
             if (norm == null) return EnhanceResult.Done(destination, EnhanceReport(null, null, null, 0.0, 0))
             target
         }
-        return normalize(original, denoised, norm!!, destination, workDir, created, cancelled, onProgress)
+        return normalize(original, denoised, norm!!, destination, workDir, created, cancelled, onProgress, options)
     }
 
     private fun nrExporter() = ProjectExporter { p, rate ->
@@ -109,6 +117,7 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         created: MutableList<File>,
         cancelled: () -> Boolean,
         onProgress: (Float) -> Unit,
+        options: EnhanceOptions,
     ): EnhanceResult {
         val target = (step.params.getOrNull(0) ?: DEFAULT_TARGET).toDouble()
         val requested = (step.params.getOrNull(1) ?: DEFAULT_CEILING).toDouble()
@@ -121,7 +130,8 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
             replace(source, destination)
             return EnhanceResult.Done(destination, EnhanceReport(lufsBefore, null, input.truePeakDbtp, 0.0, 0))
         }
-        var gain = NormalizePlan.gainDb(input.lufs, target)
+        val fixed = options.fixedNormalizeGainDb
+        var gain = fixed ?: NormalizePlan.gainDb(input.lufs, target)
         var effectiveCeiling = ceiling
         var best: Attempt? = null
         var passes = 0
@@ -140,9 +150,9 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
             val lufs = attempt.report.lufs ?: break
             val peakExcess = attempt.report.truePeakDbtp - ceiling
             val loudnessError = target - lufs
-            if (peakExcess <= TP_TOLERANCE && abs(loudnessError) <= LUFS_TOLERANCE) break
+            if (peakExcess <= TP_TOLERANCE && (fixed != null || abs(loudnessError) <= LUFS_TOLERANCE)) break
             if (peakExcess > TP_TOLERANCE) effectiveCeiling -= peakExcess + PEAK_STEP
-            if (abs(loudnessError) > LUFS_TOLERANCE) gain = (gain + loudnessError).coerceAtMost(NormalizePlan.MAX_GAIN_DB)
+            if (fixed == null && abs(loudnessError) > LUFS_TOLERANCE) gain = (gain + loudnessError).coerceAtMost(NormalizePlan.MAX_GAIN_DB)
         }
         val chosen = checkNotNull(best)
         replace(chosen.file, destination)
