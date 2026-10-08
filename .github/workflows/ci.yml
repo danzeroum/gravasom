@@ -222,7 +222,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Macrobenchmark no emulador (so informa: o emulador renderiza por software)
+      - name: Macrobenchmark no emulador (so informa, pois o emulador renderiza por software)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -414,7 +414,7 @@ jobs:
         with:
           name: gravasom-release-apk
           path: release-apk
-      - name: Publicar a Release (so chega aqui com o APK assinado: o job release-apk falha sem os segredos)
+      - name: Publicar a Release (so chega aqui com o APK assinado, pois o job release-apk falha sem os segredos)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
