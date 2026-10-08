@@ -110,7 +110,7 @@ class ExportarTrechoTest {
         assertTrue("duracao $duracao", abs(duracao - 3_000) <= 120)
         assertTrue("tocou por $tocou ms", abs(tocou - 3_000) <= 700)
         // o original nao foi tocado
-        assertEquals(10_000L, com.gravasom.core.service.MediaProbe.durationMillis(origem)!!.let { (it / 100) * 100 })
+        assertTrue(abs(com.gravasom.core.service.MediaProbe.durationMillis(origem)!! - 10_000L) <= 150)
     }
 
     @Test

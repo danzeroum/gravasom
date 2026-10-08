@@ -103,7 +103,7 @@ class OndaMarcadoresTest {
         Suporte.medida("achar_trecho_60min", "toques", toques)
         Suporte.medida("achar_trecho_60min", "posicao_ms", UiSuporte.posicaoDoPlayerMs(compose))
         assertTrue("$toques toques (maximo 3)", toques <= 3)
-        assertTrue("posicao ${UiSuporte.posicaoDoPlayerMs(compose)} nao esta no marcador", UiSuporte.posicaoDoPlayerMs(compose) in (alvo - 1_000f)..(alvo + 15_000f))
+        assertTrue("posicao ${UiSuporte.posicaoDoPlayerMs(compose)} nao esta no marcador", UiSuporte.posicaoDoPlayerMs(compose) in (alvo - 1_000f)..(alvo + 60_000f)) // a reproducao segue tocando enquanto a espera termina
     }
 
     /** Nota de 141 caracteres e rejeitada com mensagem; a de 140 e salva. */

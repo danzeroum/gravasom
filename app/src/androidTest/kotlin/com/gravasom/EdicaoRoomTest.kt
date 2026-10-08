@@ -75,7 +75,8 @@ class EdicaoRoomTest {
             })
         }
         val novo = Room.databaseBuilder(Suporte.contexto, GravasomDatabase::class.java, arquivo.path)
-            .addMigrations(GravasomDatabase.MIGRATION_1_2, GravasomDatabase.MIGRATION_2_3).allowMainThreadQueries().build()
+            .addMigrations(GravasomDatabase.MIGRATION_1_2, GravasomDatabase.MIGRATION_2_3, GravasomDatabase.MIGRATION_3_4)
+            .allowMainThreadQueries().build()
         try {
             runBlocking {
                 val existente = novo.recordingDao().getById(1)
