@@ -81,7 +81,8 @@ fun LibraryScreen(
             // A gravacao aberta e sempre lida da lista: renomear ou mudar etiquetas aparece no painel sem reabrir.
             val current = items.firstOrNull { it.id == currentId }
             if (current != null) {
-                PlayerDock(current, player, playerViewModel) { player.pause(); currentId = null; playerViewModel.close() }
+                // Fechar o painel NAO pausa: o audio segue em segundo plano (PlaybackService) e pausa-se pela notificacao.
+                PlayerDock(current, player, playerViewModel) { currentId = null; playerViewModel.close() }
             }
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
@@ -93,6 +94,7 @@ fun LibraryScreen(
 @Composable
 private fun rememberPlayer(): PlayerController {
     val context = LocalContext.current
+    // Sair da aba tambem nao interrompe o audio: o ExoPlayer e o do PlaybackHub, nao deste controlador.
     val player = remember { PlayerController(context) }
     DisposableEffect(Unit) { onDispose { player.release() } }
     return player
@@ -177,7 +179,7 @@ private fun TagFilterRow(available: List<String>, selected: Set<String>, onToggl
 private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerController, recording: Recording): Boolean {
     val path = runCatching { viewModel.playablePath(recording) }.getOrNull() ?: return false
     withContext(Dispatchers.Main) {
-        player.load(path)
+        player.load(path, title = recording.title.takeUnless { recording.isPrivate })
         player.play()
         viewModel.played()
     }

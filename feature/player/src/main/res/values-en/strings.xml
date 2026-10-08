@@ -42,6 +42,7 @@
     <string name="player_marker_note_too_long">Note too long (max %1$d). Shorten it to save.</string>
     <string name="player_marker_save">Save</string>
     <string name="player_marker_delete">Delete marker</string>
+    <string name="player_notification_private_title">Private recording</string>
     <string name="player_marker_deleted">Marker deleted</string>
     <string name="player_marker_undo">Undo</string>
     <string name="player_marker_cancel">Cancel</string>
