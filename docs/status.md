@@ -224,3 +224,35 @@ Decisão do orçamento: os **25 MB valem só para o APK de release**; o APK de d
 | Testes de UI em pt-BR | a confirmar no run | passada `pt-br` nas API 34 e 36 | Roteiro item 14 |
 
 Riscos residuais registrados: cópia em claro do cofre no cache privado enquanto toca/compartilha (ADR-012); gravar pelo Tile/widget não passa pelo aviso de espaço (sem tela para perguntar).
+
+## Filtro de caminhos da CI (não desfazer sem medir)
+
+Objetivo: gastar tempo de CI onde há risco, sem perder proteção.
+
+**Gatilho único.** `on.push` em `main`, `claude/**` e tags `v*`; **não existe `pull_request`**. Antes, todo commit numa branch com PR rodava a CI
+inteira duas vezes (o `concurrency` usa `github.ref`, diferente no push e no PR, então um não cancelava o outro). Os checks do push aparecem no PR
+quando a branch é do mesmo repositório (este é o caso; repositório privado, sem forks). Se um dia houver PR de fork, reavaliar.
+
+**Job `mudancas`** (`dorny/paths-filter` v4.0.3 fixado por SHA `ceb8a2b8…`) compara com o commit **anterior ao push** (não com a `main`), para que um commit só de docs
+não herde "mudou código" de commits antigos da branch; branch nova compara com a `main`. **Falha aberta**: se o filtro não conseguir comparar, tudo roda.
+
+| Saída | Caminhos | Roda quando verdadeiro |
+| --- | --- | --- |
+| `audio` | `core/audio-*`, `core/dsp`, `corpus`, `perfis`, `scripts`, `.github/audio-suite.sha` | `harness-audio-suite` |
+| `app` | `app`, `feature`, `core`, `build-logic`, `gradle` (inclui `libs.versions.toml`), `config`, `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, **`.github/workflows/ci.yml`**, **`.github/scripts/ci-instrumentados.sh`** | `instrumentados` (API 28/34/36) |
+
+Em **push na `main` e em tag `v*`** os dois rodam sempre. `lint-estatica`, `testes-unidade`, `build`, `apk` e `release-apk` rodam sempre. `release` (só em tag) continua dependendo só de `build`;
+job pulado por `if` aparece como *skipped* e não quebra quem não depende dele.
+
+Desvios da lista pedida (para quem for mexer): `ci.yml` e `ci-instrumentados.sh` contam como `app` — uma mudança na própria CI de emulador tem de exercitar o emulador;
+acrescentei também `config`, `build.gradle.kts`, `settings.gradle.kts` e `gradle.properties` (mudam o build do app) e `.github/audio-suite.sha` (muda o audio-suite do harness).
+
+**Antes (medido, run por commit só de docs — `ba8394e`, "docs: status da entrega…"):**
+
+| Run | Evento | Duração | Jobs |
+| --- | --- | --- | --- |
+| 37700502263 | push | 22,0 min | todos (8, com emuladores 28/34/36 nesse tempo: API 34 e 36) |
+| 37706667373 | pull_request | 24,1 min | todos, repetido |
+| **Total** | **2 runs** | **46,1 min de relógio de CI (2 × a CI inteira)** | |
+
+**Depois:** ver a linha "Depois (medido)" abaixo, preenchida com o run do commit só de docs (`docs/uso.md`).
