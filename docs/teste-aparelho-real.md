@@ -18,25 +18,28 @@ Não marque como aprovado sem preencher a coluna "Resultado" (data, aparelho, ve
 
 ## A. Roteiro curto da Onda 1 (~15 min) — os 4 achados de severidade 3 + o núcleo da onda
 
+> **Validado pelo dono em 08/10/2026**, no celular, com o APK `1.1.0-onda1` (versionCode 60): o dono relatou que a Onda 1 passou na validação.
+> O relato foi geral; **não há observações por passo registradas**. Se algo específico falhou, anote em `docs/uso.md`.
+
 | # | Passo | O que deve acontecer | Resultado (preencher) |
 | --- | --- | --- | --- |
-| A1 | **Gravar** → bloquear a tela → puxar a notificação → tocar **Marcar** | O texto da notificação muda para **"Marcador 1 às 00:07"** (número e instante) e o aparelho **vibra uma vez**, com a tela bloqueada | PENDENTE-HUMANO |
-| A2 | Tocar **Marcar** mais 2 vezes (também pelo widget, se tiver) | "Marcador 2 às …", "Marcador 3 às …", uma vibração a cada toque | PENDENTE-HUMANO |
-| A3 | **Parar** → abrir a gravação na lista | Os 3 marcadores aparecem na onda e na lista de marcadores, nos instantes mostrados na notificação | PENDENTE-HUMANO |
-| A4 | No player, tocar **Marcar** → no diálogo digitar uma nota → **Cancelar** | Nenhum marcador novo aparece (antes ficava um marcador vazio) | PENDENTE-HUMANO |
-| A5 | No player, tocar **Marcar** → digitar uma nota → **Salvar** | Exatamente 1 marcador novo, com a nota, na posição em que você tocou | PENDENTE-HUMANO |
-| A6 | Nota com 141 caracteres | Mensagem de erro e **Salvar** desativado; com 140, salva | PENDENTE-HUMANO |
-| A7 | Tocar num marcador → **Editar** → **Excluir marcador** | Aparece **"Marcador excluído — Desfazer"** por 5 s | PENDENTE-HUMANO |
-| A8 | Tocar **Desfazer** dentro de 5 s | O marcador volta **com a mesma nota, cor e posição**. Excluir de novo e **esperar 6 s**: o aviso some e o marcador não volta | PENDENTE-HUMANO |
-| A9 | Tocar a gravação para tocar → tocar o **X** do player | O painel fecha e **o áudio continua**; aparece a notificação de mídia | PENDENTE-HUMANO |
-| A10 | Na notificação de mídia, tocar **Pausar** (e **Tocar** de novo) | O áudio pausa/retoma. Com a tela bloqueada também funciona | PENDENTE-HUMANO |
-| A11 | Tocar uma gravação **privada** (cofre) e fechar o painel | A notificação de mídia mostra **"Gravação privada"**, nunca o nome da gravação | PENDENTE-HUMANO |
-| A12 | Tocando em segundo plano, trocar de aba (Gravar/Ajustes) e voltar | O áudio não para ao trocar de aba | PENDENTE-HUMANO |
-| A13 | Abrir uma gravação longa (ideal: 30–60 min) → **pinçar** a onda → tocar num marcador | Zoom suave; o toque no marcador leva ao ponto em ≤3 toques desde a lista | PENDENTE-HUMANO |
-| A14 | Ligar **Pular silêncio** numa aula/reunião real | O silêncio é pulado e **nenhuma fala é cortada** (ouça atento o começo das frases) | PENDENTE-HUMANO |
-| A15 | Selecionar um trecho → **Exportar** → abrir o trecho em **outro player** | O trecho toca fora do app, com a duração escolhida | PENDENTE-HUMANO |
-| A16 | Etiquetas: pôr "aula" em 2 gravações e filtrar pela etiqueta | A lista mostra só as com a etiqueta | PENDENTE-HUMANO |
-| A17 | Instalar a **próxima** versão por cima | Instala sem desinstalar e as gravações continuam lá | PENDENTE-HUMANO |
+| A1 | **Gravar** → bloquear a tela → puxar a notificação → tocar **Marcar** | O texto da notificação muda para **"Marcador 1 às 00:07"** (número e instante) e o aparelho **vibra uma vez**, com a tela bloqueada | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A2 | Tocar **Marcar** mais 2 vezes (também pelo widget, se tiver) | "Marcador 2 às …", "Marcador 3 às …", uma vibração a cada toque | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A3 | **Parar** → abrir a gravação na lista | Os 3 marcadores aparecem na onda e na lista de marcadores, nos instantes mostrados na notificação | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A4 | No player, tocar **Marcar** → no diálogo digitar uma nota → **Cancelar** | Nenhum marcador novo aparece (antes ficava um marcador vazio) | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A5 | No player, tocar **Marcar** → digitar uma nota → **Salvar** | Exatamente 1 marcador novo, com a nota, na posição em que você tocou | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A6 | Nota com 141 caracteres | Mensagem de erro e **Salvar** desativado; com 140, salva | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A7 | Tocar num marcador → **Editar** → **Excluir marcador** | Aparece **"Marcador excluído — Desfazer"** por 5 s | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A8 | Tocar **Desfazer** dentro de 5 s | O marcador volta **com a mesma nota, cor e posição**. Excluir de novo e **esperar 6 s**: o aviso some e o marcador não volta | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A9 | Tocar a gravação para tocar → tocar o **X** do player | O painel fecha e **o áudio continua**; aparece a notificação de mídia | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A10 | Na notificação de mídia, tocar **Pausar** (e **Tocar** de novo) | O áudio pausa/retoma. Com a tela bloqueada também funciona | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A11 | Tocar uma gravação **privada** (cofre) e fechar o painel | A notificação de mídia mostra **"Gravação privada"**, nunca o nome da gravação | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A12 | Tocando em segundo plano, trocar de aba (Gravar/Ajustes) e voltar | O áudio não para ao trocar de aba | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A13 | Abrir uma gravação longa (ideal: 30–60 min) → **pinçar** a onda → tocar num marcador | Zoom suave; o toque no marcador leva ao ponto em ≤3 toques desde a lista | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A14 | Ligar **Pular silêncio** numa aula/reunião real | O silêncio é pulado e **nenhuma fala é cortada** (ouça atento o começo das frases) | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A15 | Selecionar um trecho → **Exportar** → abrir o trecho em **outro player** | O trecho toca fora do app, com a duração escolhida | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A16 | Etiquetas: pôr "aula" em 2 gravações e filtrar pela etiqueta | A lista mostra só as com a etiqueta | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
+| A17 | Instalar a **próxima** versão por cima | Instala sem desinstalar e as gravações continuam lá | VALIDADO PELO DONO (08/10/2026, versionCode 60) |
 
 **Limitações conhecidas para não estranhar** (descritas, não corrigidas nesta etapa):
 

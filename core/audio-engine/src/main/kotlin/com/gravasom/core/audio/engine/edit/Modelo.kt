@@ -3,6 +3,12 @@ package com.gravasom.core.audio.engine.edit
 /** Tipos de passo da cadeia. O id numerico e estavel (persistido e usado no JNI). */
 enum class StepType(val id: Int) {
     HIGH_PASS(1),
+
+    /** Redutor de ruido (RNNoise). Parametros: [intensidade 0..1]; 0 nao altera nada. */
+    NOISE_REDUCTION(2),
+
+    /** "Melhorar volume". Parametros: [alvo em LUFS, teto de pico verdadeiro em dBTP]. */
+    NORMALIZE(3),
     ;
 
     companion object {
@@ -15,7 +21,11 @@ data class EditStep(
     val type: StepType,
     val params: List<Float> = emptyList(),
     val enabled: Boolean = true,
-)
+) {
+    /** Passo ligado que, com estes parametros, nao muda o audio (ex.: redutor a 0%). */
+    val isNoOp: Boolean
+        get() = type == StepType.NOISE_REDUCTION && (params.firstOrNull() ?: 0f) <= 0f
+}
 
 /**
  * Projeto de edicao: descreve como transformar um original (somente leitura) num arquivo novo.
@@ -28,7 +38,7 @@ data class EditProject(
 ) {
     /** True quando o export tem de ser a copia exata do original. */
     val isIdentity: Boolean
-        get() = bypass || intensity <= 0f || steps.none { it.enabled }
+        get() = bypass || intensity <= 0f || steps.none { it.enabled && !it.isNoOp }
 }
 
 /** Processa blocos de amostras float [-1, 1] in-place. Um por canal. */
