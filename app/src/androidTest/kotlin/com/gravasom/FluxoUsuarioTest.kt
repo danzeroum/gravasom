@@ -50,12 +50,14 @@ class FluxoUsuarioTest {
 
     @Test
     fun gravacaoPublicadaNoMediaStoreEmMusicRecordings() {
-        UiSuporte.gravarPelaTela(compose, segundos = 3)
+        val (_, gravadoMs) = UiSuporte.gravarPelaTela(compose, segundos = 3)
+        val janelaMaxMs = UiSuporte.ultimaJanelaMaxMs
         Thread.sleep(1_500)
         val pub = checkNotNull(UiSuporte.publicadoMaisRecente("m4a")) { "nada publicado no MediaStore" }
         Suporte.medida("mediastore_m4a", "pasta", pub.pasta)
         assertTrue("pasta=${pub.pasta}", pub.pasta.startsWith("Music/Recordings"))
-        assertTrue("duracao ${pub.duracaoMs} ms", kotlin.math.abs(pub.duracaoMs - 3_000) <= 500)
+        // Janela [relogio visivel, do toque em Gravar ate o retorno do Parar] com +-500 ms de folga (como no MP3 pela tela).
+        assertTrue("duracao ${pub.duracaoMs} ms fora de [$gravadoMs, $janelaMaxMs] +-500 ms", pub.duracaoMs in (gravadoMs - 500)..(janelaMaxMs + 500))
     }
 
     @Test
