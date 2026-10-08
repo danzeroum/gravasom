@@ -2,12 +2,25 @@ plugins {
     id("gravasom.android.library")
 }
 
+// RNNoise v0.2: baixado por hash (corpus/rnnoise.sha256) para build/rnnoise, antes de qualquer build nativo.
+// Variante do modelo: ver docs/adr/015-reducao-de-ruido.md.
+val rnnoiseVariant = "completo"
+val rnnoiseDir = layout.buildDirectory.dir("rnnoise")
+val fetchRnnoise = tasks.register<Exec>("fetchRnnoise") {
+    val root = rootProject.layout.projectDirectory
+    inputs.file(root.file("corpus/rnnoise.sha256"))
+    inputs.file(root.file("scripts/buscar-rnnoise.sh"))
+    inputs.property("variant", rnnoiseVariant)
+    outputs.dir(rnnoiseDir)
+    commandLine(root.file("scripts/buscar-rnnoise.sh").asFile.path, rnnoiseDir.get().asFile.path, rnnoiseVariant)
+}
+
 android {
     namespace = "com.gravasom.core.dsp"
     defaultConfig {
         externalNativeBuild {
             cmake {
-                arguments += listOf("-DANDROID_STL=c++_shared")
+                arguments += listOf("-DANDROID_STL=c++_shared", "-DRNNOISE_DIR=${rnnoiseDir.get().asFile.path}")
             }
         }
     }
@@ -18,6 +31,9 @@ android {
         }
     }
 }
+
+tasks.matching { it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") || it.name.startsWith("generateJsonModel") }
+    .configureEach { dependsOn(fetchRnnoise) }
 
 dependencies {
     implementation(project(":core:audio-engine"))
@@ -33,5 +49,6 @@ tasks.withType<Test>().configureEach {
     System.getenv("GRAVASOM_VAD_REPORT")?.let { systemProperty("gravasom.vad.report", it) }
     // O corpus e as lib de host mudam fora do Gradle: nao reaproveitar resultado em cache.
     inputs.property("vadCorpus", System.getenv("GRAVASOM_VAD_CORPUS") ?: "")
-    outputs.upToDateWhen { System.getenv("GRAVASOM_VAD_CORPUS") == null }
+    inputs.property("ruidoCorpus", System.getenv("GRAVASOM_ONDA2_RUIDO_IN") ?: "")
+    outputs.upToDateWhen { System.getenv("GRAVASOM_VAD_CORPUS") == null && System.getenv("GRAVASOM_ONDA2_RUIDO_IN") == null }
 }

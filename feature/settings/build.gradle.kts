@@ -22,3 +22,12 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.timber)
 }
+
+dependencies {
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+}

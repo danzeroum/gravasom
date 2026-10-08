@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         RecordingEntity::class, EditProjectEntity::class, UsageEventEntity::class, MarkerEntity::class,
         RecordingAnalysisEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class GravasomDatabase : RoomDatabase() {
@@ -72,9 +72,19 @@ abstract class GravasomDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v4 -> v5 (Onda 2): preset de formato com que a gravacao foi feita. Escrita a mao; so acrescenta uma coluna anulavel
+         * (gravacoes existentes ficam com `preset` NULL = sem efeitos ligados por padrao).
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `recordings` ADD COLUMN `preset` TEXT")
+            }
+        }
+
         fun create(context: Context): GravasomDatabase =
             Room.databaseBuilder(context, GravasomDatabase::class.java, "gravasom.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
     }
 }

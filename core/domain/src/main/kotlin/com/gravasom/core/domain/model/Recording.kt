@@ -1,6 +1,7 @@
 package com.gravasom.core.domain.model
 
 import com.gravasom.core.domain.audio.RecordingFormat
+import com.gravasom.core.domain.preset.FormatPreset
 
 /** Metadados de uma gravacao, sem dependencia de Android. */
 data class Recording(
@@ -17,6 +18,8 @@ data class Recording(
     val deletedAtMillis: Long? = null,
     /** Uri do MediaStore da copia publicada em Music/Recordings (null se privada ou ainda nao publicada). */
     val publishedUri: String? = null,
+    /** Preset de formato escolhido quando a gravacao foi feita (define os efeitos ligados por padrao); null = antiga/importada. */
+    val preset: FormatPreset? = null,
 ) {
     val isDeleted: Boolean get() = deletedAtMillis != null
     val isPrivate: Boolean get() = path.contains("/vault/")

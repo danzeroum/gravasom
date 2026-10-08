@@ -35,4 +35,17 @@
     <string name="numbers_exported">Numbers exported</string>
     <string name="numbers_back">Back</string>
     <string name="numbers_note">These numbers stay on this device only.</string>
+    <string name="settings_preset_title">Recording preset</string>
+    <string name="settings_preset_voice">Voice</string>
+    <string name="settings_preset_class">Lecture</string>
+    <string name="settings_preset_interview">Interview</string>
+    <string name="settings_preset_music">Music</string>
+    <string name="settings_preset_nature">Nature</string>
+    <string name="settings_preset_water">Water</string>
+    <string name="settings_preset_summary">%1$d kHz · %2$d kbps · %3$s</string>
+    <string name="settings_preset_mono">mono</string>
+    <string name="settings_preset_stereo">stereo</string>
+    <string name="settings_preset_effects_on">Noise reduction and volume on by default when improving sound</string>
+    <string name="settings_preset_effects_off">No voice effects by default (noise reduction and normalization are for speech and hurt music and animal sounds)</string>
+    <string name="settings_preset_custom">Custom: you changed the format or quality by hand</string>
 </resources>

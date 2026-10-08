@@ -8,6 +8,7 @@ import com.gravasom.core.domain.marker.Marker
 import com.gravasom.core.domain.marker.MarkerRepository
 import com.gravasom.core.domain.metrics.UsageEventType
 import com.gravasom.core.domain.model.Recording
+import com.gravasom.core.domain.preset.FormatPreset
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.domain.tags.AutoTitle
 import com.gravasom.core.service.MediaProbe
@@ -40,14 +41,20 @@ class RecordingIngestor(
 
     fun start(scope: CoroutineScope) {
         this.scope = scope
-        scope.launch { RecordingServiceState.saved.collect { path -> runCatching { ingest(File(path)) } } }
+        scope.launch { RecordingServiceState.saved.collect { path -> runCatching { ingest(File(path), preset = prefs.preset.first()) } } }
     }
 
     /**
+     * [preset] e o preset de formato com que foi gravado (define os efeitos ligados por padrao); null em importacoes e derivados.
      * [title] substitui o nome automatico (ex.: trecho exportado). [forcePrivate] guarda no cofre mesmo com o cofre desligado
      * (um trecho de gravacao privada continua privado).
      */
-    suspend fun ingest(file: File, title: String? = null, forcePrivate: Boolean = false): Long? = withContext(Dispatchers.IO) {
+    suspend fun ingest(
+        file: File,
+        title: String? = null,
+        forcePrivate: Boolean = false,
+        preset: FormatPreset? = null,
+    ): Long? = withContext(Dispatchers.IO) {
         if (!file.exists() || file.length() == 0L) return@withContext null
         val format = formatOf(file) ?: return@withContext null
         val duration = MediaProbe.durationMillis(file) ?: 0L
@@ -57,6 +64,7 @@ class RecordingIngestor(
         val vaultOn = forcePrivate || prefs.privateVault.first()
         val base = Recording(
             title = name, path = file.path, format = format, durationMillis = duration, sizeBytes = size, createdAtMillis = now,
+            preset = preset,
         )
         val id = store(file, base, vaultOn)
         attachMarkers(id, file, duration)

@@ -29,7 +29,7 @@ class Atrasa final : public FrameDenoiser {
  public:
   explicit Atrasa(int atraso = 2 * kNrFrame, float ganho = 1.0f) : ganho_(ganho), fila_(atraso, 0.0f) {}
   void Reset() override { std::fill(fila_.begin(), fila_.end(), 0.0f); pos_ = 0; }
-  void Process(float* out, const float* in) override {
+  void Process(float* out, const float* in) override {  // escala [-1, 1], como o contrato de FrameDenoiser
     for (int i = 0; i < kNrFrame; ++i) {
       out[i] = fila_.empty() ? in[i] * ganho_ : fila_[pos_] * ganho_;
       if (!fila_.empty()) { fila_[pos_] = in[i]; pos_ = (pos_ + 1) % fila_.size(); }
@@ -187,7 +187,8 @@ static void TestaChainComRedutorCompensaLatenciaECompoeComPassaAltas() {
   const int L = c.LatencySamples();
   VERIFICA(L > 0, "a cadeia precisa declarar a latencia do redutor (%d)", L);
   auto x = Seno(44100, 1.5, 700, 0.3);
-  auto y = Processa(c, x, c.FrameSamples());
+  auto y = x;
+  for (size_t i = 0; i < y.size(); i += c.FrameSamples()) c.Process(y.data() + i, static_cast<int>(std::min<size_t>(c.FrameSamples(), y.size() - i)));
   VERIFICA(ErroMax(y, x, L, 20000, x.size()) < 0.02, "a cadeia nao alinhou com a latencia declarada");
 }
 

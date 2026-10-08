@@ -1,5 +1,6 @@
 package com.gravasom.feature.settings
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.audio.RecordingFormat
+import com.gravasom.core.domain.preset.FormatPreset
 
 private val Bitrates = listOf(64, 128, 192)
 private val MIN_TOUCH_TARGET = 48.dp
@@ -45,6 +47,7 @@ fun SettingsScreen(onOpenNumbers: () -> Unit, modifier: Modifier = Modifier, vie
     var showLicenses by remember { mutableStateOf(false) }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Section(R.string.settings_section_recording)
+        PresetGroup(s.preset, viewModel::setPreset)
         FormatGroup(s.format, viewModel::setFormat)
         Text(stringResource(R.string.settings_quality), style = MaterialTheme.typography.titleSmall)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -131,3 +134,49 @@ private fun LicensesDialog(onClose: () -> Unit) {
         text = { Text(text, modifier = Modifier.verticalScroll(rememberScrollState()).testTag("texto_licencas")) },
     )
 }
+
+/**
+ * Presets de gravacao: um toque ajusta formato, taxa, bitrate e canais. Mostra o resumo do preset escolhido e o que ele liga por padrao
+ * ao melhorar o som; mexer no formato ou na qualidade a mao tira do preset ("personalizado").
+ */
+@Composable
+internal fun PresetGroup(selected: FormatPreset?, onSelect: (FormatPreset) -> Unit) {
+    Text(stringResource(R.string.settings_preset_title), style = MaterialTheme.typography.titleSmall)
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FormatPreset.entries.forEach { p ->
+            FilterChip(
+                selected = selected == p,
+                onClick = { onSelect(p) },
+                label = { Text(stringResource(presetLabel(p))) },
+                modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET).testTag("preset_${p.name}"),
+            )
+        }
+    }
+    val summary = selected?.let {
+        val channels = stringResource(if (it.spec.channels == 1) R.string.settings_preset_mono else R.string.settings_preset_stereo)
+        stringResource(R.string.settings_preset_summary, it.spec.sampleRateHz / HZ_PER_KHZ, it.spec.bitrateKbps, channels)
+    }
+    if (summary != null) Text(summary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("preset_resumo"))
+    Text(
+        stringResource(
+            when {
+                selected == null -> R.string.settings_preset_custom
+                selected.effects.denoise || selected.effects.normalize -> R.string.settings_preset_effects_on
+                else -> R.string.settings_preset_effects_off
+            },
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.testTag("preset_efeitos"),
+    )
+}
+
+private fun presetLabel(p: FormatPreset) = when (p) {
+    FormatPreset.VOICE -> R.string.settings_preset_voice
+    FormatPreset.CLASS -> R.string.settings_preset_class
+    FormatPreset.INTERVIEW -> R.string.settings_preset_interview
+    FormatPreset.MUSIC -> R.string.settings_preset_music
+    FormatPreset.NATURE -> R.string.settings_preset_nature
+    FormatPreset.WATER -> R.string.settings_preset_water
+}
+
+private const val HZ_PER_KHZ = 1_000

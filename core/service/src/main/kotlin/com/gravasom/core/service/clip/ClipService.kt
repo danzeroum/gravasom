@@ -36,7 +36,7 @@ class ClipService(
             is ClipResult.Done -> {
                 val title = ClipTitle.build(recording.title, startMillis, endMillis, pt = Locale.getDefault().language == "pt")
                 // Um trecho de gravacao do cofre continua no cofre, mesmo que o cofre tenha sido desligado depois.
-                val id = ingestor.ingest(r.file, title = title, forcePrivate = recording.isPrivate)
+                val id = ingestor.ingest(r.file, title = title, forcePrivate = recording.isPrivate, preset = recording.preset)
                 if (id == null) {
                     target.delete()
                     ClipOutcome.Failed("nao foi possivel salvar o trecho")

@@ -35,4 +35,17 @@
     <string name="numbers_exported">Números exportados</string>
     <string name="numbers_back">Voltar</string>
     <string name="numbers_note">Estes números ficam só neste aparelho.</string>
+    <string name="settings_preset_title">Preset de gravação</string>
+    <string name="settings_preset_voice">Voz</string>
+    <string name="settings_preset_class">Aula</string>
+    <string name="settings_preset_interview">Entrevista</string>
+    <string name="settings_preset_music">Música</string>
+    <string name="settings_preset_nature">Natureza</string>
+    <string name="settings_preset_water">Água</string>
+    <string name="settings_preset_summary">%1$d kHz · %2$d kbps · %3$s</string>
+    <string name="settings_preset_mono">mono</string>
+    <string name="settings_preset_stereo">estéreo</string>
+    <string name="settings_preset_effects_on">Redutor de ruído e volume ligados por padrão ao melhorar o som</string>
+    <string name="settings_preset_effects_off">Sem efeitos de voz por padrão (o redutor e a normalização são para fala e estragam música e sons de bichos)</string>
+    <string name="settings_preset_custom">Personalizado: você ajustou o formato ou a qualidade à mão</string>
 </resources>

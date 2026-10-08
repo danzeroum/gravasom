@@ -17,4 +17,6 @@ data class RecordingEntity(
     val tagsCsv: String = "",
     val deletedAtMillis: Long? = null,
     val publishedUri: String? = null,
+    /** Id do FormatPreset (v5); null para gravacoes anteriores ou importadas. */
+    val preset: String? = null,
 )

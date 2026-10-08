@@ -7,6 +7,7 @@ import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.domain.audio.RecordingFormat
 import com.gravasom.core.domain.metrics.LibraryStats
 import com.gravasom.core.domain.metrics.UsageEventType
+import com.gravasom.core.domain.preset.FormatPreset
 import com.gravasom.core.domain.repository.RecordingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +23,8 @@ data class SettingsUiState(
     val bitrate: Int = 128,
     val privateMode: Boolean = false,
     val numbersOptIn: Boolean = false,
+    /** Preset de formato escolhido; null = personalizado. */
+    val preset: FormatPreset? = null,
 )
 
 /** Contadores de uso (so existem com opt-in) mais as estatisticas da biblioteca (sempre disponiveis, locais). */
@@ -46,8 +49,8 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val settings: StateFlow<SettingsUiState> = combine(
-        prefs.format, prefs.bitrate, prefs.privateVault, prefs.telemetryOptIn,
-    ) { f, b, p, n -> SettingsUiState(f, b, p, n) }
+        prefs.format, prefs.bitrate, prefs.privateVault, prefs.telemetryOptIn, prefs.preset,
+    ) { f, b, p, n, preset -> SettingsUiState(f, b, p, n, preset) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SettingsUiState())
 
     private val counters = combine(
@@ -66,6 +69,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setBitrate(kbps: Int) = viewModelScope.launch { prefs.setBitrate(kbps) }
+    fun setPreset(preset: FormatPreset) = viewModelScope.launch { prefs.setPreset(preset) }
     fun setPrivate(enabled: Boolean) = viewModelScope.launch { prefs.setPrivateVault(enabled) }
     fun setNumbersOptIn(enabled: Boolean) = viewModelScope.launch { prefs.setTelemetryOptIn(enabled) }
 
