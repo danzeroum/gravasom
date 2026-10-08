@@ -192,14 +192,14 @@ jobs:
       - name: Fala pt-BR por hash e corpus com ruido
         run: |
           scripts/corpus-pt.sh tests-out/pt vad
-          \"$HOME/venv-asr/bin/python\" -I scripts/vad_corpus.py tests-out/pt corpus/falas_pt_vad.txt tests-out/vad-corpus
+          "$HOME/venv-asr/bin/python" -I scripts/vad_corpus.py tests-out/pt corpus/falas_pt_vad.txt tests-out/vad-corpus
       - name: Kotlin + JNI sobre o corpus (mede fala cortada e tempo economizado)
         run: |
           HOST_LIB="$(scripts/build-dsp-host.sh "$PWD/tests-out/dsp-host")"
           mkdir -p evidencias-ci
           export GRAVASOM_DSP_HOST_LIB="$HOST_LIB" GRAVASOM_VAD_CORPUS="$PWD/tests-out/vad-corpus" GRAVASOM_VAD_REPORT="$PWD/evidencias-ci/vad-relatorio.tsv"
           ./gradlew :core:dsp:testDebugUnitTest --no-daemon
-          \"$HOME/venv-asr/bin/python\" -I scripts/vad_resumo.py evidencias-ci/vad-relatorio.tsv | tee evidencias-ci/vad-resumo.md >> "$GITHUB_STEP_SUMMARY"
+          "$HOME/venv-asr/bin/python" -I scripts/vad_resumo.py evidencias-ci/vad-relatorio.tsv | tee evidencias-ci/vad-resumo.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -276,7 +276,7 @@ jobs:
           scripts/corpus-pt.sh tests-out/pt asr
           mkdir -p evidencias-ci
           M="$HOME/.cache/gravasom-corpus/modelos"
-          \"$HOME/venv-asr/bin/python\" -I scripts/asr_spike.py tests-out/pt corpus/falas_pt_asr.txt tests-out/whisper-build/bin/whisper-cli evidencias-ci/asr-host.json \
+          "$HOME/venv-asr/bin/python" -I scripts/asr_spike.py tests-out/pt corpus/falas_pt_asr.txt tests-out/whisper-build/bin/whisper-cli evidencias-ci/asr-host.json \
             "$M/ggml-tiny-q5_1.bin" "$M/ggml-tiny.bin" "$M/ggml-base-q5_1.bin" "$M/ggml-base.bin"
           cat evidencias-ci/asr-host.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
