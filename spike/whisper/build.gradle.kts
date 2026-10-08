@@ -57,14 +57,18 @@ android {
 
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 
-// Copia o modelo escolhido para os assets antes do empacotamento (nada de modelo no git).
-val copiarModelo = tasks.register<Copy>("copiarModelo") {
-    onlyIf { modelo != null }
-    from(modelo ?: "")
-    into(layout.projectDirectory.dir("src/main/assets"))
-    rename { "modelo.bin" }
+// Copia o modelo escolhido para uma pasta de assets gerada (nada de modelo no git); sem -PmodeloWhisper o APK sai sem modelo.
+val modeloAssets = layout.buildDirectory.dir("modelo-assets")
+android.sourceSets.getByName("main").assets.srcDir(modeloAssets)
+if (modelo != null) {
+    val copiarModelo = tasks.register<Copy>("copiarModelo") {
+        from(modelo)
+        into(modeloAssets)
+        rename { "modelo.bin" }
+    }
+    tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") || it.name.startsWith("lintVital") }
+        .configureEach { dependsOn(copiarModelo) }
 }
-tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach { dependsOn(copiarModelo) }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
