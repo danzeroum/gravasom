@@ -180,7 +180,8 @@ jobs:
       - name: ffmpeg e numpy
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          python3 -m pip install --user numpy==2.5.3
+          python3 -m venv "$HOME/venv-asr"
+          "$HOME/venv-asr/bin/pip" install -q numpy==2.5.3
       - name: Cache do corpus (baixado por hash)
         uses: actions/cache@v4
         with:
@@ -191,14 +192,14 @@ jobs:
       - name: Fala pt-BR por hash e corpus com ruido
         run: |
           scripts/corpus-pt.sh tests-out/pt vad
-          python3 -I scripts/vad_corpus.py tests-out/pt corpus/falas_pt_vad.txt tests-out/vad-corpus
+          \"$HOME/venv-asr/bin/python\" -I scripts/vad_corpus.py tests-out/pt corpus/falas_pt_vad.txt tests-out/vad-corpus
       - name: Kotlin + JNI sobre o corpus (mede fala cortada e tempo economizado)
         run: |
           HOST_LIB="$(scripts/build-dsp-host.sh "$PWD/tests-out/dsp-host")"
           mkdir -p evidencias-ci
           export GRAVASOM_DSP_HOST_LIB="$HOST_LIB" GRAVASOM_VAD_CORPUS="$PWD/tests-out/vad-corpus" GRAVASOM_VAD_REPORT="$PWD/evidencias-ci/vad-relatorio.tsv"
           ./gradlew :core:dsp:testDebugUnitTest --no-daemon
-          python3 -I scripts/vad_resumo.py evidencias-ci/vad-relatorio.tsv | tee evidencias-ci/vad-resumo.md >> "$GITHUB_STEP_SUMMARY"
+          \"$HOME/venv-asr/bin/python\" -I scripts/vad_resumo.py evidencias-ci/vad-relatorio.tsv | tee evidencias-ci/vad-resumo.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -255,7 +256,8 @@ jobs:
       - name: Dependencias
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake g++
-          python3 -m pip install --user numpy==2.5.3 jiwer==3.1.0
+          python3 -m venv "$HOME/venv-asr"
+          "$HOME/venv-asr/bin/pip" install -q numpy==2.5.3 jiwer==3.1.0
       - name: Cache do corpus e dos modelos (baixados por hash)
         uses: actions/cache@v4
         with:
@@ -274,7 +276,7 @@ jobs:
           scripts/corpus-pt.sh tests-out/pt asr
           mkdir -p evidencias-ci
           M="$HOME/.cache/gravasom-corpus/modelos"
-          python3 -I scripts/asr_spike.py tests-out/pt corpus/falas_pt_asr.txt tests-out/whisper-build/bin/whisper-cli evidencias-ci/asr-host.json \
+          \"$HOME/venv-asr/bin/python\" -I scripts/asr_spike.py tests-out/pt corpus/falas_pt_asr.txt tests-out/whisper-build/bin/whisper-cli evidencias-ci/asr-host.json \
             "$M/ggml-tiny-q5_1.bin" "$M/ggml-tiny.bin" "$M/ggml-base-q5_1.bin" "$M/ggml-base.bin"
           cat evidencias-ci/asr-host.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
