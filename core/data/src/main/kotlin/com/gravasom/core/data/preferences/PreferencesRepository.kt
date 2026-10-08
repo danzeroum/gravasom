@@ -26,6 +26,12 @@ class PreferencesRepository(private val context: Context) {
     val privateVault: Flow<Boolean> = context.dataStore.data.map { it[KEY_VAULT] ?: false }
     val telemetryOptIn: Flow<Boolean> = context.dataStore.data.map { it[KEY_TELEMETRY] ?: false }
 
+    /** "Pular silencio" ao ouvir (ADR-014). Desligado por padrao: o usuario liga no player e a escolha fica. */
+    val skipSilence: Flow<Boolean> = context.dataStore.data.map { it[KEY_SKIP_SILENCE] ?: false }
+
+    /** Sensibilidade do pulo = modo do VAD (1 suave, 2 normal, 3 forte). */
+    val skipSensitivity: Flow<Int> = context.dataStore.data.map { it[KEY_SKIP_SENSITIVITY] ?: DEFAULT_SKIP_SENSITIVITY }
+
     val preferredInputId: Flow<Int> = context.dataStore.data.map { it[KEY_INPUT] ?: NO_INPUT }
 
     suspend fun setPreferredInputId(id: Int) = context.dataStore.edit { it[KEY_INPUT] = id }
@@ -34,16 +40,21 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setBitrate(kbps: Int) = context.dataStore.edit { it[KEY_BITRATE] = kbps }
     suspend fun setMp3Enabled(enabled: Boolean) = context.dataStore.edit { it[KEY_MP3] = enabled }
     suspend fun setPrivateVault(enabled: Boolean) = context.dataStore.edit { it[KEY_VAULT] = enabled }
+    suspend fun setSkipSilence(enabled: Boolean) = context.dataStore.edit { it[KEY_SKIP_SILENCE] = enabled }
+    suspend fun setSkipSensitivity(vadMode: Int) = context.dataStore.edit { it[KEY_SKIP_SENSITIVITY] = vadMode }
     suspend fun setTelemetryOptIn(enabled: Boolean) = context.dataStore.edit { it[KEY_TELEMETRY] = enabled }
 
     companion object {
         const val NO_INPUT = -1
+        const val DEFAULT_SKIP_SENSITIVITY = 2
         private val KEY_INPUT = intPreferencesKey("preferred_input")
         private val KEY_FORMAT = stringPreferencesKey("format")
         private val KEY_SAMPLE_RATE = intPreferencesKey("sample_rate")
         private val KEY_BITRATE = intPreferencesKey("bitrate")
         private val KEY_MP3 = booleanPreferencesKey("mp3_enabled")
         private val KEY_VAULT = booleanPreferencesKey("private_vault")
+        private val KEY_SKIP_SILENCE = booleanPreferencesKey("skip_silence")
+        private val KEY_SKIP_SENSITIVITY = intPreferencesKey("skip_sensitivity")
         private val KEY_TELEMETRY = booleanPreferencesKey("telemetry_opt_in")
     }
 }

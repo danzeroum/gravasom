@@ -35,4 +35,9 @@
     <string name="record_low_space_body">Restam %1$d MB no aparelho: cabem cerca de %2$d min neste formato. Libere espaço ou grave mesmo assim.</string>
     <string name="record_low_space_confirm">Gravar mesmo assim</string>
     <string name="record_low_space_cancel">Cancelar</string>
+    <string name="record_btn_marker">Marcar</string>
+    <plurals name="record_markers">
+        <item quantity="one">%d marcador</item>
+        <item quantity="other">%d marcadores</item>
+    </plurals>
 </resources>

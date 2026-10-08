@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import com.gravasom.core.audio.android.InputRouting
 import com.gravasom.core.audio.android.recorder.DefaultAudioRecorderFactory
 import com.gravasom.core.audio.engine.RecordingError
@@ -17,11 +18,16 @@ import com.gravasom.core.audio.engine.RecordingEvent
 import com.gravasom.core.audio.engine.RecordingState
 import com.gravasom.core.audio.engine.RecordingStateMachine
 import com.gravasom.core.audio.engine.TransitionResult
+import com.gravasom.core.audio.engine.marker.MarkerSidecar
+import com.gravasom.core.audio.engine.marker.PendingMarker
+import com.gravasom.core.audio.engine.marker.RecordingClock
 import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.domain.audio.AudioRecorder
 import com.gravasom.core.domain.audio.AudioRecorderFactory
 import com.gravasom.core.domain.audio.RecordingConfig
 import com.gravasom.core.domain.audio.RecordingFormat
+import com.gravasom.core.service.marker.Haptics
+import com.gravasom.core.service.marker.SystemHaptics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -44,6 +50,13 @@ class RecordingService : Service() {
     private var focus: AudioFocusController? = null
     private var startedAtMillis: Long = 0L
 
+    /** Tempo de gravacao sem pausas = posicao no arquivo; cada marcador e gravado na hora num arquivo lateral. */
+    private val clock = RecordingClock(SystemClock::elapsedRealtime)
+    private var sidecar: MarkerSidecar? = null
+    private var markerCount = 0
+    private var lastMarkerMillis: Long? = null
+    private val haptics: Haptics by lazy { SystemHaptics(this) }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
@@ -61,7 +74,7 @@ class RecordingService : Service() {
             ACTION_START -> startRecording(intent.getStringExtra(EXTRA_FORMAT))
             ACTION_PAUSE -> pause()
             ACTION_RESUME -> resume()
-            ACTION_MARKER -> Unit
+            ACTION_MARKER -> addMarker()
             ACTION_STOP -> stopRecording()
         }
         return START_NOT_STICKY
@@ -83,6 +96,10 @@ class RecordingService : Service() {
             val format = formatName?.let { runCatching { RecordingFormat.valueOf(it) }.getOrNull() } ?: prefs.format.first()
             InputRouting.preferred = AudioInputs.deviceById(applicationContext, prefs.preferredInputId.first())
             val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
+            sidecar = MarkerSidecar.forAudio(File(path)).also { it.delete() }
+            markerCount = 0
+            lastMarkerMillis = null
+            RecordingServiceState.updateMarkerCount(0)
             val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
             val rec = factory.create(format)
             recorder = rec
@@ -93,6 +110,7 @@ class RecordingService : Service() {
                     machine.transition(RecordingEvent.Prepared)
                     RecordingServiceState.update(machine.state)
                     startedAtMillis = System.currentTimeMillis()
+                    clock.start()
                     refreshNotification(paused = false)
                     observeLevel(rec)
                 }
@@ -106,6 +124,7 @@ class RecordingService : Service() {
     private fun pause() {
         if (machine.transition(RecordingEvent.Pause) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            clock.pause()
             refreshNotification(paused = true)
             scope.launch { recorder?.pause() }
         }
@@ -114,6 +133,7 @@ class RecordingService : Service() {
     private fun resume() {
         if (machine.transition(RecordingEvent.Resume) is TransitionResult.Ok) {
             RecordingServiceState.update(machine.state)
+            clock.resume()
             refreshNotification(paused = false)
             scope.launch { recorder?.resume() }
         }
@@ -127,6 +147,7 @@ class RecordingService : Service() {
             return
         }
         RecordingServiceState.update(machine.state)
+        clock.stop()
         scope.launch {
             val path: String = recorder?.stop()?.getOrNull() ?: ""
             recorder?.release()
@@ -140,6 +161,23 @@ class RecordingService : Service() {
             RecordingServiceState.update(machine.state)
             teardown()
         }
+    }
+
+    /** Marca o instante atual. Sem gravacao em curso a acao e ignorada (e o servico, se acordou so para isto, encerra). */
+    private fun addMarker() {
+        val recording = machine.state is RecordingState.Recording || machine.state is RecordingState.Paused
+        val file = sidecar
+        if (!recording || file == null) {
+            if (machine.state == RecordingState.Idle) stopSelf()
+            return
+        }
+        val position = clock.elapsedMillis()
+        file.append(PendingMarker(position, label = ""))
+        markerCount++
+        lastMarkerMillis = position
+        RecordingServiceState.updateMarkerCount(markerCount)
+        haptics.tick()
+        refreshNotification(paused = machine.state is RecordingState.Paused)
     }
 
     private fun teardown() {
@@ -168,7 +206,10 @@ class RecordingService : Service() {
     }
 
     private fun notification(paused: Boolean) =
-        RecordingNotification.build(this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this))
+        RecordingNotification.build(
+            this, startedAtMillis.takeIf { it > 0 } ?: System.currentTimeMillis(), paused, ServiceActions(this),
+            markerCount, lastMarkerMillis,
+        )
 
     /** Atualiza a notificacao quando o estado muda (pausa/retomada/inicio efetivo). */
     private fun refreshNotification(paused: Boolean) {
@@ -213,4 +254,5 @@ private class ServiceActions(private val context: Context) : NotificationActions
     override fun resumePendingIntent(context: Context) = service(RecordingService.ACTION_RESUME, 1)
     override fun pausePendingIntent(context: Context) = service(RecordingService.ACTION_PAUSE, 2)
     override fun stopPendingIntent(context: Context) = service(RecordingService.ACTION_STOP, 3)
+    override fun markerPendingIntent(context: Context) = service(RecordingService.ACTION_MARKER, 4)
 }

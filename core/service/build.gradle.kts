@@ -13,8 +13,16 @@ dependencies {
     implementation(project(":core:audio-engine"))
     implementation(project(":core:audio-android"))
     implementation(project(":core:data"))
+    implementation(project(":core:dsp"))
     implementation(libs.coroutines.android)
     implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
     implementation(libs.glance.appwidget)
+}
+
+dependencies {
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
 }

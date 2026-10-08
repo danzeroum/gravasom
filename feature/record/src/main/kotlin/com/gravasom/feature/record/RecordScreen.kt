@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -50,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -126,6 +128,7 @@ fun RecordScreen(
         permissionNotice = permission.toNotice(),
         callbacks = RecordCallbacks(
             onRecord = onRecord, onPause = viewModel::pause, onResume = viewModel::resume, onStop = viewModel::stop,
+            onMarker = viewModel::addMarker,
             onFormat = viewModel::selectFormat, onInput = viewModel::selectInput,
             onOpenSettings = { openAppSettings(context) }, onOpenLibrary = onOpenLibrary,
         ),
@@ -200,6 +203,7 @@ data class RecordCallbacks(
     val onPause: () -> Unit,
     val onResume: () -> Unit,
     val onStop: () -> Unit,
+    val onMarker: () -> Unit = {},
     val onFormat: (RecordingFormat) -> Unit,
     val onInput: (InputOption?) -> Unit,
     val onOpenSettings: () -> Unit,
@@ -372,6 +376,10 @@ private fun Controls(state: RecordUiState, cb: RecordCallbacks) {
                 label = stringResource(if (paused) R.string.record_btn_resume else R.string.record_btn_pause),
                 tag = "botao_pausar", onClick = if (paused) cb.onResume else cb.onPause,
             )
+            LabeledRoundButton(
+                Icons.Filled.Flag, stringResource(R.string.record_btn_marker), "botao_marcar", cb.onMarker,
+                caption = state.markerCount.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.record_markers, it, it) },
+            )
             LabeledRoundButton(Icons.Filled.Stop, stringResource(R.string.record_btn_stop), "botao_parar", cb.onStop)
         }
         RecordStatus.Preparing, RecordStatus.Saving -> Unit
@@ -386,11 +394,15 @@ private fun LabeledRoundButton(
     tag: String,
     onClick: () -> Unit,
     big: Boolean = false,
+    caption: String? = null,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         FilledIconButton(onClick = onClick, modifier = Modifier.size(if (big) 96.dp else 72.dp).testTag(tag)) {
             Icon(icon, contentDescription = label, modifier = Modifier.size(if (big) 48.dp else 32.dp))
         }
         Text(label, style = MaterialTheme.typography.labelLarge)
+        if (caption != null) {
+            Text(caption, style = MaterialTheme.typography.labelSmall, modifier = Modifier.testTag("${tag}_contagem"))
+        }
     }
 }

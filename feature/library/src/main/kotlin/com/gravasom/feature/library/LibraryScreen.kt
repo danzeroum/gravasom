@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -20,15 +21,14 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -53,41 +53,98 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
 import com.gravasom.feature.player.PlayerController
-import kotlinx.coroutines.delay
+import com.gravasom.feature.player.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = hiltViewModel()) {
+fun LibraryScreen(
+    modifier: Modifier = Modifier,
+    viewModel: LibraryViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = hiltViewModel(),
+) {
     val items by viewModel.recordings.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val availableTags by viewModel.availableTags.collectAsStateWithLifecycle()
+    val selectedTags by viewModel.selectedTags.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val player = rememberPlayer()
+    var currentId by remember { mutableStateOf<Long?>(null) }
+    var renaming by remember { mutableStateOf<Recording?>(null) }
+    val actions = rememberRowActions(viewModel, playerViewModel, player, snackbar, { currentId }, { currentId = it }) { renaming = it }
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            SearchField(query, viewModel::setQuery)
+            TagFilterRow(availableTags, selectedTags, viewModel::toggleTag)
+            Box(Modifier.weight(1f)) { RecordingList(items, query, selectedTags, viewModel::clearTags, currentId, actions) }
+            // A gravacao aberta e sempre lida da lista: renomear ou mudar etiquetas aparece no painel sem reabrir.
+            val current = items.firstOrNull { it.id == currentId }
+            if (current != null) {
+                // Fechar o painel NAO pausa: o audio segue em segundo plano (PlaybackService) e pausa-se pela notificacao.
+                PlayerDock(current, player, playerViewModel) { currentId = null; playerViewModel.close() }
+            }
+        }
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+    }
+    PlayerEventsEffect(playerViewModel, snackbar)
+    renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
+}
+
+@Composable
+private fun rememberPlayer(): PlayerController {
+    val context = LocalContext.current
+    // Sair da aba tambem nao interrompe o audio: o ExoPlayer e o do PlaybackHub, nao deste controlador.
     val player = remember { PlayerController(context) }
     DisposableEffect(Unit) { onDispose { player.release() } }
-    var current by remember { mutableStateOf<Recording?>(null) }
-    var renaming by remember { mutableStateOf<Recording?>(null) }
+    return player
+}
+
+/** Acoes de cada linha: tocar (abre o player), renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
+@Composable
+private fun rememberRowActions(
+    viewModel: LibraryViewModel,
+    playerViewModel: PlayerViewModel,
+    player: PlayerController,
+    snackbar: SnackbarHostState,
+    currentId: () -> Long?,
+    setCurrentId: (Long?) -> Unit,
+    onRename: (Recording) -> Unit,
+): RowActions {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var saving by remember { mutableStateOf<Recording?>(null) }
     val savedOk = stringResource(R.string.library_saved_ok)
     val savedFail = stringResource(R.string.library_saved_fail)
     val playFail = stringResource(R.string.library_play_fail)
+    val deletedText = stringResource(R.string.library_deleted)
+    val undoText = stringResource(R.string.library_undo)
     val saveLauncher = rememberLauncherForActivityResult(CreateAudioDocument()) { uri ->
         val target = saving
         saving = null
         if (uri != null && target != null) scope.launch { snackbar.showSnackbar(if (viewModel.saveTo(target, uri)) savedOk else savedFail) }
     }
-    val deletedText = stringResource(R.string.library_deleted)
-    val undoText = stringResource(R.string.library_undo)
-    val actions = RowActions(
-        onPlay = { r -> scope.launch { if (openAndPlay(viewModel, player, r)) current = r else snackbar.showSnackbar(playFail) } },
-        onRename = { renaming = it },
+    return RowActions(
+        onPlay = { r ->
+            scope.launch {
+                if (openAndPlay(viewModel, player, r)) {
+                    setCurrentId(r.id)
+                    playerViewModel.open(r)
+                } else {
+                    snackbar.showSnackbar(playFail)
+                }
+            }
+        },
+        onRename = onRename,
         onFavorite = viewModel::toggleFavorite,
         onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
-            if (current?.id == r.id) { player.pause(); current = null }
+            if (currentId() == r.id) {
+                player.pause()
+                setCurrentId(null)
+                playerViewModel.close()
+            }
             viewModel.delete(r)
             scope.launch {
                 snackbar.currentSnackbarData?.dismiss()
@@ -96,22 +153,33 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: LibraryViewModel = h
             }
         },
     )
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
-            SearchField(query, viewModel::setQuery)
-            Box(Modifier.weight(1f)) { RecordingList(items, query, current?.id, actions) }
-            current?.let { MiniPlayer(it, player) }
+}
+
+/** Filtro por etiquetas: toque numa etiqueta para ver so as gravacoes que a tem (varias = todas). */
+@Composable
+private fun TagFilterRow(available: List<String>, selected: Set<String>, onToggle: (String) -> Unit) {
+    if (available.isEmpty()) return
+    LazyRow(
+        modifier = Modifier.fillMaxWidth().testTag("filtro_etiquetas"),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(available, key = { it }) { tag ->
+            FilterChip(
+                selected = tag in selected,
+                onClick = { onToggle(tag) },
+                label = { Text(tag) },
+                modifier = Modifier.testTag("filtro_etiqueta_$tag"),
+            )
         }
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
-    renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
 }
 
 /** Decifra (se preciso) fora da thread principal e toca NA principal (o ExoPlayer exige); false se nao abriu. */
 private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerController, recording: Recording): Boolean {
     val path = runCatching { viewModel.playablePath(recording) }.getOrNull() ?: return false
     withContext(Dispatchers.Main) {
-        player.load(path)
+        player.load(path, title = recording.title.takeUnless { recording.isPrivate })
         player.play()
         viewModel.played()
     }
@@ -145,11 +213,31 @@ private fun SearchField(query: String, onChange: (String) -> Unit) {
 }
 
 @Composable
-private fun RecordingList(items: List<Recording>, query: String, playingId: Long?, actions: RowActions) {
+private fun RecordingList(
+    items: List<Recording>,
+    query: String,
+    selectedTags: Set<String>,
+    onClearTags: () -> Unit,
+    playingId: Long?,
+    actions: RowActions,
+) {
     if (items.isEmpty()) {
-        val text = if (query.isBlank()) stringResource(R.string.library_empty) else stringResource(R.string.library_no_results, query)
-        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        val text = when {
+            selectedTags.isNotEmpty() -> stringResource(R.string.library_no_results_tags)
+            query.isBlank() -> stringResource(R.string.library_empty)
+            else -> stringResource(R.string.library_no_results, query)
+        }
+        Column(
+            Modifier.fillMaxSize().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
             Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("lista_vazia"))
+            if (selectedTags.isNotEmpty()) {
+                TextButton(onClick = onClearTags, modifier = Modifier.testTag("limpar_filtro_etiquetas")) {
+                    Text(stringResource(R.string.library_clear_tag_filter))
+                }
+            }
         }
         return
     }
@@ -187,6 +275,14 @@ private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("duracao_item"),
             )
+            if (r.tags.isNotEmpty()) {
+                Text(
+                    r.tags.joinToString("  ") { "#$it" },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("etiquetas_item"),
+                )
+            }
         }
         Box {
             IconButton(onClick = { menu = true }, modifier = Modifier.testTag("mais_acoes")) {
@@ -215,49 +311,6 @@ private fun MenuItem(label: Int, tag: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun MiniPlayer(recording: Recording, player: PlayerController) {
-    val playing by player.isPlaying.collectAsStateWithLifecycle()
-    val position by player.positionMillis.collectAsStateWithLifecycle()
-    val duration by player.durationMillis.collectAsStateWithLifecycle()
-    var speed by remember(recording.id) { mutableStateOf(1f) }
-    LaunchedEffect(recording.id) {
-        while (true) {
-            player.tick()
-            delay(TICK_MS)
-        }
-    }
-    Card(Modifier.fillMaxWidth().padding(12.dp).testTag("mini_player")) {
-        Row(
-            Modifier.padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            IconButton(onClick = { if (playing) player.pause() else player.play() }, modifier = Modifier.testTag("mini_play_pause")) {
-                Icon(
-                    if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    stringResource(if (playing) R.string.library_player_pause else R.string.library_player_play),
-                )
-            }
-            Column(Modifier.weight(1f)) {
-                Text(recording.title, style = MaterialTheme.typography.titleSmall)
-                val total = maxOf(duration, recording.durationMillis)
-                Text("${formatDuration(position)} / ${formatDuration(total)}", style = MaterialTheme.typography.bodySmall)
-                Slider(
-                    value = position.coerceAtMost(total).toFloat(),
-                    onValueChange = { player.seekTo(it.toLong()) },
-                    valueRange = 0f..maxOf(total, 1L).toFloat(),
-                    modifier = Modifier.testTag("mini_posicao"),
-                )
-            }
-            TextButton(
-                onClick = { speed = Speeds[(Speeds.indexOf(speed) + 1) % Speeds.size]; player.setSpeed(speed) },
-                modifier = Modifier.testTag("mini_velocidade"),
-            ) { Text(stringResource(R.string.library_player_speed, speed.toString().removeSuffix(".0"))) }
-        }
-    }
-}
-
-@Composable
 private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var text by remember { mutableStateOf(recording.title) }
     AlertDialog(
@@ -281,5 +334,3 @@ private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm:
     )
 }
 
-private const val TICK_MS = 250L
-private val Speeds = listOf(1f, 1.5f, 2f, 0.5f)

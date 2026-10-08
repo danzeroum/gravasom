@@ -9,6 +9,7 @@ import com.gravasom.core.domain.metrics.ShareChannel
 import com.gravasom.core.domain.metrics.UsageEventType
 import com.gravasom.core.domain.model.Recording
 import com.gravasom.core.domain.repository.RecordingRepository
+import com.gravasom.core.domain.tags.TagFilter
 import com.gravasom.core.domain.usecase.DeleteRecording
 import com.gravasom.core.domain.usecase.ListRecordings
 import com.gravasom.core.domain.usecase.RenameRecording
@@ -20,7 +21,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,9 +43,29 @@ class LibraryViewModel @Inject constructor(
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
-    val recordings: StateFlow<List<Recording>> = _query
-        .flatMapLatest { q -> if (q.isBlank()) ListRecordings(repo)() else SearchRecordings(repo)(q.trim()) }
+    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Etiquetas escolhidas no filtro (a gravacao precisa ter TODAS). */
+    val selectedTags: StateFlow<Set<String>> = _selectedTags
+
+    /** Etiquetas que existem na biblioteca, as mais usadas primeiro. */
+    val availableTags: StateFlow<List<String>> = ListRecordings(repo)()
+        .map { TagFilter.available(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
+
+    val recordings: StateFlow<List<Recording>> = combine(
+        _query.flatMapLatest { q -> if (q.isBlank()) ListRecordings(repo)() else SearchRecordings(repo)(q.trim()) },
+        _selectedTags,
+    ) { list, tags -> TagFilter.apply(list, tags) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
+
+    fun toggleTag(tag: String) {
+        _selectedTags.value = _selectedTags.value.let { if (tag in it) it - tag else it + tag }
+    }
+
+    fun clearTags() {
+        _selectedTags.value = emptySet()
+    }
 
     fun setQuery(text: String) {
         if (_query.value.isBlank() && text.isNotBlank()) viewModelScope.launch { metrics.record(UsageEventType.BUSCA_USADA) }

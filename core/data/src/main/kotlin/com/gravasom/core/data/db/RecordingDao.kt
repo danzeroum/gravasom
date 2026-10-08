@@ -6,6 +6,8 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+/** O contrato de um DAO exige uma funcao por consulta/atualizacao: o limite de funcoes por interface nao se aplica aqui. */
+@Suppress("TooManyFunctions")
 @Dao
 interface RecordingDao {
 
@@ -35,6 +37,9 @@ interface RecordingDao {
 
     @Query("UPDATE recordings SET isFavorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
+
+    @Query("UPDATE recordings SET tagsCsv = :tagsCsv WHERE id = :id")
+    suspend fun setTags(id: Long, tagsCsv: String)
 
     @Query("UPDATE recordings SET deletedAtMillis = :now WHERE id = :id")
     suspend fun moveToTrash(id: Long, now: Long)

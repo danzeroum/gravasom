@@ -55,6 +55,8 @@ data class RecordUiState(
     val inputs: List<InputOption> = emptyList(),
     /** Preenchido quando o espaco livre e baixo: a tela pergunta antes de gravar. */
     val lowSpace: LowSpaceWarning? = null,
+    /** Marcadores feitos na gravacao em curso. */
+    val markerCount: Int = 0,
 ) {
     val isBusy: Boolean get() = status != RecordStatus.Ready && status !is RecordStatus.Failed
 
@@ -100,6 +102,7 @@ class RecordViewModel @Inject constructor(
         viewModelScope.launch { prefs.preferredInputId.collect { refreshInputs() } }
         viewModelScope.launch { RecordingServiceState.state.collect(::onServiceState) }
         viewModelScope.launch { RecordingServiceState.levelDb.collect { db -> _state.update { it.copy(levelDb = db) } } }
+        viewModelScope.launch { RecordingServiceState.markerCount.collect { n -> _state.update { it.copy(markerCount = n) } } }
         viewModelScope.launch { tickElapsed() }
     }
 
@@ -183,6 +186,7 @@ class RecordViewModel @Inject constructor(
     fun pause() = send(RecordingService.ACTION_PAUSE)
     fun resume() = send(RecordingService.ACTION_RESUME)
     fun stop() = send(RecordingService.ACTION_STOP)
+    fun addMarker() = send(RecordingService.ACTION_MARKER)
 
     fun onPermissionDenied() {
         viewModelScope.launch { metrics.record(UsageEventType.PERMISSAO_NEGADA) }

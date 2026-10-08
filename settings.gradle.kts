@@ -42,3 +42,5 @@ include(":core:service")
 include(":core:ui")
 include(":baselineprofile")
 include(":macrobenchmark")
+// Spike de transcricao (ADR-013): fora do build normal; entra com -Pspike.
+if (providers.gradleProperty("spike").isPresent) include(":spike:whisper")

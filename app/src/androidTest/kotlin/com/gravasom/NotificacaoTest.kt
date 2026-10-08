@@ -37,18 +37,26 @@ class NotificacaoTest {
     fun pausarRetomarEPararPelaNotificacaoFuncionam() {
         compose.onNodeWithTag("botao_gravar").performClick()
         UiSuporte.aguardar(compose) { UiSuporte.existe(compose, "botao_parar") }
-        assertTrue(Suporte.aguardar { acoes().size == 2 })
-        assertEquals(listOf(rotulo("notif_action_pause"), rotulo("notif_action_stop")), acoes().map { it.title.toString() })
+        assertTrue(Suporte.aguardar { acoes().size == 3 })
+        assertEquals(
+            listOf(rotulo("notif_action_pause"), rotulo("notif_action_marker"), rotulo("notif_action_stop")),
+            acoes().map { it.title.toString() },
+        )
 
         acoes()[0].actionIntent.send()
         assertTrue("nao pausou", Suporte.aguardar { RecordingServiceState.state.value == RecordingState.Paused })
-        assertTrue(Suporte.aguardar { acoes().map { it.title.toString() } == listOf(rotulo("notif_action_resume"), rotulo("notif_action_stop")) })
+        assertTrue(
+            Suporte.aguardar {
+                acoes().map { it.title.toString() } ==
+                    listOf(rotulo("notif_action_resume"), rotulo("notif_action_marker"), rotulo("notif_action_stop"))
+            },
+        )
 
         acoes()[0].actionIntent.send()
         assertTrue("nao retomou", ControleServico.esperarGravando())
 
         Thread.sleep(1_000)
-        acoes()[1].actionIntent.send()
+        acoes()[2].actionIntent.send()
         assertTrue("nao parou", Suporte.aguardar { RecordingServiceState.state.value is RecordingState.Saved })
     }
 }

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("gravasom.android.application")
     id("gravasom.android.compose")
@@ -8,8 +10,12 @@ android {
     namespace = "com.gravasom"
     defaultConfig {
         applicationId = "com.gravasom"
-        versionCode = 1
-        versionName = "1.0.0"
+        // Sem CI: a versao vem de app/version.properties (versionCode sobe a cada entrega). O workflow manual pode sobrepor por ambiente.
+        val version = Properties().apply {
+            load(providers.fileContents(layout.projectDirectory.file("version.properties")).asText.get().reader())
+        }
+        versionCode = System.getenv("GRAVASOM_VERSION_CODE")?.toIntOrNull() ?: version.getProperty("versionCode").toInt()
+        versionName = System.getenv("GRAVASOM_VERSION_NAME")?.removePrefix("v") ?: version.getProperty("versionName")
         // Aparelhos reais (arm64) e o emulador do CI (x86_64). Reduz o APK; x86/armv7 de 32 bits ficam de fora.
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
@@ -36,7 +42,17 @@ android {
     }
     buildTypes {
         release {
-            signingConfigs.findByName("release")?.let { signingConfig = it }
+            // Com chave de release (variaveis de ambiente) assina com ela; SEM ela, assina com a chave de debug do repositorio,
+            // para que cada entrega instale por cima da anterior. A chave de debug e publica: nao e uma chave de producao.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+        }
+        // Para o Macrobenchmark: igual ao release (R8, sem depuracao) mas assinado com a chave de debug. Traz o SeedReceiver
+        // (app/src/benchmark) que semeia a gravacao de 1 h; esse receptor NAO existe no release.
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
         }
     }
     packaging {

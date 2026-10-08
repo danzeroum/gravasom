@@ -43,6 +43,10 @@ class FakeRecordingRepository : RecordingRepository {
         items.value = items.value.map { if (it.id == id) it.copy(isFavorite = favorite) else it }
     }
 
+    override suspend fun setTags(id: Long, tags: List<String>) {
+        items.value = items.value.map { if (it.id == id) it.copy(tags = tags) else it }
+    }
+
     override suspend fun moveToTrash(id: Long, nowMillis: Long) {
         items.value = items.value.map { if (it.id == id) it.copy(deletedAtMillis = nowMillis) else it }
     }

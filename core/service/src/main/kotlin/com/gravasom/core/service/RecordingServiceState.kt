@@ -21,6 +21,15 @@ object RecordingServiceState {
     private val _levelDb = MutableStateFlow(-60f)
     val levelDb: StateFlow<Float> = _levelDb.asStateFlow()
 
+    private val _markerCount = MutableStateFlow(0)
+
+    /** Marcadores feitos na gravacao em curso (tela, notificacao ou widget). */
+    val markerCount: StateFlow<Int> = _markerCount.asStateFlow()
+
+    fun updateMarkerCount(count: Int) {
+        _markerCount.value = count
+    }
+
     private val _saved = MutableSharedFlow<String>(extraBufferCapacity = SAVED_BUFFER)
 
     /** Caminho de cada arquivo finalizado (inclusive quando a gravacao termina por erro apos preservar o audio). */

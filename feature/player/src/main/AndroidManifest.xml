@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <application>
+        <!--
+          Reproducao em segundo plano: o MediaSessionService mostra a notificacao de midia (pausar/retomar) e mantem o audio
+          quando o painel do player fecha ou o app vai para o fundo. NAO exportado: outros apps nao controlam a reproducao
+          (as gravacoes podem ser privadas); a notificacao e os controles do sistema usam o token da sessao, sem precisar disso.
+        -->
+        <service
+            android:name=".PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

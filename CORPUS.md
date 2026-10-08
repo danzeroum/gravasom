@@ -18,6 +18,17 @@ PRNG próprio (xorshift64*) com sementes fixas: mesmo binário ⇒ mesmos bytes.
 - Tarball: sha256 `76f87d090650617fca0cac8f88b9416e0ebf80350acb97b343a85fa903728ab3` (MD5 `42e2234b…300a1` confere com o publicado pelo OpenSLR).
 - As locuções **não são redistribuídas** neste repositório; o script baixa e converte no CI (`scripts/corpus-real.sh`).
 
+## Fala em português (pt-BR)
+
+| Fonte | Licença | Uso |
+| --- | --- | --- |
+| FLEURS pt_br (Conneau et al., Google; https://huggingface.co/datasets/google/fleurs) | **CC BY 4.0** (atribuição obrigatória) | VAD (`corpus/falas_pt_vad.txt`: 8 locuções masculinas do `dev` e 8 femininas do `train`) e spike de transcrição (`corpus/falas_pt_asr.txt`: 60 locuções, 10,9 min) |
+
+- Baixada **por hash** (`corpus/corpus.sha256`: `dev.tar.gz`, `train.tar.gz` e os dois `.tsv` de transcrição) por `scripts/corpus-pt.sh`, com cache na CI; nada é redistribuído pelo repositório.
+- Atenção ao viés: no FLEURS pt_br o `dev` e o `test` só têm vozes masculinas; as femininas vêm do `train`. São leituras de frases da Wikipédia em ambiente doméstico, não conversa: o corpus não mede sobreposição de falas.
+- `scripts/vad_corpus.py` monta, a partir delas, gravações de ~1 min no feitio de aula/reunião (pausas de 1,2 a 15 s) e as renderiza com ruído de sala, ventilador (SNR 10 e 0 dB), ruído rosa (0 dB), zumbido de 60 Hz (10 dB) e murmúrio de vozes (5 dB). Determinístico (sementes fixas).
+- O ideal continua sendo acrescentar 3 ou 4 gravações **suas** (aula, reunião, ensaio), guardadas fora do repositório: é a sua voz e o seu ambiente que importam.
+
 ## Música
 
 Ainda não há música real no corpus. Entra na Fase 17 (spike de separação) com mixagens sintéticas de fontes conhecidas

@@ -6,7 +6,9 @@ import com.gravasom.core.data.metrics.UsageMetrics
 import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.data.repository.RoomRecordingRepository
 import com.gravasom.core.data.vault.VaultCrypto
+import com.gravasom.core.domain.marker.MarkerRepository
 import com.gravasom.core.domain.repository.RecordingRepository
+import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.library.AudioImporter
 import com.gravasom.core.service.library.MediaStorePublisher
 import com.gravasom.core.service.library.RecordingFiles
@@ -67,6 +69,8 @@ object AppModule {
         metrics: UsageMetrics,
         publisher: MediaStorePublisher,
         vaultStore: VaultStore,
+        markers: MarkerRepository,
+        analyzer: RecordingAnalyzer,
     ): RecordingIngestor =
-        RecordingIngestor(repo, prefs, metrics, publisher, vaultStore)
+        RecordingIngestor(repo, prefs, metrics, publisher, vaultStore, markers, analyzer)
 }

@@ -13,10 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,6 +40,7 @@ private val Tabs = listOf(
 )
 
 /** Navegacao inferior Gravar / Gravacoes / Ajustes (docs/ux/04-navegacao.md). Abre direto em Gravar. */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GravasomApp(
     destination: String?,
@@ -54,6 +58,7 @@ fun GravasomApp(
         }
     }
     Scaffold(
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
         bottomBar = {
             NavigationBar {
                 Tabs.forEach { tab ->

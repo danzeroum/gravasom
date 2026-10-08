@@ -24,7 +24,7 @@ class PlayerMedia3Test {
     }
 
     @After
-    fun limpar() = instr.runOnMainSync { player.release() }
+    fun limpar() = instr.runOnMainSync { player.pause(); player.release() } // release() so solta o controlador; o ExoPlayer e do PlaybackHub
 
     private fun main(bloco: () -> Unit) = instr.runOnMainSync(bloco)
 
