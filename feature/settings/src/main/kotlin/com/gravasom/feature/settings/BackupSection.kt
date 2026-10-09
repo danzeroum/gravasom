@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -51,21 +52,15 @@ private sealed interface Pendente {
 internal fun BackupSection(viewModel: SettingsViewModel, modifier: Modifier = Modifier) {
     val fase by viewModel.backupFase.collectAsStateWithLifecycle()
     var pendente by remember { mutableStateOf<Pendente?>(null) }
-    var aviso by remember { mutableStateOf<String?>(null) }
+    var evento by remember { mutableStateOf<BackupEvento?>(null) }
     val criarLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(MIME)) { uri ->
         if (uri != null) pendente = Pendente.Criar(uri)
     }
     val restaurarLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) pendente = Pendente.Restaurar(uri)
     }
-    val avisos = BackupAvisos(
-        ok = stringResource(R.string.backup_ok),
-        restauradas = stringResource(R.string.backup_restored),
-        senhaErrada = stringResource(R.string.backup_wrong_password),
-        falhou = stringResource(R.string.backup_failed),
-    )
     LaunchedEffect(viewModel) {
-        viewModel.backupEventos.collect { e -> aviso = avisos.of(e) }
+        viewModel.backupEventos.collect { e -> evento = e }
     }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.settings_backup_title), style = MaterialTheme.typography.titleSmall)
@@ -76,7 +71,7 @@ internal fun BackupSection(viewModel: SettingsViewModel, modifier: Modifier = Mo
         )
         BackupAcoes(
             fase = fase,
-            aviso = aviso,
+            aviso = evento?.let { avisoDe(it) },
             onCriar = { criarLauncher.launch(nomeSugerido()) },
             onRestaurar = { restaurarLauncher.launch(arrayOf(MIME, "*/*")) },
         )
@@ -189,19 +184,13 @@ private fun PasswordDialog(criar: Boolean, onDismiss: () -> Unit, onConfirm: (Ch
     )
 }
 
-/** Avisos resolvidos uma vez (o coletor do LaunchedEffect nao pode chamar stringResource). */
-private class BackupAvisos(
-    private val ok: String,
-    private val restauradas: String,
-    private val senhaErrada: String,
-    private val falhou: String,
-) {
-    fun of(e: BackupEvento): String = when (e) {
-        is BackupEvento.Criado -> ok.format(e.gravacoes)
-        is BackupEvento.Restauradas -> restauradas.format(e.gravacoes)
-        BackupEvento.SenhaErrada -> senhaErrada
-        is BackupEvento.Falhou -> falhou.format(e.detalhe ?: "")
-    }
+/** Aviso do resultado, com plurais certos (resolve na recomposicao, quando o evento ja chegou). */
+@Composable
+private fun avisoDe(e: BackupEvento): String = when (e) {
+    is BackupEvento.Criado -> pluralStringResource(R.plurals.backup_ok, e.gravacoes, e.gravacoes)
+    is BackupEvento.Restauradas -> pluralStringResource(R.plurals.backup_restored, e.gravacoes, e.gravacoes)
+    BackupEvento.SenhaErrada -> stringResource(R.string.backup_wrong_password)
+    is BackupEvento.Falhou -> stringResource(R.string.backup_failed, e.detalhe ?: "")
 }
 
 private fun nomeSugerido(): String =

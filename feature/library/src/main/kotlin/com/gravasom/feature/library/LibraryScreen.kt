@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -177,7 +178,7 @@ private fun SelectionBar(selecao: List<Recording>, onJuntar: () -> Unit, onLimpa
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).testTag("barra_selecao"),
     ) {
         Text(
-            stringResource(R.string.library_join_selected, selecao.size),
+            pluralStringResource(R.plurals.library_join_selected, selecao.size, selecao.size),
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.weight(1f),
         )

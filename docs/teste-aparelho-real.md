@@ -48,6 +48,36 @@ Não marque como aprovado sem preencher a coluna "Resultado" (data, aparelho, ve
 - "Marcar" no **widget** fora de uma gravação em curso é ignorado em silêncio.
 - A transcrição (modelo base q5_1) **não** está nesta versão.
 
+## A2. Roteiro curto da Onda 2 (~15 min) — som melhor e proteção
+
+> APK `1.2.0-onda2` (versionCode 61). **Verificação ≠ validação**: o que está abaixo é a **validação de ouvido** — os números
+> (loudness ±1 LU, pico ≤ −1 dBTP, STOI ≥ 0,9909, SHA-256 do backup) foram verificados por teste local e harness antes do APK.
+> Use um fone para os passos B1–B4 (A/B de ouvido é o coração da onda). Preencha a coluna "Resultado".
+
+| # | Passo | O que deve acontecer | Resultado (preencher) |
+| --- | --- | --- | --- |
+| B1 | Gravar ~30 s de voz num lugar com vento/ruído (preset **Voz**) → aba Gravações → menu (⋮) da gravação → **Melhorar som** | Abre a tela "Melhorar som" com "O original nunca é alterado" e o redutor/volume já ligados (padrão do preset Voz) | |
+| B2 | Na tela, tocar **A · Original** e **B · Melhorado** alternadamente (mexa o "Trecho da prévia" se quiser ouvir outro pedaço) | Mesmo trecho dos dois lados, sem corte entre A e B; **B fica com menos chiado e volume parelho**; o texto diz qual lado está tocando | |
+| B3 | Desligar o redutor, ouvir A/B de novo; ligar de volta e empurrar a intensidade | A diferença entre A e B acompanha o ajuste na hora (a prévia é regerada ao mexer) | |
+| B4 | **Salvar cópia melhorada** → assistir a barra → **Concluir** | Nova gravação "… (melhorada)" na aba Gravações, em WAV; a original continua idêntica (ouça e compare) | |
+| B5 | Repetir B1 e, no meio da barra de progresso, tocar **Cancelar** | Volta para os ajustes; **nenhuma** gravação nova aparece e a original segue intacta | |
+| B6 | No player de uma gravação, arrastar a onda para um ponto e tocar **Dividir aqui** | Aviso "Duas gravações criadas: … parte 1 e … parte 2"; as duas tocam e, juntas, cobrem a original; a original não muda | |
+| B7 | Na aba Gravações, **segurar** duas gravações do mesmo formato → **Juntar** (conferir a ordem no diálogo) → confirmar | Gravação nova "A e B" com os áudios na ordem mostrada; as duas originais continuam lá | |
+| B8 | Ajustes → **Backup cifrado** → **Criar backup** → escolher pasta → senha (≥6) → confirmar | Aviso "Backup criado com N gravações" e o arquivo `gravasom-backup-….gravasom` onde você salvou | |
+| B9 | **Excluir** (com Desfazer expirado, ou gravar 2 novas quaisquer) → **Restaurar backup** → senha **errada** | "Senha errada: nada foi restaurado" — a lista fica exatamente como estava | |
+| B10 | **Restaurar backup** de novo com a senha **certa** | "N gravações restauradas. Nada foi apagado"; as restauradas tocam e os marcadores/etiquetas voltam | |
+| B11 | Gravar com preset **Natureza** e **Água** ao ar livre → Melhorar som de cada | Os efeitos começam **desligados** (sons de bichos/água não passam pelo redutor) | |
+| B12 | Na tela Gravar, tocar o chip **WAV** (sem preset) e gravar 5 s | A gravação sai em WAV; em Ajustes o app mostra "personalizado" (fora de preset) | |
+| B13 | Ouvir uma aula longa com **Pular silêncio** ligado → tocar o **X** do player e deixar tocando em segundo plano | O silêncio **continua sendo pulado** com o painel fechado (correção da Onda 1) | |
+| B14 | Tocar **Marcar** no widget **sem** gravação em curso | Aviso "Nenhuma gravação em andamento para marcar" (nada em silêncio; correção da Onda 1) | |
+
+**Limitações conhecidas da Onda 2 para não estranhar**:
+
+- Juntar exige gravações do **mesmo formato** (M4A com M4A etc.) e, no WAV, a mesma taxa/canais — o aviso explica quando não dá.
+- A prévia A/B cobre uma janela de 20 s por vez (mexa o "Trecho da prévia" para ouvir outros pedaços).
+- A cópia melhorada sai **em WAV** (sem compressão); aparelhos com pouco espaço podem preferir apagá-la depois de ouvir.
+- O pacote de backup **não** guarda a senha (de propósito): sem ela não há como abrir.
+
 ## B. Casos que só rodam em emulador/aparelho (instrumentados) e NÃO rodaram nesta entrega
 
 Estes testes existem em `app/src/androidTest` e precisam de emulador ou aparelho conectado

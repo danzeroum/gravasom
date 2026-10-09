@@ -31,7 +31,10 @@
     <string name="library_clear_tag_filter">Limpar filtro</string>
     <string name="library_join">Juntar</string>
     <string name="library_join_clear">Sair da seleção</string>
-    <string name="library_join_selected">%1$d selecionadas</string>
+    <plurals name="library_join_selected">
+        <item quantity="one">%1$d selecionada</item>
+        <item quantity="other">%1$d selecionadas</item>
+    </plurals>
     <string name="library_join_dialog_title">Juntar gravações?</string>
     <string name="library_join_dialog_hint">A junção será uma gravação nova, com os áudios nessa ordem. As gravações originais ficam como estão.</string>
     <string name="library_join_ok">Junção criada: %1$s</string>

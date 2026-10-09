@@ -60,8 +60,14 @@
     <string name="backup_password_hint">The password is not stored on the device. It needs at least 6 characters.</string>
     <string name="backup_password_mismatch">The passwords do not match.</string>
     <string name="backup_continue">Continue</string>
-    <string name="backup_ok">Backup created with %1$d recordings.</string>
-    <string name="backup_restored">%1$d recordings restored. Nothing was deleted.</string>
+    <plurals name="backup_ok">
+        <item quantity="one">Backup created with %1$d recording.</item>
+        <item quantity="other">Backup created with %1$d recordings.</item>
+    </plurals>
+    <plurals name="backup_restored">
+        <item quantity="one">%1$d recording restored. Nothing was deleted.</item>
+        <item quantity="other">%1$d recordings restored. Nothing was deleted.</item>
+    </plurals>
     <string name="backup_wrong_password">Wrong password: nothing was restored.</string>
     <string name="backup_failed">Failed: %1$s</string>
 </resources>

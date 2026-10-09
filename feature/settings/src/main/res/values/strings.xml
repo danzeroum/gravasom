@@ -60,8 +60,14 @@
     <string name="backup_password_hint">A senha não fica guardada no aparelho. Precisa de pelo menos 6 caracteres.</string>
     <string name="backup_password_mismatch">As senhas não conferem.</string>
     <string name="backup_continue">Continuar</string>
-    <string name="backup_ok">Backup criado com %1$d gravações.</string>
-    <string name="backup_restored">%1$d gravações restauradas. Nada foi apagado.</string>
+    <plurals name="backup_ok">
+        <item quantity="one">Backup criado com %1$d gravação.</item>
+        <item quantity="other">Backup criado com %1$d gravações.</item>
+    </plurals>
+    <plurals name="backup_restored">
+        <item quantity="one">%1$d gravação restaurada. Nada foi apagado.</item>
+        <item quantity="other">%1$d gravações restauradas. Nada foi apagado.</item>
+    </plurals>
     <string name="backup_wrong_password">Senha errada: nada foi restaurado.</string>
     <string name="backup_failed">Falha: %1$s</string>
 </resources>
