@@ -268,6 +268,11 @@ private fun Chips(controller: PlayerPort, state: PlayerUiState, cb: PlayerCallba
             label = { Text(stringResource(R.string.player_tags_button)) },
             modifier = Modifier.testTag("editar_etiquetas"),
         )
+        AssistChip(
+            onClick = cb.onEnhance,
+            label = { Text(stringResource(R.string.player_enhance_button)) },
+            modifier = Modifier.testTag("melhorar_som"),
+        )
     }
     if (state.skipEnabled) SkipSummary(state, skippedNow)
 }

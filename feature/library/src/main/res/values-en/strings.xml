@@ -5,6 +5,7 @@
     <string name="library_empty">No recordings yet. Tap Record to start.</string>
     <string name="library_no_results">Nothing found for “%1$s”</string>
     <string name="library_item_meta">%1$s · %2$s · %3$s</string>
+    <string name="library_action_enhance">Improve sound</string>
     <string name="library_more">More actions</string>
     <string name="library_play_item">Play %1$s</string>
     <string name="library_action_rename">Rename</string>

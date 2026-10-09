@@ -60,6 +60,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun LibraryScreen(
+    onOpenEnhance: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel = hiltViewModel(),
@@ -72,7 +73,12 @@ fun LibraryScreen(
     val player = rememberPlayer()
     var currentId by remember { mutableStateOf<Long?>(null) }
     var renaming by remember { mutableStateOf<Recording?>(null) }
-    val actions = rememberRowActions(viewModel, playerViewModel, player, snackbar, { currentId }, { currentId = it }) { renaming = it }
+    val actions = rememberRowActions(
+        viewModel, playerViewModel, player, snackbar,
+        PlayerSlot({ currentId }, { currentId = it }),
+        onRename = { renaming = it },
+        onEnhance = onOpenEnhance,
+    )
     Box(modifier = modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             SearchField(query, viewModel::setQuery)
@@ -82,7 +88,7 @@ fun LibraryScreen(
             val current = items.firstOrNull { it.id == currentId }
             if (current != null) {
                 // Fechar o painel NAO pausa: o audio segue em segundo plano (PlaybackService) e pausa-se pela notificacao.
-                PlayerDock(current, player, playerViewModel) { currentId = null; playerViewModel.close() }
+                PlayerDock(current, player, playerViewModel, onEnhance = onOpenEnhance) { currentId = null; playerViewModel.close() }
             }
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
@@ -100,16 +106,19 @@ private fun rememberPlayer(): PlayerController {
     return player
 }
 
-/** Acoes de cada linha: tocar (abre o player), renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
+/** A gravacao aberta no painel: leitura e troca, agrupadas para nao espalhar callbacks. */
+private class PlayerSlot(val currentId: () -> Long?, val setCurrentId: (Long?) -> Unit)
+
+/** Acoes de cada linha: tocar (abre o player), melhorar o som, renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
 @Composable
 private fun rememberRowActions(
     viewModel: LibraryViewModel,
     playerViewModel: PlayerViewModel,
     player: PlayerController,
     snackbar: SnackbarHostState,
-    currentId: () -> Long?,
-    setCurrentId: (Long?) -> Unit,
+    slot: PlayerSlot,
     onRename: (Recording) -> Unit,
+    onEnhance: (Long) -> Unit,
 ): RowActions {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -128,21 +137,22 @@ private fun rememberRowActions(
         onPlay = { r ->
             scope.launch {
                 if (openAndPlay(viewModel, player, r)) {
-                    setCurrentId(r.id)
+                    slot.setCurrentId(r.id)
                     playerViewModel.open(r)
                 } else {
                     snackbar.showSnackbar(playFail)
                 }
             }
         },
+        onEnhance = { r -> onEnhance(r.id) },
         onRename = onRename,
         onFavorite = viewModel::toggleFavorite,
         onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
-            if (currentId() == r.id) {
+            if (slot.currentId() == r.id) {
                 player.pause()
-                setCurrentId(null)
+                slot.setCurrentId(null)
                 playerViewModel.close()
             }
             viewModel.delete(r)
@@ -188,6 +198,7 @@ private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerContr
 
 private data class RowActions(
     val onPlay: (Recording) -> Unit,
+    val onEnhance: (Recording) -> Unit,
     val onRename: (Recording) -> Unit,
     val onFavorite: (Recording) -> Unit,
     val onShare: (Recording) -> Unit,
@@ -296,6 +307,7 @@ private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
 @Composable
 private fun RowMenu(expanded: Boolean, dismiss: () -> Unit, r: Recording, a: RowActions) {
     DropdownMenu(expanded = expanded, onDismissRequest = dismiss) {
+        MenuItem(R.string.library_action_enhance, "menu_melhorar_som") { dismiss(); a.onEnhance(r) }
         MenuItem(R.string.library_action_share, "menu_compartilhar") { dismiss(); a.onShare(r) }
         MenuItem(R.string.library_action_save_as, "menu_salvar_em") { dismiss(); a.onSaveAs(r) }
         MenuItem(R.string.library_action_rename, "menu_renomear") { dismiss(); a.onRename(r) }

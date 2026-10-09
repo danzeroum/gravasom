@@ -5,6 +5,7 @@
     <string name="library_empty">Nenhuma gravação ainda. Toque em Gravar para começar.</string>
     <string name="library_no_results">Nada encontrado para “%1$s”</string>
     <string name="library_item_meta">%1$s · %2$s · %3$s</string>
+    <string name="library_action_enhance">Melhorar som</string>
     <string name="library_more">Mais ações</string>
     <string name="library_play_item">Tocar %1$s</string>
     <string name="library_action_rename">Renomear</string>

@@ -41,7 +41,13 @@ private const val PANEL_FRACTION = 0.62f
 
 /** Painel do player da gravacao aberta, com os dialogos de marcador e de etiquetas. */
 @Composable
-internal fun PlayerDock(current: Recording, player: PlayerController, vm: PlayerViewModel, onClose: () -> Unit) {
+internal fun PlayerDock(
+    current: Recording,
+    player: PlayerController,
+    vm: PlayerViewModel,
+    onEnhance: (Long) -> Unit,
+    onClose: () -> Unit,
+) {
     val state by vm.state.collectAsStateWithLifecycle()
     val target by vm.markerEditor.dialog.collectAsStateWithLifecycle()
     var editingTags by remember { mutableStateOf(false) }
@@ -49,6 +55,7 @@ internal fun PlayerDock(current: Recording, player: PlayerController, vm: Player
     val callbacks = PlayerCallbacks(
         onClose = onClose,
         onEditTags = { editingTags = true },
+        onEnhance = { onEnhance(current.id) },
         markers = MarkerCallbacks(
             onAdd = vm::beginMarker,
             onEdit = vm::editMarker,

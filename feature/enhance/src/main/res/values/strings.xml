@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enhance_title">Melhorar som</string>
+    <string name="enhance_loading">Preparando a gravação…</string>
+    <string name="enhance_original_safe">O original nunca é alterado. A melhoria é salva como uma gravação nova.</string>
+    <string name="enhance_denoise">Redutor de ruído</string>
+    <string name="enhance_denoise_desc">Tira o chiado e o ruído de fundo.</string>
+    <string name="enhance_denoise_intensity">Intensidade do redutor</string>
+    <string name="enhance_intensity_percent">%1$d%%</string>
+    <string name="enhance_normalize">Volume uniforme</string>
+    <string name="enhance_normalize_desc">Deixa a gravação em um volume só, no alvo escolhido.</string>
+    <string name="enhance_target">Alvo de volume</string>
+    <string name="enhance_target_value">%1$d LUFS</string>
+    <string name="enhance_preview_section">Prévia A/B</string>
+    <string name="enhance_preview_hint">Toque em A e em B e compare o mesmo trecho.</string>
+    <string name="enhance_preview_window">Trecho da prévia: %1$s</string>
+    <string name="enhance_side_a">A · Original</string>
+    <string name="enhance_side_b">B · Melhorado</string>
+    <string name="enhance_preview_busy">Gerando prévia…</string>
+    <string name="enhance_playing_a">Tocando o original</string>
+    <string name="enhance_playing_b">Tocando o melhorado</string>
+    <string name="enhance_save">Salvar cópia melhorada</string>
+    <string name="enhance_saving">Melhorando a gravação…</string>
+    <string name="enhance_progress">%1$d%%</string>
+    <string name="enhance_cancel">Cancelar</string>
+    <string name="enhance_saved">Cópia salva: %1$s</string>
+    <string name="enhance_saved_hint">A cópia melhorada está na aba Gravações, em WAV.</string>
+    <string name="enhance_done">Concluir</string>
+    <string name="enhance_fail_missing">Gravação não encontrada.</string>
+    <string name="enhance_fail_decode">Não foi possível abrir esta gravação.</string>
+    <string name="enhance_fail_preview">Não foi possível gerar a prévia.</string>
+    <string name="enhance_fail_export">Não foi possível salvar a cópia.</string>
+    <string name="enhance_notice_identity">Ligue o redutor de ruído ou o volume para melhorar.</string>
+    <string name="enhance_back">Voltar</string>
+    <string name="enhance_retry">Tentar de novo</string>
+</resources>

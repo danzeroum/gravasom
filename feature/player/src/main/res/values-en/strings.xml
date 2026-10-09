@@ -50,6 +50,7 @@
     <string name="player_marker_rejected_range">That point is outside the recording.</string>
     <string name="player_marker_rejected_missing">The recording was not found.</string>
     <string name="player_tags_button">Tags</string>
+    <string name="player_enhance_button">Improve sound</string>
     <string name="player_tags_title">Recording tags</string>
     <string name="player_tags_hint">Separate with commas. E.g.: class, physics</string>
     <string name="player_tags_existing">Already used:</string>

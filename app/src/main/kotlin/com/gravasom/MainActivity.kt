@@ -86,5 +86,6 @@ class MainActivity : ComponentActivity() {
         const val ROUTE_LIBRARY = "gravacoes"
         const val ROUTE_SETTINGS = "ajustes"
         const val ROUTE_NUMBERS = "numeros"
+        const val ROUTE_ENHANCE = "melhorar/{recordingId}"
     }
 }
