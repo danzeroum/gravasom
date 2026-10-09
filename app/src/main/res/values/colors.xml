@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado por docs/design/ferramentas/gerar_kotlin.py (tokens.json sha256 bfb38b9f739d953e266185aa0d8d5a5065e2aa079e18b8bf8b2f4c5394dc01b2). Nao edite a mao. -->
 <resources>
-    <color name="ic_launcher_background">#12151A</color>
+    <color name="gravasom_surface_light">#F6FAFB</color>
+    <color name="gravasom_surface_dark">#101415</color>
 </resources>
