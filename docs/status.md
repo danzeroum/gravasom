@@ -329,3 +329,68 @@ A chave de debug é pública (senha "android"): serve para atualizar por cima, *
 
 **Não verificado:** o APK nunca foi instalado nem executado (sem aparelho/emulador aqui); "instala por cima de uma versão anterior" só foi
 verificado pela identidade do certificado, não por uma instalação real. O R8 pode ter removido algo da mídia: confira A9–A10.
+
+## Onda 2 — Som melhor e proteção (2026-10-09): fechamento em verificação local
+
+Branch `claude/compassionate-johnson-cwdldf` a partir do `1aa545d`, com merge da `main` (PR #5, identidade visual; sem
+conflitos — áreas disjuntas). **Verificação ≠ validação**: tudo abaixo é verificação local; a validação de ouvido é o roteiro
+B1–B14 de `docs/teste-aparelho-real.md`, para o dono no celular com o APK `1.2.0-onda2` (versionCode 61).
+
+### O que entrou
+
+- **Melhorar som (tela)**: rota `melhorar/{recordingId}` alcançada pelo chip do painel do player e pelo menu (⋮) da gravação;
+  ajustes de redutor (intensidade) e volume (alvo em LUFS) com **prévia A/B da mesma janela** (regenerada ao mexer), progresso,
+  **cancelamento** (sair da tela também cancela: nada fica pela metade) e cópia nova "(melhorada)" em WAV. DI: `EnhanceModule`
+  (`EditProjectStore`, `AppEnhanceHost`, `NoiseReducerFactory` = RNNoise nativo, `PreviewPlayer` por ViewModel).
+- **Backup cifrado**: pacote único `.gravasom` (Tink AES256_GCM_HKDF_4KB em fluxo + keyset envolvido por PBKDF2-HMAC-SHA256
+  com sal por pacote), gravado/lido por SAF com senha do usuário. Restauração em duas fases: decifra e confere o **SHA-256 de
+  tudo** em pasta temporária antes de gravar qualquer coisa — **senha errada restaura e apaga nada**. Restaurar só acrescenta
+  (marcadores, etiquetas, favorito e projeto voltam); do cofre sai decifrado e volta ao cofre.
+- **Dividir/juntar**: "Dividir aqui" no player (duas gravações novas, mesmo formato, sem reencodar — ClipExporter) e seleção
+  por toque longo na lista para juntar (ordem explícita no diálogo; JoinExporter concatena PCM/quadros; recusa formatos ou
+  taxas/canais diferentes). **Originais nunca alterados** (ADR-008), conferido bit a bit nos testes.
+- **Correções da Onda 1** (já no `d28d554`, reverificadas aqui): pular silêncio em segundo plano e aviso do "Marcar" do widget
+  fora de gravação.
+- **WAV por gravação no modo avançado**: chips de formato cobertos por teste no modo manual (fora de preset = personalizado).
+- detekt limpo **refatorando** (Run/PassSearch/NormParams no EnhancePipeline, Meters no LoudnessAnalyzer, WavSink no
+  AudioToWav; 6 linhas longas quebradas) — regras inalteradas.
+
+### Verificação local (a máquina tem 4 GB: daemon com heap reduzido, sem paralelismo)
+
+`detekt lintDebug testDebugUnitTest koverVerify --continue` → **tudo verde** (rodado em dois blocos por causa da memória;
+lint precisou de `--no-parallel --max-workers=1`). Lint exigiu `<plurals>` + `pluralStringResource` (6 erros
+PluralsCandidate/ResourceType corrigidos, sem baseline). `koverVerify` passou em `core:domain` e `core:audio-engine`
+(refatorações mantiveram ≥ 80%).
+
+Testes unitários novos: enhance (conteúdo 8, ViewModel 4 — inclui **cancelar no meio: nenhum arquivo novo e original intacto**),
+backup (5 — ida e volta com **o mesmo SHA-256 por arquivo**, senha errada não toca em nada, corrompido recusa), dividir/juntar
+(7 — original intacto bit a bit nos dois), formato manual WAV (2), capturas (gera 16 PNGs com `GRAVASOM_CAPTURAS`).
+
+**Harness de áudio** (a parte da verificação que independe do emulador):
+- `scripts/onda2-normalizacao.sh`: 48 arquivos, fala FLEURS pt-BR a −30 LUFS em 16/44,1/48 kHz → **dentro de ±1 LU do alvo
+  (−16) e pico verdadeiro ≤ −1,30 dBTP** (medidor independente: pyloudnorm + ffmpeg ebur128 + pico 8x).
+- `scripts/onda2-ruido.sh`: 72 arquivos/taxa (fala + ruído em 4 SNRs), redutor nativo via JNI no host em 40% e 100% →
+  **40% melhora o SI-SDRi do ruído estacionário, a fala limpa fica com STOI ≥ 0,9909 e a saída alinhada** (≤ 1 amostra).
+  Uma iteração (k=1.0, 44,1 kHz) falhou por memória da máquina e passou ao ser reexecutada — sem mudança de código.
+- `:core:dsp:testDebugUnitTest` com a lib de host: 11 executados, 0 falhas (inclui **"zero por cento é bit a bit idêntico"**);
+  `VadCorpusEvalTest` segue pulado sem `GRAVASOM_VAD_CORPUS` (como na CI).
+
+**Testes instrumentados: NÃO rodaram** (sem emulador). Os que tocam nas telas novas (enhance/backup/juntar) ainda nem existem
+como instrumentados — a cobertura nova é Robolectric; lista na parte B de `docs/teste-aparelho-real.md`.
+
+### APK entregue
+
+`./gradlew :app:assembleRelease` (R8, `mapping.txt` gerado), assinado com `config/debug.keystore` (fallback do build; a mesma
+chave de todas as entregas — instala por cima). **Não verificado:** instalação real (sem aparelho aqui); a validação de ouvido
+é o roteiro B1–B14.
+
+| Item | Valor |
+| --- | --- |
+| versionCode / versionName | **61** / `1.2.0-onda2` |
+| Tamanho | 19 729 376 bytes = **18,81 MiB** (teto 25 MB) |
+| SHA-256 | `0114a3db127bfbac910732a0a442e89067f62a1853cdbdc2c72bc639c82111a0` |
+| Assinatura | `apksigner verify`: OK; certificado `CN=Android Debug`, SHA-256 `bec8a13c…9b2bd1` = o de `config/debug.keystore` (a mesma chave da Onda 1: instala por cima) |
+| Manifesto | `native-code` arm64-v8a + x86_64; ABIs do `app/build.gradle.kts` |
+
+A máquina tem só 4 GB de RAM: o build exigiu daemon com heap controlado, `--no-parallel --max-workers=1` e o nativo
+compilado antes do R8 (o linker deu `Bus error` sob pressão de memória).

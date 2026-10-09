@@ -1,7 +1,9 @@
 package com.gravasom.feature.library
 
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
@@ -43,23 +47,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
+import com.gravasom.core.service.clip.JoinOutcome
 import com.gravasom.feature.player.PlayerController
 import com.gravasom.feature.player.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LibraryScreen(
+    onOpenEnhance: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel = hiltViewModel(),
@@ -72,23 +81,144 @@ fun LibraryScreen(
     val player = rememberPlayer()
     var currentId by remember { mutableStateOf<Long?>(null) }
     var renaming by remember { mutableStateOf<Recording?>(null) }
-    val actions = rememberRowActions(viewModel, playerViewModel, player, snackbar, { currentId }, { currentId = it }) { renaming = it }
+    var selecao by remember { mutableStateOf<List<Recording>>(emptyList()) }
+    var confirmandoJuncao by remember { mutableStateOf(false) }
+    val actions = rememberRowActions(
+        viewModel, playerViewModel, player, snackbar,
+        PlayerSlot({ currentId }, { currentId = it }),
+        onRename = { renaming = it },
+        onEnhance = onOpenEnhance,
+    )
     Box(modifier = modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             SearchField(query, viewModel::setQuery)
             TagFilterRow(availableTags, selectedTags, viewModel::toggleTag)
-            Box(Modifier.weight(1f)) { RecordingList(items, query, selectedTags, viewModel::clearTags, currentId, actions) }
+            SelectionBar(
+                selecao = selecao,
+                onJuntar = { confirmandoJuncao = true },
+                onLimpar = { selecao = emptyList() },
+            )
+            Box(Modifier.weight(1f)) {
+                RecordingList(
+                    items,
+                    ListUi(query, selectedTags, viewModel::clearTags),
+                    currentId,
+                    actions,
+                    selecao,
+                ) { r ->
+                    selecao = if (r.id in selecao.map { it.id }) selecao.filterNot { it.id == r.id } else selecao + r
+                }
+            }
             // A gravacao aberta e sempre lida da lista: renomear ou mudar etiquetas aparece no painel sem reabrir.
             val current = items.firstOrNull { it.id == currentId }
             if (current != null) {
                 // Fechar o painel NAO pausa: o audio segue em segundo plano (PlaybackService) e pausa-se pela notificacao.
-                PlayerDock(current, player, playerViewModel) { currentId = null; playerViewModel.close() }
+                PlayerDock(current, player, playerViewModel, onEnhance = onOpenEnhance) { currentId = null; playerViewModel.close() }
             }
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     PlayerEventsEffect(playerViewModel, snackbar)
     renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
+    JuncaoPendente(confirmandoJuncao, selecao, viewModel, snackbar) {
+        confirmandoJuncao = false
+        selecao = emptyList()
+    }
+}
+
+/** O dialogo de juncao pendente: confirma a ordem, roda e avisa no snackbar. */
+@Composable
+private fun JuncaoPendente(
+    confirmando: Boolean,
+    selecao: List<Recording>,
+    viewModel: LibraryViewModel,
+    snackbar: SnackbarHostState,
+    onConcluir: () -> Unit,
+) {
+    if (!confirmando) return
+    val scope = rememberCoroutineScope()
+    val joinOk = stringResource(R.string.library_join_ok)
+    val joinFail = stringResource(R.string.library_join_failed)
+    JoinDialog(
+        selecao,
+        onDismiss = onConcluir,
+        onConfirm = { r ->
+            viewModel.join(r) { resultado ->
+                scope.launch {
+                    snackbar.showSnackbar(if (resultado is JoinOutcome.Saved) joinOk.format(resultado.title) else joinFail)
+                }
+            }
+            onConcluir()
+        },
+    )
+}
+
+/** Icone a esquerda da linha: marcacao no modo de selecao; play/pause no resto. */
+@Composable
+private fun LeadIcon(selecionando: Boolean, marcada: Boolean, playing: Boolean, playDesc: String) {
+    if (selecionando) {
+        Icon(
+            if (marcada) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+            contentDescription = stringResource(R.string.library_select_item),
+            tint = if (marcada) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.testTag("marca_selecao"),
+        )
+    } else {
+        Icon(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, contentDescription = playDesc)
+    }
+}
+
+/** Barra da selecao multipla (Onda 2, "juntar"): quantas estao marcadas, o botao de juntar e o de sair. */
+@Composable
+private fun SelectionBar(selecao: List<Recording>, onJuntar: () -> Unit, onLimpar: () -> Unit) {
+    if (selecao.isEmpty()) return
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).testTag("barra_selecao"),
+    ) {
+        Text(
+            pluralStringResource(R.plurals.library_join_selected, selecao.size, selecao.size),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onJuntar, enabled = selecao.size >= 2, modifier = Modifier.testTag("botao_juntar")) {
+            Text(stringResource(R.string.library_join))
+        }
+        IconButton(onClick = onLimpar, modifier = Modifier.testTag("limpar_selecao")) {
+            Icon(Icons.Filled.Clear, stringResource(R.string.library_join_clear))
+        }
+    }
+}
+
+/** Confirmacao da juncao: mostra a ordem (a gravacao nova tera os audios nessa ordem) e avisa que nada some. */
+@Composable
+private fun JoinDialog(selecao: List<Recording>, onDismiss: () -> Unit, onConfirm: (List<Recording>) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.library_join_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.library_join_dialog_hint), style = MaterialTheme.typography.bodySmall)
+                selecao.forEachIndexed { i, r ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("${i + 1}. ", style = MaterialTheme.typography.bodyMedium)
+                        Text(r.title, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(selecao) }, modifier = Modifier.testTag("confirmar_juntar")) {
+                Text(stringResource(R.string.library_join))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.testTag("cancelar_juntar")) {
+                Text(stringResource(R.string.library_cancel))
+            }
+        },
+    )
 }
 
 @Composable
@@ -100,16 +230,19 @@ private fun rememberPlayer(): PlayerController {
     return player
 }
 
-/** Acoes de cada linha: tocar (abre o player), renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
+/** A gravacao aberta no painel: leitura e troca, agrupadas para nao espalhar callbacks. */
+private class PlayerSlot(val currentId: () -> Long?, val setCurrentId: (Long?) -> Unit)
+
+/** Acoes de cada linha: tocar (abre o player), melhorar o som, renomear, favoritar, compartilhar, salvar em... e excluir com DESFAZER. */
 @Composable
 private fun rememberRowActions(
     viewModel: LibraryViewModel,
     playerViewModel: PlayerViewModel,
     player: PlayerController,
     snackbar: SnackbarHostState,
-    currentId: () -> Long?,
-    setCurrentId: (Long?) -> Unit,
+    slot: PlayerSlot,
     onRename: (Recording) -> Unit,
+    onEnhance: (Long) -> Unit,
 ): RowActions {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -128,21 +261,22 @@ private fun rememberRowActions(
         onPlay = { r ->
             scope.launch {
                 if (openAndPlay(viewModel, player, r)) {
-                    setCurrentId(r.id)
+                    slot.setCurrentId(r.id)
                     playerViewModel.open(r)
                 } else {
                     snackbar.showSnackbar(playFail)
                 }
             }
         },
+        onEnhance = { r -> onEnhance(r.id) },
         onRename = onRename,
         onFavorite = viewModel::toggleFavorite,
         onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
-            if (currentId() == r.id) {
+            if (slot.currentId() == r.id) {
                 player.pause()
-                setCurrentId(null)
+                slot.setCurrentId(null)
                 playerViewModel.close()
             }
             viewModel.delete(r)
@@ -188,6 +322,7 @@ private suspend fun openAndPlay(viewModel: LibraryViewModel, player: PlayerContr
 
 private data class RowActions(
     val onPlay: (Recording) -> Unit,
+    val onEnhance: (Recording) -> Unit,
     val onRename: (Recording) -> Unit,
     val onFavorite: (Recording) -> Unit,
     val onShare: (Recording) -> Unit,
@@ -212,20 +347,23 @@ private fun SearchField(query: String, onChange: (String) -> Unit) {
     )
 }
 
+/** Filtro da lista (busca + etiquetas), agrupado para nao espalhar parametros. */
+private class ListUi(val query: String, val selectedTags: Set<String>, val onClearTags: () -> Unit)
+
 @Composable
 private fun RecordingList(
     items: List<Recording>,
-    query: String,
-    selectedTags: Set<String>,
-    onClearTags: () -> Unit,
+    filtro: ListUi,
     playingId: Long?,
     actions: RowActions,
+    selecao: List<Recording>,
+    onToggleSelecao: (Recording) -> Unit,
 ) {
     if (items.isEmpty()) {
         val text = when {
-            selectedTags.isNotEmpty() -> stringResource(R.string.library_no_results_tags)
-            query.isBlank() -> stringResource(R.string.library_empty)
-            else -> stringResource(R.string.library_no_results, query)
+            filtro.selectedTags.isNotEmpty() -> stringResource(R.string.library_no_results_tags)
+            filtro.query.isBlank() -> stringResource(R.string.library_empty)
+            else -> stringResource(R.string.library_no_results, filtro.query)
         }
         Column(
             Modifier.fillMaxSize().padding(24.dp),
@@ -233,8 +371,8 @@ private fun RecordingList(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("lista_vazia"))
-            if (selectedTags.isNotEmpty()) {
-                TextButton(onClick = onClearTags, modifier = Modifier.testTag("limpar_filtro_etiquetas")) {
+            if (filtro.selectedTags.isNotEmpty()) {
+                TextButton(onClick = filtro.onClearTags, modifier = Modifier.testTag("limpar_filtro_etiquetas")) {
                     Text(stringResource(R.string.library_clear_tag_filter))
                 }
             }
@@ -243,22 +381,35 @@ private fun RecordingList(
     }
     LazyColumn(Modifier.fillMaxSize().testTag("lista_gravacoes")) {
         items(items, key = { it.id }) { r ->
-            RecordingRow(r, playing = r.id == playingId, actions)
+            RecordingRow(r, playing = r.id == playingId, actions, selecao, onToggleSelecao)
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
+private fun RecordingRow(
+    r: Recording,
+    playing: Boolean,
+    actions: RowActions,
+    selecao: List<Recording>,
+    onToggleSelecao: (Recording) -> Unit,
+) {
     var menu by remember { mutableStateOf(false) }
     val playDesc = stringResource(R.string.library_play_item, r.title)
+    val marcada = selecao.any { it.id == r.id }
+    val selecionando = selecao.isNotEmpty()
     Row(
-        modifier = Modifier.fillMaxWidth().clickable { actions.onPlay(r) }
+        modifier = Modifier.fillMaxWidth()
+            .background(if (marcada) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+            .combinedClickable(
+                onClick = { if (selecionando) onToggleSelecao(r) else actions.onPlay(r) },
+                onLongClick = { onToggleSelecao(r) },
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp).testTag("item_gravacao"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, contentDescription = playDesc)
+        LeadIcon(selecionando, marcada, playing, playDesc)
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(r.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("titulo_item"))
@@ -296,6 +447,7 @@ private fun RecordingRow(r: Recording, playing: Boolean, actions: RowActions) {
 @Composable
 private fun RowMenu(expanded: Boolean, dismiss: () -> Unit, r: Recording, a: RowActions) {
     DropdownMenu(expanded = expanded, onDismissRequest = dismiss) {
+        MenuItem(R.string.library_action_enhance, "menu_melhorar_som") { dismiss(); a.onEnhance(r) }
         MenuItem(R.string.library_action_share, "menu_compartilhar") { dismiss(); a.onShare(r) }
         MenuItem(R.string.library_action_save_as, "menu_salvar_em") { dismiss(); a.onSaveAs(r) }
         MenuItem(R.string.library_action_rename, "menu_renomear") { dismiss(); a.onRename(r) }

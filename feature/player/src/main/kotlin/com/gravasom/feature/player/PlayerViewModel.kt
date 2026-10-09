@@ -18,6 +18,8 @@ import com.gravasom.core.domain.tags.Tags
 import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.clip.ClipOutcome
 import com.gravasom.core.service.clip.ClipService
+import com.gravasom.core.service.clip.SplitOutcome
+import com.gravasom.core.service.clip.SplitService
 import com.gravasom.core.service.library.RecordingFiles
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -48,6 +50,7 @@ data class PlayerUiState(
     val selecting: Boolean = false,
     val selection: TimeSelection? = null,
     val exporting: Boolean = false,
+    val splitting: Boolean = false,
 )
 
 /** Avisos pontuais para a tela (snackbar). */
@@ -57,6 +60,8 @@ sealed interface PlayerEvent {
     data class ClipSaved(val title: String) : PlayerEvent
     data object ClipFailed : PlayerEvent
     data object AnalysisFailed : PlayerEvent
+    data class SplitSaved(val firstTitle: String, val secondTitle: String) : PlayerEvent
+    data object SplitFailed : PlayerEvent
 }
 
 /**
@@ -71,6 +76,7 @@ class PlayerViewModel @Inject constructor(
     private val repo: RecordingRepository,
     private val prefs: PreferencesRepository,
     private val clips: ClipService,
+    private val splits: SplitService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PlayerUiState())
@@ -231,6 +237,22 @@ class PlayerViewModel @Inject constructor(
             val outcome = clips.export(recording, selection.startMillis, selection.endMillis)
             _state.update { it.copy(exporting = false, selecting = false, selection = null) }
             _events.tryEmit(if (outcome is ClipOutcome.Saved) PlayerEvent.ClipSaved(outcome.title) else PlayerEvent.ClipFailed)
+        }
+    }
+
+    /** Onda 2, "dividir aqui": duas gravacoes NOVAS (antes e depois do ponto); o original fica intacto. */
+    fun splitHere(positionMillis: Long) {
+        val s = _state.value
+        val recording = s.recording ?: return
+        if (s.splitting || s.exporting) return
+        _state.update { it.copy(splitting = true) }
+        viewModelScope.launch {
+            val outcome = splits.split(recording, positionMillis)
+            _state.update { it.copy(splitting = false) }
+            when (outcome) {
+                is SplitOutcome.Saved -> _events.tryEmit(PlayerEvent.SplitSaved(outcome.titles.first, outcome.titles.second))
+                is SplitOutcome.Failed -> _events.tryEmit(PlayerEvent.SplitFailed)
+            }
         }
     }
 

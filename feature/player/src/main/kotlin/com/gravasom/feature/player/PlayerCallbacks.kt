@@ -27,6 +27,8 @@ class SkipCallbacks(
 class PlayerCallbacks(
     val onClose: () -> Unit,
     val onEditTags: () -> Unit,
+    val onEnhance: () -> Unit = {},
+    val onSplit: (positionMillis: Long) -> Unit = {},
     val markers: MarkerCallbacks,
     val selection: SelectionCallbacks,
     val skip: SkipCallbacks,

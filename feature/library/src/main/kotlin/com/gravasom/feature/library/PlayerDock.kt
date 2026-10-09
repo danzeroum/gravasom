@@ -41,7 +41,13 @@ private const val PANEL_FRACTION = 0.62f
 
 /** Painel do player da gravacao aberta, com os dialogos de marcador e de etiquetas. */
 @Composable
-internal fun PlayerDock(current: Recording, player: PlayerController, vm: PlayerViewModel, onClose: () -> Unit) {
+internal fun PlayerDock(
+    current: Recording,
+    player: PlayerController,
+    vm: PlayerViewModel,
+    onEnhance: (Long) -> Unit,
+    onClose: () -> Unit,
+) {
     val state by vm.state.collectAsStateWithLifecycle()
     val target by vm.markerEditor.dialog.collectAsStateWithLifecycle()
     var editingTags by remember { mutableStateOf(false) }
@@ -49,6 +55,8 @@ internal fun PlayerDock(current: Recording, player: PlayerController, vm: Player
     val callbacks = PlayerCallbacks(
         onClose = onClose,
         onEditTags = { editingTags = true },
+        onEnhance = { onEnhance(current.id) },
+        onSplit = vm::splitHere,
         markers = MarkerCallbacks(
             onAdd = vm::beginMarker,
             onEdit = vm::editMarker,
@@ -84,7 +92,7 @@ internal fun PlayerDock(current: Recording, player: PlayerController, vm: Player
 }
 
 /** Textos dos avisos do player, ja resolvidos (strings do modulo do player). */
-private class EventTexts(
+private data class EventTexts(
     val noteTooLong: String,
     val outOfRange: String,
     val missing: String,
@@ -92,17 +100,23 @@ private class EventTexts(
     val analysisFailed: String,
     val clipSaved: String,
     val markerDeleted: String,
+    val splitSaved: String,
+    val splitFailed: String,
 ) {
     fun of(e: PlayerEvent): String = when (e) {
-        is PlayerEvent.MarkerRejected -> when (e.reason) {
-            MarkerRejection.NOTE_TOO_LONG -> noteTooLong
-            MarkerRejection.OUT_OF_RANGE -> outOfRange
-            MarkerRejection.RECORDING_NOT_FOUND -> missing
-        }
+        is PlayerEvent.MarkerRejected -> rejected(e.reason)
         is PlayerEvent.ClipSaved -> clipSaved.format(e.title)
         PlayerEvent.ClipFailed -> clipFailed
         PlayerEvent.AnalysisFailed -> analysisFailed
         PlayerEvent.MarkerDeleted -> markerDeleted
+        is PlayerEvent.SplitSaved -> splitSaved.format(e.firstTitle, e.secondTitle)
+        PlayerEvent.SplitFailed -> splitFailed
+    }
+
+    private fun rejected(reason: MarkerRejection): String = when (reason) {
+        MarkerRejection.NOTE_TOO_LONG -> noteTooLong
+        MarkerRejection.OUT_OF_RANGE -> outOfRange
+        MarkerRejection.RECORDING_NOT_FOUND -> missing
     }
 }
 
@@ -117,6 +131,8 @@ internal fun PlayerEventsEffect(vm: PlayerViewModel, snackbar: SnackbarHostState
         analysisFailed = stringResource(PlayerR.string.player_analysis_failed),
         clipSaved = stringResource(PlayerR.string.player_clip_saved, "%s"),
         markerDeleted = stringResource(PlayerR.string.player_marker_deleted),
+        splitSaved = stringResource(PlayerR.string.player_split_saved, "%s", "%s"),
+        splitFailed = stringResource(PlayerR.string.player_split_failed),
     )
     val undo = stringResource(PlayerR.string.player_marker_undo)
     LaunchedEffect(vm) {

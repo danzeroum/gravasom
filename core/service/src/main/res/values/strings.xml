@@ -15,4 +15,5 @@
     </plurals>
     <string name="widget_record">Gravar</string>
     <string name="widget_marker">Marcar</string>
+    <string name="widget_marker_idle">Nenhuma gravação em andamento para marcar</string>
 </resources>

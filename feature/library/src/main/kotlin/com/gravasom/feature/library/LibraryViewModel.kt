@@ -15,6 +15,8 @@ import com.gravasom.core.domain.usecase.ListRecordings
 import com.gravasom.core.domain.usecase.RenameRecording
 import com.gravasom.core.domain.usecase.RestoreRecording
 import com.gravasom.core.domain.usecase.SearchRecordings
+import com.gravasom.core.service.clip.JoinOutcome
+import com.gravasom.core.service.clip.JoinService
 import com.gravasom.core.service.library.RecordingFiles
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +40,7 @@ class LibraryViewModel @Inject constructor(
     private val repo: RecordingRepository,
     private val files: RecordingFiles,
     private val metrics: UsageMetrics,
+    private val joins: JoinService,
 ) : ViewModel() {
 
     private val _query = MutableStateFlow("")
@@ -106,6 +109,11 @@ class LibraryViewModel @Inject constructor(
         val ok = files.copyTo(recording, destination)
         if (ok) viewModelScope.launch { metrics.record(UsageEventType.COMPARTILHADO, label = ShareChannel.SALVAR_EM) }
         return ok
+    }
+
+    /** Onda 2, "juntar": concatena na ordem dada numa gravacao nova; o resultado volta pelo callback para o snackbar. */
+    fun join(recordings: List<Recording>, onResult: (JoinOutcome) -> Unit) {
+        viewModelScope.launch { onResult(joins.join(recordings)) }
     }
 
     private companion object {

@@ -1,0 +1,54 @@
+
+== rnnoise_completo: SI-SDRi medio +3.13 dB (pior condicao -2.41), ganho de STOI +0.0311; fala LIMPA: STOI medio 0.9546 (pior 0.8490, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  -0.74 dB  STOI 0.618 -> 0.559
+   murmurio_snr10     SI-SDRi  -0.36 dB  STOI 0.824 -> 0.832
+   murmurio_snr15     SI-SDRi  -2.41 dB  STOI 0.888 -> 0.882
+   murmurio_snr5      SI-SDRi  +0.24 dB  STOI 0.734 -> 0.730
+   rosa_snr0          SI-SDRi  +9.13 dB  STOI 0.662 -> 0.789
+   rosa_snr10         SI-SDRi  +3.79 dB  STOI 0.850 -> 0.888
+   rosa_snr15         SI-SDRi  -0.28 dB  STOI 0.910 -> 0.916
+   rosa_snr5          SI-SDRi  +6.88 dB  STOI 0.766 -> 0.847
+   ventilador_snr0    SI-SDRi  +7.47 dB  STOI 0.603 -> 0.755
+   ventilador_snr10   SI-SDRi  +3.26 dB  STOI 0.810 -> 0.871
+   ventilador_snr15   SI-SDRi  -0.20 dB  STOI 0.880 -> 0.903
+   ventilador_snr5    SI-SDRi  +5.78 dB  STOI 0.716 -> 0.825
+   zumbido_snr0       SI-SDRi  +7.67 dB  STOI 0.878 -> 0.883
+   zumbido_snr10      SI-SDRi  +3.57 dB  STOI 0.941 -> 0.925
+   zumbido_snr15      SI-SDRi  +0.29 dB  STOI 0.959 -> 0.934
+   zumbido_snr5       SI-SDRi  +5.98 dB  STOI 0.915 -> 0.909
+
+== rnnoise_leve: SI-SDRi medio +2.96 dB (pior condicao -2.75), ganho de STOI +0.0273; fala LIMPA: STOI medio 0.9512 (pior 0.8486, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  -0.77 dB  STOI 0.618 -> 0.553
+   murmurio_snr10     SI-SDRi  -0.65 dB  STOI 0.824 -> 0.821
+   murmurio_snr15     SI-SDRi  -2.75 dB  STOI 0.888 -> 0.876
+   murmurio_snr5      SI-SDRi  -0.06 dB  STOI 0.734 -> 0.712
+   rosa_snr0          SI-SDRi  +9.07 dB  STOI 0.662 -> 0.786
+   rosa_snr10         SI-SDRi  +3.60 dB  STOI 0.850 -> 0.886
+   rosa_snr15         SI-SDRi  +0.06 dB  STOI 0.910 -> 0.914
+   rosa_snr5          SI-SDRi  +6.63 dB  STOI 0.766 -> 0.844
+   ventilador_snr0    SI-SDRi  +7.43 dB  STOI 0.603 -> 0.754
+   ventilador_snr10   SI-SDRi  +3.17 dB  STOI 0.810 -> 0.869
+   ventilador_snr15   SI-SDRi  -0.17 dB  STOI 0.880 -> 0.901
+   ventilador_snr5    SI-SDRi  +5.61 dB  STOI 0.716 -> 0.822
+   zumbido_snr0       SI-SDRi  +7.15 dB  STOI 0.878 -> 0.884
+   zumbido_snr10      SI-SDRi  +3.02 dB  STOI 0.941 -> 0.924
+   zumbido_snr15      SI-SDRi  +0.25 dB  STOI 0.959 -> 0.935
+   zumbido_snr5       SI-SDRi  +5.70 dB  STOI 0.915 -> 0.909
+
+== dfn3: SI-SDRi medio +3.94 dB (pior condicao -3.10), ganho de STOI +0.0290; fala LIMPA: STOI medio 0.9672 (pior 0.8916, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  -2.69 dB  STOI 0.618 -> 0.520
+   murmurio_snr10     SI-SDRi  -2.80 dB  STOI 0.824 -> 0.773
+   murmurio_snr15     SI-SDRi  -3.10 dB  STOI 0.888 -> 0.846
+   murmurio_snr5      SI-SDRi  -2.30 dB  STOI 0.734 -> 0.670
+   rosa_snr0          SI-SDRi  +7.85 dB  STOI 0.662 -> 0.807
+   rosa_snr10         SI-SDRi  +3.93 dB  STOI 0.850 -> 0.900
+   rosa_snr15         SI-SDRi  +1.36 dB  STOI 0.910 -> 0.927
+   rosa_snr5          SI-SDRi  +6.21 dB  STOI 0.766 -> 0.861
+   ventilador_snr0    SI-SDRi  +9.69 dB  STOI 0.603 -> 0.779
+   ventilador_snr10   SI-SDRi  +4.92 dB  STOI 0.810 -> 0.880
+   ventilador_snr15   SI-SDRi  +2.25 dB  STOI 0.880 -> 0.911
+   ventilador_snr5    SI-SDRi  +7.45 dB  STOI 0.716 -> 0.836
+   zumbido_snr0       SI-SDRi +10.99 dB  STOI 0.878 -> 0.901
+   zumbido_snr10      SI-SDRi  +6.78 dB  STOI 0.941 -> 0.939
+   zumbido_snr15      SI-SDRi  +3.99 dB  STOI 0.959 -> 0.948
+   zumbido_snr5       SI-SDRi  +8.58 dB  STOI 0.915 -> 0.917

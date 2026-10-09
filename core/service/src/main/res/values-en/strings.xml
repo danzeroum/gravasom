@@ -15,4 +15,5 @@
     </plurals>
     <string name="widget_record">Record</string>
     <string name="widget_marker">Mark</string>
+    <string name="widget_marker_idle">No recording in progress to mark</string>
 </resources>

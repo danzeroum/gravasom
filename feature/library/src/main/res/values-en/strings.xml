@@ -5,6 +5,7 @@
     <string name="library_empty">No recordings yet. Tap Record to start.</string>
     <string name="library_no_results">Nothing found for “%1$s”</string>
     <string name="library_item_meta">%1$s · %2$s · %3$s</string>
+    <string name="library_action_enhance">Improve sound</string>
     <string name="library_more">More actions</string>
     <string name="library_play_item">Play %1$s</string>
     <string name="library_action_rename">Rename</string>
@@ -28,4 +29,15 @@
     <string name="library_private_badge">In the vault</string>
     <string name="library_no_results_tags">No recording has all of those tags.</string>
     <string name="library_clear_tag_filter">Clear filter</string>
+    <string name="library_join">Join</string>
+    <string name="library_join_clear">Leave selection</string>
+    <plurals name="library_join_selected">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="library_join_dialog_title">Join recordings?</string>
+    <string name="library_join_dialog_hint">The join will be a new recording, with the audio in this order. The original recordings stay as they are.</string>
+    <string name="library_join_ok">Join created: %1$s</string>
+    <string name="library_join_failed">Could not join.</string>
+    <string name="library_select_item">Select recording</string>
 </resources>

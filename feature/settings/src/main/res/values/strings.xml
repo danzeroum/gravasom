@@ -35,4 +35,39 @@
     <string name="numbers_exported">Números exportados</string>
     <string name="numbers_back">Voltar</string>
     <string name="numbers_note">Estes números ficam só neste aparelho.</string>
+    <string name="settings_preset_title">Preset de gravação</string>
+    <string name="settings_preset_voice">Voz</string>
+    <string name="settings_preset_class">Aula</string>
+    <string name="settings_preset_interview">Entrevista</string>
+    <string name="settings_preset_music">Música</string>
+    <string name="settings_preset_nature">Natureza</string>
+    <string name="settings_preset_water">Água</string>
+    <string name="settings_preset_summary">%1$d kHz · %2$d kbps · %3$s</string>
+    <string name="settings_preset_mono">mono</string>
+    <string name="settings_preset_stereo">estéreo</string>
+    <string name="settings_preset_effects_on">Redutor de ruído e volume ligados por padrão ao melhorar o som</string>
+    <string name="settings_preset_effects_off">Sem efeitos de voz por padrão (o redutor e a normalização são para fala e estragam música e sons de bichos)</string>
+    <string name="settings_preset_custom">Personalizado: você ajustou o formato ou a qualidade à mão</string>
+    <string name="settings_backup_title">Backup cifrado</string>
+    <string name="settings_backup_desc">Um pacote com todas as gravações, marcadores e etiquetas, protegido por senha. Guarde a senha: sem ela o pacote não abre.</string>
+    <string name="settings_backup_create">Criar backup</string>
+    <string name="settings_backup_restore">Restaurar backup</string>
+    <string name="settings_backup_running">Criando o backup…</string>
+    <string name="settings_backup_restoring">Restaurando…</string>
+    <string name="settings_backup_cancel">Cancelar</string>
+    <string name="backup_password">Senha</string>
+    <string name="backup_password_confirm">Confirmar senha</string>
+    <string name="backup_password_hint">A senha não fica guardada no aparelho. Precisa de pelo menos 6 caracteres.</string>
+    <string name="backup_password_mismatch">As senhas não conferem.</string>
+    <string name="backup_continue">Continuar</string>
+    <plurals name="backup_ok">
+        <item quantity="one">Backup criado com %1$d gravação.</item>
+        <item quantity="other">Backup criado com %1$d gravações.</item>
+    </plurals>
+    <plurals name="backup_restored">
+        <item quantity="one">%1$d gravação restaurada. Nada foi apagado.</item>
+        <item quantity="other">%1$d gravações restauradas. Nada foi apagado.</item>
+    </plurals>
+    <string name="backup_wrong_password">Senha errada: nada foi restaurado.</string>
+    <string name="backup_failed">Falha: %1$s</string>
 </resources>

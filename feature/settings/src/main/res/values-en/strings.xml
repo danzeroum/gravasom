@@ -35,4 +35,39 @@
     <string name="numbers_exported">Numbers exported</string>
     <string name="numbers_back">Back</string>
     <string name="numbers_note">These numbers stay on this device only.</string>
+    <string name="settings_preset_title">Recording preset</string>
+    <string name="settings_preset_voice">Voice</string>
+    <string name="settings_preset_class">Lecture</string>
+    <string name="settings_preset_interview">Interview</string>
+    <string name="settings_preset_music">Music</string>
+    <string name="settings_preset_nature">Nature</string>
+    <string name="settings_preset_water">Water</string>
+    <string name="settings_preset_summary">%1$d kHz · %2$d kbps · %3$s</string>
+    <string name="settings_preset_mono">mono</string>
+    <string name="settings_preset_stereo">stereo</string>
+    <string name="settings_preset_effects_on">Noise reduction and volume on by default when improving sound</string>
+    <string name="settings_preset_effects_off">No voice effects by default (noise reduction and normalization are for speech and hurt music and animal sounds)</string>
+    <string name="settings_preset_custom">Custom: you changed the format or quality by hand</string>
+    <string name="settings_backup_title">Encrypted backup</string>
+    <string name="settings_backup_desc">One package with all recordings, markers and tags, protected by a password. Keep the password: without it the package cannot be opened.</string>
+    <string name="settings_backup_create">Create backup</string>
+    <string name="settings_backup_restore">Restore backup</string>
+    <string name="settings_backup_running">Creating the backup…</string>
+    <string name="settings_backup_restoring">Restoring…</string>
+    <string name="settings_backup_cancel">Cancel</string>
+    <string name="backup_password">Password</string>
+    <string name="backup_password_confirm">Confirm password</string>
+    <string name="backup_password_hint">The password is not stored on the device. It needs at least 6 characters.</string>
+    <string name="backup_password_mismatch">The passwords do not match.</string>
+    <string name="backup_continue">Continue</string>
+    <plurals name="backup_ok">
+        <item quantity="one">Backup created with %1$d recording.</item>
+        <item quantity="other">Backup created with %1$d recordings.</item>
+    </plurals>
+    <plurals name="backup_restored">
+        <item quantity="one">%1$d recording restored. Nothing was deleted.</item>
+        <item quantity="other">%1$d recordings restored. Nothing was deleted.</item>
+    </plurals>
+    <string name="backup_wrong_password">Wrong password: nothing was restored.</string>
+    <string name="backup_failed">Failed: %1$s</string>
 </resources>

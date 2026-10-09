@@ -50,9 +50,13 @@
     <string name="player_marker_rejected_range">Esse ponto está fora da gravação.</string>
     <string name="player_marker_rejected_missing">A gravação não foi encontrada.</string>
     <string name="player_tags_button">Etiquetas</string>
+    <string name="player_enhance_button">Melhorar som</string>
     <string name="player_tags_title">Etiquetas da gravação</string>
     <string name="player_tags_hint">Separe por vírgula. Ex.: aula, física</string>
     <string name="player_tags_existing">Já usadas:</string>
     <string name="player_tags_save">Salvar</string>
     <string name="player_tags_cancel">Cancelar</string>
+    <string name="player_split_here">Dividir aqui</string>
+    <string name="player_split_saved">Duas gravações criadas: %1$s e %2$s</string>
+    <string name="player_split_failed">Não foi possível dividir aqui.</string>
 </resources>

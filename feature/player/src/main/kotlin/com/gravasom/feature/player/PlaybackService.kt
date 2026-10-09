@@ -2,6 +2,8 @@ package com.gravasom.feature.player
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Player
@@ -9,18 +11,71 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import timber.log.Timber
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * O unico ExoPlayer do processo. A tela ([PlayerController]) e o [PlaybackService] usam a MESMA instancia: por isso fechar o
- * painel do player nao interrompe o audio, e a notificacao de midia controla o que a tela esta tocando.
+ * O unico ExoPlayer do processo, com o relogio que faz o "pular silencio". A tela ([PlayerController]) e o [PlaybackService] usam a
+ * MESMA instancia: por isso fechar o painel do player nao interrompe o audio, e a notificacao de midia controla o que a tela esta
+ * tocando. O pulo de silencio tambem mora aqui (nao na tela): com o painel fechado ou o app em segundo plano ele continua pulando.
  */
 object PlaybackHub {
+    private const val POLL_MS = 40L
+
     @Volatile
     private var player: ExoPlayer? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private val listeners = CopyOnWriteArrayList<() -> Unit>()
+    private var skipTarget: SkipTarget? = null
+
+    /** Plano e estado do pulo de silencio da gravacao que esta tocando; sobrevive ao painel (e ao controlador) da tela. */
+    var skipper: SilenceSkipper = SilenceSkipper(NoTarget)
+        private set
+
+    private val poll = object : Runnable {
+        override fun run() {
+            tick()
+            if (skipTarget?.isPlaying == true) handler.postDelayed(this, POLL_MS)
+        }
+    }
+
+    private val playingListener = object : Player.Listener {
+        override fun onIsPlayingChanged(playing: Boolean) {
+            handler.removeCallbacks(poll)
+            if (playing) handler.post(poll)
+        }
+    }
 
     /** Usar so na thread principal (como o proprio ExoPlayer). */
     fun player(context: Context): ExoPlayer = player ?: synchronized(this) {
-        player ?: build(context.applicationContext).also { player = it }
+        player ?: build(context.applicationContext).also {
+            player = it
+            install(ExoSkipTarget(it))
+            it.addListener(playingListener)
+        }
+    }
+
+    /** Uma batida do relogio: aplica o pulo (se ligado e numa lacuna) e avisa quem observa (a tela atualiza posicao e duracao). */
+    fun tick() {
+        skipper.tick()
+        listeners.forEach { it() }
+    }
+
+    fun addTickListener(listener: () -> Unit) {
+        listeners.addIfAbsent(listener)
+        if (skipTarget?.isPlaying == true) {
+            handler.removeCallbacks(poll)
+            handler.post(poll)
+        }
+    }
+
+    fun removeTickListener(listener: () -> Unit) {
+        listeners.remove(listener)
+    }
+
+    /** Troca o alvo do pulo (so os testes usam um falso); o plano e o estado do pulo anteriores sao descartados. */
+    internal fun install(target: SkipTarget) {
+        skipTarget = target
+        skipper = SilenceSkipper(target)
     }
 
     private fun build(app: Context): ExoPlayer = ExoPlayer.Builder(app)
@@ -30,6 +85,19 @@ object PlaybackHub {
         )
         .setHandleAudioBecomingNoisy(true)
         .build()
+
+    private object NoTarget : SkipTarget {
+        override val isPlaying = false
+        override val positionMillis = 0L
+        override fun seekTo(millis: Long) = Unit
+    }
+}
+
+/** O ExoPlayer visto pelo [SilenceSkipper]. */
+private class ExoSkipTarget(private val exo: ExoPlayer) : SkipTarget {
+    override val isPlaying: Boolean get() = exo.isPlaying
+    override val positionMillis: Long get() = exo.currentPosition
+    override fun seekTo(millis: Long) = exo.seekTo(millis)
 }
 
 /**

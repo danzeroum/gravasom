@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enhance_title">Improve sound</string>
+    <string name="enhance_loading">Preparing the recording…</string>
+    <string name="enhance_original_safe">The original is never changed. The improvement is saved as a new recording.</string>
+    <string name="enhance_denoise">Noise reduction</string>
+    <string name="enhance_denoise_desc">Removes hiss and background noise.</string>
+    <string name="enhance_denoise_intensity">Reducer strength</string>
+    <string name="enhance_intensity_percent">%1$d%%</string>
+    <string name="enhance_normalize">Even volume</string>
+    <string name="enhance_normalize_desc">Brings the recording to a single volume, at the chosen target.</string>
+    <string name="enhance_target">Volume target</string>
+    <string name="enhance_target_value">%1$d LUFS</string>
+    <string name="enhance_preview_section">A/B preview</string>
+    <string name="enhance_preview_hint">Tap A and B and compare the same excerpt.</string>
+    <string name="enhance_preview_window">Preview excerpt: %1$s</string>
+    <string name="enhance_side_a">A · Original</string>
+    <string name="enhance_side_b">B · Improved</string>
+    <string name="enhance_preview_busy">Generating preview…</string>
+    <string name="enhance_playing_a">Playing the original</string>
+    <string name="enhance_playing_b">Playing the improved</string>
+    <string name="enhance_save">Save improved copy</string>
+    <string name="enhance_saving">Improving the recording…</string>
+    <string name="enhance_progress">%1$d%%</string>
+    <string name="enhance_cancel">Cancel</string>
+    <string name="enhance_saved">Copy saved: %1$s</string>
+    <string name="enhance_saved_hint">The improved copy is in the Recordings tab, as WAV.</string>
+    <string name="enhance_done">Done</string>
+    <string name="enhance_fail_missing">Recording not found.</string>
+    <string name="enhance_fail_decode">Could not open this recording.</string>
+    <string name="enhance_fail_preview">Could not generate the preview.</string>
+    <string name="enhance_fail_export">Could not save the copy.</string>
+    <string name="enhance_notice_identity">Turn on noise reduction or volume to improve.</string>
+    <string name="enhance_back">Back</string>
+    <string name="enhance_retry">Try again</string>
+</resources>

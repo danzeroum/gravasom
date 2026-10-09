@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "dsp_chain.h"
+#include "noise_reduce.h"
 
 using gravasom::dsp::Chain;
 
@@ -12,6 +13,7 @@ namespace {
 std::atomic<int> g_cadeias{0};
 Chain* From(jlong h) { return reinterpret_cast<Chain*>(h); }
 constexpr jint kTipoPassaAltas = 1;
+constexpr jint kTipoReducaoRuido = 2;  // parametro 0: intensidade 0..1
 }  // namespace
 
 extern "C" JNIEXPORT jlong JNICALL
@@ -30,6 +32,12 @@ Java_com_gravasom_core_dsp_NativeDsp_nativeAddStep(JNIEnv* env, jobject, jlong h
   switch (type) {
     case kTipoPassaAltas: {
       auto step = gravasom::dsp::MakeHighPass(p0, c->SampleRate());
+      if (!step) return JNI_FALSE;
+      c->Add(std::move(step));
+      return JNI_TRUE;
+    }
+    case kTipoReducaoRuido: {
+      auto step = gravasom::dsp::MakeNoiseReduction(p0, c->SampleRate());
       if (!step) return JNI_FALSE;
       c->Add(std::move(step));
       return JNI_TRUE;

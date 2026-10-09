@@ -25,4 +25,8 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
+    // O teste do backup exerce o cofre de verdade (VaultCrypto/Tink em fluxo); o de dividir/juntar abre o Room de verdade.
+    testImplementation(libs.tink.android)
+    testImplementation(libs.room.runtime)
+    testImplementation(libs.room.ktx)
 }
