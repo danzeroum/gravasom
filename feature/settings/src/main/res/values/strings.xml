@@ -48,4 +48,20 @@
     <string name="settings_preset_effects_on">Redutor de ruído e volume ligados por padrão ao melhorar o som</string>
     <string name="settings_preset_effects_off">Sem efeitos de voz por padrão (o redutor e a normalização são para fala e estragam música e sons de bichos)</string>
     <string name="settings_preset_custom">Personalizado: você ajustou o formato ou a qualidade à mão</string>
+    <string name="settings_backup_title">Backup cifrado</string>
+    <string name="settings_backup_desc">Um pacote com todas as gravações, marcadores e etiquetas, protegido por senha. Guarde a senha: sem ela o pacote não abre.</string>
+    <string name="settings_backup_create">Criar backup</string>
+    <string name="settings_backup_restore">Restaurar backup</string>
+    <string name="settings_backup_running">Criando o backup…</string>
+    <string name="settings_backup_restoring">Restaurando…</string>
+    <string name="settings_backup_cancel">Cancelar</string>
+    <string name="backup_password">Senha</string>
+    <string name="backup_password_confirm">Confirmar senha</string>
+    <string name="backup_password_hint">A senha não fica guardada no aparelho. Precisa de pelo menos 6 caracteres.</string>
+    <string name="backup_password_mismatch">As senhas não conferem.</string>
+    <string name="backup_continue">Continuar</string>
+    <string name="backup_ok">Backup criado com %1$d gravações.</string>
+    <string name="backup_restored">%1$d gravações restauradas. Nada foi apagado.</string>
+    <string name="backup_wrong_password">Senha errada: nada foi restaurado.</string>
+    <string name="backup_failed">Falha: %1$s</string>
 </resources>

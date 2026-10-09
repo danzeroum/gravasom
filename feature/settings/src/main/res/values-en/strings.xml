@@ -48,4 +48,20 @@
     <string name="settings_preset_effects_on">Noise reduction and volume on by default when improving sound</string>
     <string name="settings_preset_effects_off">No voice effects by default (noise reduction and normalization are for speech and hurt music and animal sounds)</string>
     <string name="settings_preset_custom">Custom: you changed the format or quality by hand</string>
+    <string name="settings_backup_title">Encrypted backup</string>
+    <string name="settings_backup_desc">One package with all recordings, markers and tags, protected by a password. Keep the password: without it the package cannot be opened.</string>
+    <string name="settings_backup_create">Create backup</string>
+    <string name="settings_backup_restore">Restore backup</string>
+    <string name="settings_backup_running">Creating the backup…</string>
+    <string name="settings_backup_restoring">Restoring…</string>
+    <string name="settings_backup_cancel">Cancel</string>
+    <string name="backup_password">Password</string>
+    <string name="backup_password_confirm">Confirm password</string>
+    <string name="backup_password_hint">The password is not stored on the device. It needs at least 6 characters.</string>
+    <string name="backup_password_mismatch">The passwords do not match.</string>
+    <string name="backup_continue">Continue</string>
+    <string name="backup_ok">Backup created with %1$d recordings.</string>
+    <string name="backup_restored">%1$d recordings restored. Nothing was deleted.</string>
+    <string name="backup_wrong_password">Wrong password: nothing was restored.</string>
+    <string name="backup_failed">Failed: %1$s</string>
 </resources>

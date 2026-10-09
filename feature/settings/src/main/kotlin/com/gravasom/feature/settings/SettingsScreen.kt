@@ -72,6 +72,8 @@ fun SettingsScreen(onOpenNumbers: () -> Unit, modifier: Modifier = Modifier, vie
             Text(stringResource(R.string.settings_numbers_open))
         }
         HorizontalDivider()
+        BackupSection(viewModel)
+        HorizontalDivider()
         Section(R.string.settings_section_about)
         Text(stringResource(R.string.settings_no_internet), style = MaterialTheme.typography.bodyMedium)
         TextButton(onClick = { showLicenses = true }, modifier = Modifier.testTag("abrir_licencas")) {

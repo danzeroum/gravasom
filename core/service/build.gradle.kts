@@ -25,4 +25,6 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
+    // O teste do backup exerce o cofre de verdade (VaultCrypto/Tink em fluxo).
+    testImplementation(libs.tink.android)
 }
