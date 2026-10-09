@@ -273,6 +273,12 @@ private fun Chips(controller: PlayerPort, state: PlayerUiState, cb: PlayerCallba
             label = { Text(stringResource(R.string.player_enhance_button)) },
             modifier = Modifier.testTag("melhorar_som"),
         )
+        AssistChip(
+            onClick = { cb.onSplit(controller.positionMillis.value) },
+            enabled = !state.splitting && !state.exporting,
+            label = { Text(stringResource(R.string.player_split_here)) },
+            modifier = Modifier.testTag("dividir_aqui"),
+        )
     }
     if (state.skipEnabled) SkipSummary(state, skippedNow)
 }

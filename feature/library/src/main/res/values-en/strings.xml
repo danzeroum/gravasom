@@ -29,4 +29,12 @@
     <string name="library_private_badge">In the vault</string>
     <string name="library_no_results_tags">No recording has all of those tags.</string>
     <string name="library_clear_tag_filter">Clear filter</string>
+    <string name="library_join">Join</string>
+    <string name="library_join_clear">Leave selection</string>
+    <string name="library_join_selected">%1$d selected</string>
+    <string name="library_join_dialog_title">Join recordings?</string>
+    <string name="library_join_dialog_hint">The join will be a new recording, with the audio in this order. The original recordings stay as they are.</string>
+    <string name="library_join_ok">Join created: %1$s</string>
+    <string name="library_join_failed">Could not join.</string>
+    <string name="library_select_item">Select recording</string>
 </resources>

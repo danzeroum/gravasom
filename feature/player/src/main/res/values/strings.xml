@@ -56,4 +56,7 @@
     <string name="player_tags_existing">Já usadas:</string>
     <string name="player_tags_save">Salvar</string>
     <string name="player_tags_cancel">Cancelar</string>
+    <string name="player_split_here">Dividir aqui</string>
+    <string name="player_split_saved">Duas gravações criadas: %1$s e %2$s</string>
+    <string name="player_split_failed">Não foi possível dividir aqui.</string>
 </resources>

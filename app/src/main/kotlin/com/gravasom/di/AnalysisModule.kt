@@ -8,6 +8,8 @@ import com.gravasom.core.domain.marker.MarkerRepository
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.clip.ClipService
+import com.gravasom.core.service.clip.JoinService
+import com.gravasom.core.service.clip.SplitService
 import com.gravasom.core.service.library.RecordingFiles
 import com.gravasom.core.service.library.RecordingIngestor
 import dagger.Module
@@ -17,7 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/** Onda 1: marcadores, analise (onda + fala) e exportar trecho. */
+/** Onda 1: marcadores, analise (onda + fala) e exportar trecho. Onda 2: dividir e juntar. */
 @Module
 @InstallIn(SingletonComponent::class)
 object AnalysisModule {
@@ -38,4 +40,20 @@ object AnalysisModule {
         files: RecordingFiles,
         ingestor: RecordingIngestor,
     ): ClipService = ClipService(context, repo, files, ingestor)
+
+    @Provides @Singleton
+    fun splitService(
+        @ApplicationContext context: Context,
+        repo: RecordingRepository,
+        files: RecordingFiles,
+        ingestor: RecordingIngestor,
+    ): SplitService = SplitService(context, repo, files, ingestor)
+
+    @Provides @Singleton
+    fun joinService(
+        @ApplicationContext context: Context,
+        repo: RecordingRepository,
+        files: RecordingFiles,
+        ingestor: RecordingIngestor,
+    ): JoinService = JoinService(context, repo, files, ingestor)
 }

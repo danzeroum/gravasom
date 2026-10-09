@@ -56,4 +56,7 @@
     <string name="player_tags_existing">Already used:</string>
     <string name="player_tags_save">Save</string>
     <string name="player_tags_cancel">Cancel</string>
+    <string name="player_split_here">Split here</string>
+    <string name="player_split_saved">Two recordings created: %1$s and %2$s</string>
+    <string name="player_split_failed">Could not split here.</string>
 </resources>
