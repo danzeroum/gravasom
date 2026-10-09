@@ -381,5 +381,16 @@ como instrumentados — a cobertura nova é Robolectric; lista na parte B de `do
 ### APK entregue
 
 `./gradlew :app:assembleRelease` (R8, `mapping.txt` gerado), assinado com `config/debug.keystore` (fallback do build; a mesma
-chave de todas as entregas — instala por cima). versionCode **61**, versionName `1.2.0-onda2`. Tamanho e SHA-256 na mensagem
-de entrega. **Não verificado:** instalação real (sem aparelho aqui); a validação de ouvido é o roteiro B1–B14.
+chave de todas as entregas — instala por cima). **Não verificado:** instalação real (sem aparelho aqui); a validação de ouvido
+é o roteiro B1–B14.
+
+| Item | Valor |
+| --- | --- |
+| versionCode / versionName | **61** / `1.2.0-onda2` |
+| Tamanho | 19 729 376 bytes = **18,81 MiB** (teto 25 MB) |
+| SHA-256 | `0114a3db127bfbac910732a0a442e89067f62a1853cdbdc2c72bc639c82111a0` |
+| Assinatura | `apksigner verify`: OK; certificado `CN=Android Debug`, SHA-256 `bec8a13c…9b2bd1` = o de `config/debug.keystore` (a mesma chave da Onda 1: instala por cima) |
+| Manifesto | `native-code` arm64-v8a + x86_64; ABIs do `app/build.gradle.kts` |
+
+A máquina tem só 4 GB de RAM: o build exigiu daemon com heap controlado, `--no-parallel --max-workers=1` e o nativo
+compilado antes do R8 (o linker deu `Bus error` sob pressão de memória).

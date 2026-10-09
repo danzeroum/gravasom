@@ -1,0 +1,36 @@
+
+== k0.4: SI-SDRi medio +2.41 dB (pior condicao +0.93), ganho de STOI +0.0257; fala LIMPA: STOI medio 0.9983 (pior 0.9976, teto 0.9909: OK); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +0.93 dB  STOI 0.636 -> 0.653
+   murmurio_snr10     SI-SDRi  +1.35 dB  STOI 0.849 -> 0.869
+   murmurio_snr15     SI-SDRi  +0.96 dB  STOI 0.908 -> 0.918
+   murmurio_snr5      SI-SDRi  +1.28 dB  STOI 0.758 -> 0.782
+   rosa_snr0          SI-SDRi  +3.45 dB  STOI 0.675 -> 0.734
+   rosa_snr10         SI-SDRi  +3.04 dB  STOI 0.864 -> 0.891
+   rosa_snr15         SI-SDRi  +2.37 dB  STOI 0.919 -> 0.931
+   rosa_snr5          SI-SDRi  +3.34 dB  STOI 0.783 -> 0.827
+   ventilador_snr0    SI-SDRi  +3.13 dB  STOI 0.625 -> 0.685
+   ventilador_snr10   SI-SDRi  +2.74 dB  STOI 0.829 -> 0.863
+   ventilador_snr15   SI-SDRi  +2.11 dB  STOI 0.893 -> 0.912
+   ventilador_snr5    SI-SDRi  +3.04 dB  STOI 0.738 -> 0.788
+   zumbido_snr0       SI-SDRi  +3.10 dB  STOI 0.875 -> 0.889
+   zumbido_snr10      SI-SDRi  +2.66 dB  STOI 0.940 -> 0.947
+   zumbido_snr15      SI-SDRi  +2.12 dB  STOI 0.960 -> 0.963
+   zumbido_snr5       SI-SDRi  +2.95 dB  STOI 0.912 -> 0.923
+
+== k1.0: SI-SDRi medio +4.08 dB (pior condicao -0.87), ganho de STOI +0.0429; fala LIMPA: STOI medio 0.9517 (pior 0.8483, teto 0.9909: ABAIXO); atraso mediano 0 amostras
+   murmurio_snr0      SI-SDRi  +1.12 dB  STOI 0.636 -> 0.632
+   murmurio_snr10     SI-SDRi  +0.95 dB  STOI 0.849 -> 0.878
+   murmurio_snr15     SI-SDRi  -0.87 dB  STOI 0.908 -> 0.916
+   murmurio_snr5      SI-SDRi  +1.46 dB  STOI 0.758 -> 0.784
+   rosa_snr0          SI-SDRi  +9.31 dB  STOI 0.675 -> 0.816
+   rosa_snr10         SI-SDRi  +4.52 dB  STOI 0.864 -> 0.907
+   rosa_snr15         SI-SDRi  +1.02 dB  STOI 0.919 -> 0.928
+   rosa_snr5          SI-SDRi  +7.23 dB  STOI 0.783 -> 0.871
+   ventilador_snr0    SI-SDRi  +7.99 dB  STOI 0.625 -> 0.786
+   ventilador_snr10   SI-SDRi  +3.98 dB  STOI 0.829 -> 0.895
+   ventilador_snr15   SI-SDRi  +0.80 dB  STOI 0.893 -> 0.920
+   ventilador_snr5    SI-SDRi  +6.33 dB  STOI 0.738 -> 0.853
+   zumbido_snr0       SI-SDRi  +8.36 dB  STOI 0.875 -> 0.884
+   zumbido_snr10      SI-SDRi  +4.65 dB  STOI 0.940 -> 0.929
+   zumbido_snr15      SI-SDRi  +1.47 dB  STOI 0.960 -> 0.939
+   zumbido_snr5       SI-SDRi  +6.89 dB  STOI 0.912 -> 0.913
