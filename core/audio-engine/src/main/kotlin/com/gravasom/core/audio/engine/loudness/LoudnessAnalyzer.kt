@@ -20,30 +20,49 @@ object LoudnessAnalyzer {
 
     fun measure(file: File): LoudnessReport {
         val info = WavReader.read(file)
-        val loudness = LoudnessMeter(info.sampleRate, info.channels)
-        val peaks = List(info.channels) { TruePeakMeter(info.sampleRate) }
+        val meters = Meters(info.sampleRate, info.channels)
         val floats = Array(info.channels) { FloatArray(BLOCK) }
         val raw = ByteArray(BLOCK * info.channels * 2)
-        var samplePeak = 0f
         val source = file.inputStream().also { it.skip(info.dataOffset) }
         DataInputStream(BufferedInputStream(source, BUFFER)).use { input ->
             var left = info.frames
             while (left > 0) {
                 val n = minOf(BLOCK.toLong(), left).toInt()
                 PcmBlocos.ler(input, raw, floats, n, available = left)
-                for (c in 0 until info.channels) {
-                    loudness.add(c, floats[c], n)
-                    peaks[c].add(floats[c], n)
-                    for (i in 0 until n) samplePeak = maxOf(samplePeak, abs(floats[c][i]))
-                }
+                meters.add(floats, n)
                 left -= n
             }
         }
-        val truePeak = peaks.maxOf { it.peakLinear() }
-        return LoudnessReport(
-            lufs = loudness.integratedLufs(),
-            truePeakDbtp = 20.0 * log10(truePeak.coerceAtLeast(MIN_PEAK)),
-            samplePeakDbfs = 20.0 * log10(samplePeak.toDouble().coerceAtLeast(MIN_PEAK)),
-        )
+        return meters.report()
+    }
+
+    /** Acumula a loudness, o pico verdadeiro por canal e o pico de amostra, bloco a bloco. */
+    private class Meters(sampleRate: Int, private val channels: Int) {
+        private val loudness = LoudnessMeter(sampleRate, channels)
+        private val peaks = List(channels) { TruePeakMeter(sampleRate) }
+        private var samplePeak = 0f
+
+        fun add(block: Array<FloatArray>, frames: Int) {
+            for (c in 0 until channels) {
+                loudness.add(c, block[c], frames)
+                peaks[c].add(block[c], frames)
+                samplePeak = maxOf(samplePeak, peakOf(block[c], frames))
+            }
+        }
+
+        fun report(): LoudnessReport {
+            val truePeak = peaks.maxOf { it.peakLinear() }
+            return LoudnessReport(
+                lufs = loudness.integratedLufs(),
+                truePeakDbtp = 20.0 * log10(truePeak.coerceAtLeast(MIN_PEAK)),
+                samplePeakDbfs = 20.0 * log10(samplePeak.toDouble().coerceAtLeast(MIN_PEAK)),
+            )
+        }
+
+        private fun peakOf(channel: FloatArray, frames: Int): Float {
+            var p = 0f
+            for (i in 0 until frames) p = maxOf(p, abs(channel[i]))
+            return p
+        }
     }
 }

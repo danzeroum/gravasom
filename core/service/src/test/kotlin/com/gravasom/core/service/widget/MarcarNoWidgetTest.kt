@@ -34,7 +34,13 @@ class MarcarNoWidgetTest {
 
     @Test
     fun `em qualquer estado sem gravar tambem avisa`() {
-        for (estado in listOf(RecordingState.Preparing, RecordingState.Stopping, RecordingState.Saved("/x.m4a"), RecordingState.Error(RecordingError.MIC_IN_USE))) {
+        val semGravacao = listOf(
+            RecordingState.Preparing,
+            RecordingState.Stopping,
+            RecordingState.Saved("/x.m4a"),
+            RecordingState.Error(RecordingError.MIC_IN_USE),
+        )
+        for (estado in semGravacao) {
             ShadowToast.reset()
             markFromWidget(context, estado)
             assertEquals("estado $estado", "Nenhuma gravação em andamento para marcar", ShadowToast.getTextOfLatestToast())

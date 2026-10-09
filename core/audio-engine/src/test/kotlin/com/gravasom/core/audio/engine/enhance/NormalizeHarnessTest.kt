@@ -31,7 +31,8 @@ class NormalizeHarnessTest {
             val r = pipeline.run(f, projeto, File(saida, f.name), trabalho)
             check(r is EnhanceResult.Done) { "$f: $r" }
             val rel = r.report
-            linhas.append("${f.name}\t%.3f\t%.3f\t%.3f\t%.3f\t%d\n".format(rel.gainDb, rel.lufsBefore, rel.lufsAfter, rel.truePeakAfterDbtp, rel.passes))
+            val linha = "${f.name}\t%.3f\t%.3f\t%.3f\t%.3f\t%d\n"
+            linhas.append(linha.format(rel.gainDb, rel.lufsBefore, rel.lufsAfter, rel.truePeakAfterDbtp, rel.passes))
         }
         File(saida, "interno.tsv").writeText(linhas.toString())
         trabalho.deleteRecursively()

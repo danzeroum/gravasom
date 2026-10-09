@@ -104,7 +104,10 @@ class RecordingService : Service() {
             val rec = factory.create(format)
             recorder = rec
             val config = RecordingConfig(
-                format = format, sampleRateHz = prefs.sampleRate.first(), bitrateKbps = prefs.bitrate.first(), channels = prefs.channels.first(),
+                format = format,
+                sampleRateHz = prefs.sampleRate.first(),
+                bitrateKbps = prefs.bitrate.first(),
+                channels = prefs.channels.first(),
             )
             val started = rec.prepare(config, path).mapCatching { rec.start().getOrThrow() }
             started

@@ -6,6 +6,7 @@ import com.gravasom.core.service.analysis.PcmDecoder
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.IOException
+import java.io.OutputStream
 import java.io.RandomAccessFile
 
 /** WAV PCM16 produzido a partir de qualquer audio que o app toca. */
@@ -31,54 +32,32 @@ object AudioToWav {
         if (isPlainWav(source)) return copyOrReference(source, destination)
         val tmp = File(destination.path + ".tmp")
         destination.parentFile?.mkdirs()
-        var rate = 0
-        var channels = 0
-        var bad = false
-        var bytes = 0L
-        val out = BufferedOutputStream(tmp.outputStream(), BUFFER)
+        val sink = WavSink(tmp.outputStream(), cancelled)
         val ok = try {
-            out.write(ByteArray(WavHeaderWriter.HEADER_SIZE)) // reserva o cabecalho: so se sabe o tamanho no fim
-            PcmDecoder.decode(
-                source,
-                { r, c ->
-                    if (rate == 0) {
-                        rate = r
-                        channels = c
-                        if (c !in 1..2) bad = true
-                    } else if (r != rate || c != channels) {
-                        bad = true // taxa ou canais mudaram no meio do fluxo
-                    }
-                },
-                { pcm, length ->
-                    if (!bad) {
-                        val buf = ByteArray(length * BYTES_PER_SAMPLE)
-                        for (i in 0 until length) {
-                            buf[2 * i] = (pcm[i].toInt() and 0xFF).toByte()
-                            buf[2 * i + 1] = ((pcm[i].toInt() shr 8) and 0xFF).toByte()
-                        }
-                        out.write(buf)
-                        bytes += buf.size
-                    }
-                },
-                { bad || cancelled() },
-            )
-        } catch (e: IOException) {
+            sink.reserveHeader()
+            PcmDecoder.decode(source, sink::onFormat, sink::write, sink::stopped)
+        } catch (_: IOException) {
             false
-        } catch (e: RuntimeException) {
+        } catch (_: RuntimeException) {
             false // arquivo que o MediaCodec/MediaExtractor nao entende
         } finally {
-            runCatching { out.close() }
+            runCatching { sink.close() }
         }
-        if (!ok || bad || rate == 0 || bytes == 0L) {
+        if (!ok || !sink.valid || sink.bytes == 0L) {
             tmp.delete()
             return null
         }
-        RandomAccessFile(tmp, "rw").use { it.write(WavHeaderWriter.build(rate, channels, 16, bytes)) }
+        return finalize(tmp, destination, sink)
+    }
+
+    /** Escreve o cabecalho definitivo (taxa, canais e tamanho agora conhecidos) e renomeia para o destino. */
+    private fun finalize(tmp: File, destination: File, sink: WavSink): DecodedWav? {
+        RandomAccessFile(tmp, "rw").use { it.write(WavHeaderWriter.build(sink.rate, sink.channels, 16, sink.bytes)) }
         if (!tmp.renameTo(destination)) {
             tmp.delete()
             return null
         }
-        return DecodedWav(destination, rate, channels, bytes / (BYTES_PER_SAMPLE * channels))
+        return DecodedWav(destination, sink.rate, sink.channels, sink.frames)
     }
 
     /** WAV PCM16 mono/estereo ja serve como esta: nao copia (o arquivo e so lido). */
@@ -89,4 +68,52 @@ object AudioToWav {
 
     private fun isPlainWav(file: File): Boolean =
         file.name.endsWith(".wav", ignoreCase = true) && runCatching { WavReader.read(file) }.isSuccess
+
+    /**
+     * Recebe o PCM decodificado e grava os bytes little-endian, contando o que saiu. Recusa (e para de escrever) se a taxa ou os
+     * canais mudarem no meio do fluxo, se vierem mais de 2 canais, ou se [cancelled] disparar.
+     */
+    private class WavSink(raw: OutputStream, private val cancelled: () -> Boolean) {
+        private val out = BufferedOutputStream(raw, BUFFER)
+        var rate = 0
+            private set
+        var channels = 0
+            private set
+        var bytes = 0L
+            private set
+        private var bad = false
+
+        val frames: Long get() = bytes / (BYTES_PER_SAMPLE * channels)
+        val valid: Boolean get() = !bad && rate > 0
+
+        /** Reserva o espaco do cabecalho: so se sabe o tamanho no fim. */
+        fun reserveHeader() {
+            out.write(ByteArray(WavHeaderWriter.HEADER_SIZE))
+        }
+
+        /** A primeira chamada fixa o formato; mudanca no meio do fluxo (ou mais de 2 canais) marca o fluxo como ruim. */
+        fun onFormat(r: Int, c: Int) {
+            if (rate != 0 && (r != rate || c != channels)) bad = true // taxa ou canais mudaram no meio do fluxo
+            if (rate == 0) {
+                rate = r
+                channels = c
+            }
+            if (c !in 1..2) bad = true
+        }
+
+        fun write(pcm: ShortArray, length: Int) {
+            if (bad) return
+            val buf = ByteArray(length * BYTES_PER_SAMPLE)
+            for (i in 0 until length) {
+                buf[2 * i] = (pcm[i].toInt() and 0xFF).toByte()
+                buf[2 * i + 1] = ((pcm[i].toInt() shr 8) and 0xFF).toByte()
+            }
+            out.write(buf)
+            bytes += buf.size
+        }
+
+        fun stopped() = bad || cancelled()
+
+        fun close() = out.close()
+    }
 }

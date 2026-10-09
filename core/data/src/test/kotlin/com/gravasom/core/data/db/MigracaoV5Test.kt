@@ -93,7 +93,8 @@ class MigracaoV5Test {
     fun `gravacoes tags marcadores analise e projeto sobrevivem a migracao v4 para v5`() = runBlocking {
         criarV4 { sql ->
             sql.execSQL(
-                "INSERT INTO recordings VALUES (1, 'Aula de fisica', '/x/a.m4a', 'M4A', 3600000, 57600000, 1000, 1, 'estudo', 'aula,fisica', NULL, 'content://media/1')",
+                "INSERT INTO recordings VALUES (1, 'Aula de fisica', '/x/a.m4a', 'M4A', 3600000, 57600000, 1000, 1, " +
+                    "'estudo', 'aula,fisica', NULL, 'content://media/1')",
             )
             sql.execSQL("INSERT INTO recordings VALUES (2, 'Ideia', '/x/b.wav', 'WAV', 12000, 1056000, 2000, 0, NULL, '', NULL, NULL)")
             sql.execSQL("INSERT INTO markers VALUES (1, 1, 600000, 'Pergunta', 'voltar aqui', 'PURPLE')")

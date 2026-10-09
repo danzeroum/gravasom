@@ -90,7 +90,8 @@ class EnhancePipelineTest {
         val desligado = EditProject(listOf(EditStep(StepType.NORMALIZE, listOf(-16f, -1f), enabled = false)))
         assertArrayEquals(orig.readBytes(), (rodar(orig, desligado) as EnhanceResult.Done).file.readBytes())
         assertArrayEquals(orig.readBytes(), (rodar(orig, EditProject(), File(dir, "v.wav")) as EnhanceResult.Done).file.readBytes())
-        assertArrayEquals(orig.readBytes(), (rodar(orig, normaliza().copy(bypass = true), File(dir, "b.wav")) as EnhanceResult.Done).file.readBytes())
+        val bypass = rodar(orig, normaliza().copy(bypass = true), File(dir, "b.wav")) as EnhanceResult.Done
+        assertArrayEquals(orig.readBytes(), bypass.file.readBytes())
     }
 
     @Test

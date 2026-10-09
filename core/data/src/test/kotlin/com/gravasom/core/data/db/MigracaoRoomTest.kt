@@ -21,8 +21,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Migracao v3 -> v4 (Onda 1; a Room atual e a v5, com a 4->5 encadeada) escrita a mao. O banco de partida e criado com o DDL EXATO da v3 (copiado das migracoes
- * 1->2 e 2->3 e da entidade `recordings` da v3), populado como um usuario real e so entao aberto pela Room v4: se a
+ * Migracao v3 -> v4 (Onda 1; a Room atual e a v5, com a 4->5 encadeada) escrita a mao. O banco de partida e criado com
+ * o DDL EXATO da v3 (copiado das migracoes 1->2 e 2->3 e da entidade `recordings` da v3), populado como um usuario
+ * real e so entao aberto pela Room v4: se a
  * migracao perder dados ou divergir do esquema que a Room espera, a abertura falha.
  */
 @RunWith(RobolectricTestRunner::class)
