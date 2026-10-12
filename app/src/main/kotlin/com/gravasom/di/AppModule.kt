@@ -5,9 +5,11 @@ import com.gravasom.core.data.db.GravasomDatabase
 import com.gravasom.core.data.metrics.UsageMetrics
 import com.gravasom.core.data.preferences.PreferencesRepository
 import com.gravasom.core.data.repository.RoomRecordingRepository
+import com.gravasom.core.data.repository.RoomTranscriptRepository
 import com.gravasom.core.data.vault.VaultCrypto
 import com.gravasom.core.domain.marker.MarkerRepository
 import com.gravasom.core.domain.repository.RecordingRepository
+import com.gravasom.core.domain.transcript.TranscriptRepository
 import com.gravasom.core.domain.transcript.TranscriptionScheduler
 import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.library.AudioImporter
@@ -31,6 +33,9 @@ object AppModule {
 
     @Provides @Singleton
     fun recordingRepository(db: GravasomDatabase): RecordingRepository = RoomRecordingRepository(db.recordingDao())
+
+    @Provides @Singleton
+    fun transcriptRepository(db: GravasomDatabase): TranscriptRepository = RoomTranscriptRepository(db.transcriptDao())
 
     @Provides @Singleton
     fun preferences(@ApplicationContext context: Context): PreferencesRepository = PreferencesRepository(context)

@@ -57,6 +57,8 @@ import com.gravasom.core.audio.engine.analysis.ViewWindow
 import com.gravasom.core.domain.clip.ClipTitle
 import com.gravasom.core.domain.marker.Marker
 import com.gravasom.core.domain.marker.MarkerNavigation
+import com.gravasom.core.domain.transcript.TranscriptionLang
+import com.gravasom.feature.transcribe.ui.TranscriptSection
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -90,6 +92,8 @@ fun PlayerPanel(
             Chips(controller, state, callbacks)
             if (state.selecting) SelectionBar(state, callbacks.selection)
             MarkerList(state.markers, controller, callbacks.markers)
+            // Aba Transcricao (Onda 3, ADR-016). Fica no fim do painel para nao empurrar o player.
+            TranscriptSection(recordingId = recording.id, language = TranscriptionLang.PT_BR)
         }
     }
 }
