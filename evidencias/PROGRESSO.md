@@ -35,6 +35,22 @@ Atualizado: 2026-10-07
 
 Teste com 5 usuários, Accessibility Scanner, publicação Play, MobSF com credencial, Firebase Test Lab, medidas em dispositivo real (bateria, latência de partida).
 
+## Onda 3 — Transcrição offline (branch `feature/offline-transcription`, 2026-10-12)
+
+4 commits atômicos, todos pushados no remote. Plano adaptado: o motor é **whisper.cpp** (ADR-013 já medido), não ML Kit.
+
+- `dc4fd20` docs: `docs/asr-comparison.md` (whisper vs ML Kit vs SpeechRecognizer vs Vosk), `docs/adr/016-transcricao-offline-producao.md`, `features/transcription.feature`.
+- `4b77b13` spike/transcricao-ux: 4 protótipos Compose (toggle, aba, gerenciar modelos, consentimento), `docs/ux-validation.md`; `settings.gradle.kts` inclui o spike sob `-Pspike`.
+- `d8527c5` domínio + Room: `Transcriber`/`ModelManager` no `core:domain`, `transcripts` (FK CASCADE, único por gravação+idioma), migração 5→6 escrita à mão.
+- `2d2a5bb` `feature:transcribe`: Whisper + ModelManager (SHA-256 obrigatório, sem INTERNET), `AudioConverter` (M4A/WAV/MP3 → PCM 16 kHz streaming), worker cancelável com DataStore Preferences (10 frases por flush).
+
+**Bloqueios honestos:**
+- Esta máquina não tem SDK Android (`local.properties` ausente, `$ANDROID_HOME` vazio, sem `platform-tools` no disco). Nenhum `gradlew` rodou; compilação, migração em DB real e testes instrumentados ficam para o dono.
+- O build do `feature:transcribe` exige `-PwhisperSrc=<caminho>` apontando para o fonte do whisper.cpp (o spike usa `spike/whisper/scripts/buscar-whisper.sh`); sem ele o CMake falha com mensagem clara.
+- `docs/ux-validation.md` registra o roteiro de teste com 5 tarefas mas a execução com usuários é humana (PENDENTE).
+
+**Fora do escopo desta sessão (próximas):** Fase 3 (transcrição robusta em produção, benchmark de CPU/RAM no aparelho), Fase 4 (integração UI: notificação foreground, aba Transcrição na tela de detalhe, Settings), Fase 5 (audio-suite WER), Fases 6–7.
+
 ## Entrega instalável (telas reais + APK)
 
 - Run 37697797597 (f02f8b9): todos os jobs verdes; API 34 e 36 com 34 testes e 0 falhas cada; artefato `gravasom-apk` (27 569 639 bytes, sha256 5f56e334…c666d).
