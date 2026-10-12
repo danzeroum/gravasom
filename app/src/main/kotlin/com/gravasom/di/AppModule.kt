@@ -8,6 +8,7 @@ import com.gravasom.core.data.repository.RoomRecordingRepository
 import com.gravasom.core.data.vault.VaultCrypto
 import com.gravasom.core.domain.marker.MarkerRepository
 import com.gravasom.core.domain.repository.RecordingRepository
+import com.gravasom.core.domain.transcript.TranscriptionScheduler
 import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.library.AudioImporter
 import com.gravasom.core.service.library.MediaStorePublisher
@@ -71,6 +72,7 @@ object AppModule {
         vaultStore: VaultStore,
         markers: MarkerRepository,
         analyzer: RecordingAnalyzer,
+        transcription: TranscriptionScheduler,
     ): RecordingIngestor =
-        RecordingIngestor(repo, prefs, metrics, publisher, vaultStore, markers, analyzer)
+        RecordingIngestor(repo, prefs, metrics, publisher, vaultStore, markers, analyzer, transcription)
 }

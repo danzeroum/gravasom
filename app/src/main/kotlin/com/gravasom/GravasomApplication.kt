@@ -1,6 +1,8 @@
 package com.gravasom
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.BootRecovery
 import com.gravasom.core.service.MediaProbe
@@ -17,8 +19,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
-class GravasomApplication : Application() {
+class GravasomApplication : Application(), Configuration.Provider {
 
+    @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var ingestor: RecordingIngestor
     @Inject lateinit var repo: RecordingRepository
     @Inject lateinit var files: RecordingFiles
@@ -32,6 +35,10 @@ class GravasomApplication : Application() {
     @Inject lateinit var clips: com.gravasom.core.service.clip.ClipService
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /** WorkManager 2.9+: a interface expoe a PROPRIEDADE (getWorkManagerConfiguration foi removida na 2.9). */
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     override fun onCreate() {
         super.onCreate()

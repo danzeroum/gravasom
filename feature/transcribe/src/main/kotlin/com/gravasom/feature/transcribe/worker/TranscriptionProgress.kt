@@ -2,6 +2,9 @@ package com.gravasom.feature.transcribe.worker
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -19,7 +22,10 @@ import kotlinx.coroutines.flow.first
  */
 private val Context.progressoStore by preferencesDataStore(name = "transcricao_progresso")
 
-class TranscriptionProgress(private val context: Context) {
+@Singleton
+class TranscriptionProgress @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
 
     suspend fun ler(recordingId: Long, language: String): Snapshot? {
         val prefs = context.progressoStore.data.first()

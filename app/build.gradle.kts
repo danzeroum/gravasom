@@ -73,6 +73,7 @@ dependencies {
     implementation(project(":feature:player"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:enhance"))
+    implementation(project(":feature:transcribe"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,6 +85,8 @@ dependencies {
     implementation(libs.profileinstaller)
     implementation(libs.room.runtime)
     implementation(libs.datastore.preferences)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
     implementation(libs.androidx.compose.material.icons.extended)
 
     androidTestImplementation(project(":core:audio-engine"))

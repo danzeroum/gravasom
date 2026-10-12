@@ -11,6 +11,8 @@ import com.gravasom.core.domain.model.Recording
 import com.gravasom.core.domain.preset.FormatPreset
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.domain.tags.AutoTitle
+import com.gravasom.core.domain.transcript.TranscriptionLang
+import com.gravasom.core.domain.transcript.TranscriptionScheduler
 import com.gravasom.core.service.MediaProbe
 import com.gravasom.core.service.RecordingServiceState
 import com.gravasom.core.service.analysis.RecordingAnalyzer
@@ -19,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.util.Locale
 
@@ -35,6 +38,7 @@ class RecordingIngestor(
     private val vaultStore: VaultStore,
     private val markers: MarkerRepository,
     private val analyzer: RecordingAnalyzer,
+    private val transcription: TranscriptionScheduler,
 ) {
 
     private var scope: CoroutineScope? = null
@@ -70,7 +74,19 @@ class RecordingIngestor(
         attachMarkers(id, file, duration)
         if (!vaultOn) publishAndAnalyze(id, file, name, format)
         metrics.record(UsageEventType.GRAVACAO_CONCLUIDA, duration, format)
+        scheduleTranscription(id)
         id
+    }
+
+    /**
+     * Se o "Transcrever ao gravar" esta ligado, enfileira a transcricao. Gravacao no cofre nao entra:
+     * o texto sairia do cofre e o desenho da gravacao privada seria um vazamento (espirito da ADR-014).
+     */
+    private suspend fun scheduleTranscription(recordingId: Long) {
+        if (!prefs.transcribeEnabled.first()) return
+        val lang = TranscriptionLang.fromTag(prefs.transcriptionLang.first()) ?: TranscriptionLang.PT_BR
+        runCatching { transcription.enqueue(recordingId, lang) }
+            .onFailure { Timber.w(it, "falha ao enfileirar transcricao (id=%d)", recordingId) }
     }
 
     /** Insere a gravacao. Cofre ligado: cifra e apaga o claro; se a cifragem falhar, o claro fica no app, sem copia publica. */

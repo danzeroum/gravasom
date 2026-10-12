@@ -63,7 +63,7 @@ class SplitJoinServiceTest {
         val vault = VaultStore(context, lazy { VaultCrypto(VaultCrypto.newStreamingAead()) })
         val markers = RoomMarkerRepository(db.markerDao())
         val analyzer = RecordingAnalyzer(AnalysisStore(db.analysisDao()))
-        val ingestor = RecordingIngestor(repo, prefs, metrics, publisher, vault, markers, analyzer)
+        val ingestor = RecordingIngestor(repo, prefs, metrics, publisher, vault, markers, analyzer, TranscriptionScheduler.NoOp)
         val files = RecordingFiles(context, repo, publisher, vault)
         splits = SplitService(context, repo, files, ingestor)
         joins = JoinService(context, repo, files, ingestor)
