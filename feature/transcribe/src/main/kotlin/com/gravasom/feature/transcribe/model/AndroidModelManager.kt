@@ -78,9 +78,15 @@ class AndroidModelManager @Inject constructor(
 
     companion object {
         /**
-         * Hash SHA-256 esperado de cada modelo. Preenchido quando o modelo e publicado.
-         * Sem hash conhecido, o modelo e recusado (nunca aceita arquivo arbitrario).
+         * Hash SHA-256 esperado de cada modelo. Sem hash conhecido, o modelo e recusado
+         * (nunca aceita arquivo arbitrario).
+         *
+         * Fonte: `corpus/modelos.sha256` (ggml-base-q5_1.bin, ADR-013). Os outros idiomas usam
+         * o MESMO modelo base multilingue (o whisper.cpp base fala pt/en/es/fr); o que muda e a
+         * escolha do idioma na transcricao, nao o arquivo. Por isso o mapa tem so um hash.
          */
-        val HASHES: Map<TranscriptionLang, String> = emptyMap()
+        private const val HASH_BASE_Q5_1 = "422f1ae452ade6f30a004d7e5c6a43195e4433bc370bf23fac9cc591f01a8898"
+
+        val HASHES: Map<TranscriptionLang, String> = TranscriptionLang.entries.associateWith { HASH_BASE_Q5_1 }
     }
 }

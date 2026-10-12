@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.datastore.preferences)
 
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+
     implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
@@ -60,8 +63,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.androidx.room.runtime)
-    androidTestImplementation(libs.androidx.room.ktx)
+    androidTestImplementation(libs.room.runtime)
+    androidTestImplementation(libs.room.ktx)
 
     testImplementation(libs.junit4)
     testImplementation(libs.mockk)
