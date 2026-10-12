@@ -10,9 +10,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         RecordingEntity::class, EditProjectEntity::class, UsageEventEntity::class, MarkerEntity::class,
-        RecordingAnalysisEntity::class,
+        RecordingAnalysisEntity::class, TranscriptEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class GravasomDatabase : RoomDatabase() {
@@ -21,6 +21,7 @@ abstract class GravasomDatabase : RoomDatabase() {
     abstract fun usageEventDao(): UsageEventDao
     abstract fun markerDao(): MarkerDao
     abstract fun analysisDao(): AnalysisDao
+    abstract fun transcriptDao(): TranscriptDao
 
     companion object {
         /** v1 -> v2: projeto de edicao nao destrutiva (ADR-008). Nao altera a tabela `recordings`. */
@@ -82,9 +83,29 @@ abstract class GravasomDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v5 -> v6 (Onda 3): transcricoes por (gravacao, idioma). Escrita a mao; cria so a tabela
+         * nova `transcripts` com FK CASCADE para `recordings`. Nao toca em nada existente.
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `transcripts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`recordingId` INTEGER NOT NULL, `language` TEXT NOT NULL, `format` TEXT NOT NULL, " +
+                        "`status` TEXT NOT NULL, `text` TEXT, `errorMessage` TEXT, " +
+                        "`createdAtMillis` INTEGER NOT NULL, `updatedAtMillis` INTEGER NOT NULL, " +
+                        "FOREIGN KEY(`recordingId`) REFERENCES `recordings`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)",
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_transcripts_recordingId_language` " +
+                        "ON `transcripts` (`recordingId`, `language`)",
+                )
+            }
+        }
+
         fun create(context: Context): GravasomDatabase =
             Room.databaseBuilder(context, GravasomDatabase::class.java, "gravasom.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
     }
 }
