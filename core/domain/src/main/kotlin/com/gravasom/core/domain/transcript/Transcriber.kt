@@ -22,7 +22,7 @@ interface Transcriber {
         arquivo: File,
         lang: TranscriptionLang,
         timestamps: Boolean,
-        onSegment: (TranscriptSegment) -> Unit = {},
+        onSegment: suspend (TranscriptSegment) -> Unit = {},
     ): TranscriptResult
 }
 

@@ -14,6 +14,7 @@ room = "2.6.1"
 paging = "3.3.5"
 media3 = "1.5.0"
 datastore = "1.1.1"
+work = "2.10.0"
 timber = "5.0.1"
 tink = "1.15.0"
 junit5 = "5.11.3"
@@ -72,6 +73,9 @@ media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltNavigationCompose" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }

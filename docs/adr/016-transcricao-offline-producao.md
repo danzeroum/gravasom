@@ -42,7 +42,7 @@ Isso é o que endereça o pico de 341 MiB do ADR-013 e o orçamento de 200 MB.
 
 - **Constraints:** `requiresCharging` opcional (padrão: não), **sem** `NetworkType` (é offline).
 - **Foreground** quando o app está em uso (`setForeground`), com tipo `dataSync` e notificação "Transcrevendo…".
-- **Cache transitório em DataStore proto** (`TranscriptionProgress`): a cada **10 frases** o worker faz flush para Room dentro de uma transação e limpa o cache. Se o processo morrer, o worker reinicia do último flush, não do zero.
+- **Cache transitório em DataStore Preferences** (`TranscriptionProgress`: `recordingId`, `language`, `lastSegmentIndex`, `updatedAtMillis`): a cada **10 frases** o worker faz flush para Room dentro de uma transação e limpa o cache. Se o processo morrer, o worker reinicia do último flush, não do zero. *Desvio do plano original, que pedia DataStore proto: o DataStore Preferences já está no catálogo do repo e evita adicionar o plugin protobuf só para um contador; o ganho de proto (schema tipado) não compensa o custo aqui. Registrado como decisão consciente.*
 - **Cancelamento** apaga o cache transitório e deixa o registro da gravação intacto (o áudio nunca é tocado — ADR-008).
 
 ### 5. Modelo de dados (Room v5 → v6)
