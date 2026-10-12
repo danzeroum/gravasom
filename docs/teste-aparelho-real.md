@@ -128,3 +128,23 @@ tempo e toques por tarefa anotados. **PENDENTE-HUMANO**.
 
 Copie a tabela para um arquivo `docs/evidencias-aparelho/AAAA-MM-DD-<modelo>.md`, preencha a coluna "Resultado" com **OK / FALHOU + observação**
 e anexe capturas de tela quando FALHOU. Só então o item vira APROVADO em `docs/status.md`.
+
+## Ambiente local reproduzivel (2026-10-12)
+
+Instalado nesta maquina em `.tooling/` (gitignored), via `scripts/setup-ambiente-local.sh`:
+
+| Ferramenta | Versao | Caminho |
+| --- | --- | --- |
+| JDK | 17.0.20.1+1 (Temurin) | `.tooling/jdk-17.0.20.1+1` |
+| Android SDK | plataforma 36, build-tools 36.0.0, NDK 27.0.12077973, cmake 3.22.1 | `.tooling/android-sdk` |
+| Emulador | 37.2.12.0 | `.tooling/android-sdk/emulator` |
+| Imagem de sistema | android-34 google_apis x86_64 | `~/.android/avd/gravasom34.avd` |
+| whisper.cpp | 1.8.5 (por hash) | `.tooling/whisper.cpp` |
+| Modelo base q5_1 | 56,9 MiB (sha256 verificado) | `.tooling/modelos/ggml-base-q5_1.bin` |
+
+**Verificado nesta maquina:** `:app:assembleDebug` fecha (APK 39 MB) e `:feature:transcribe:testDebugUnitTest` passa (4/4).
+
+**Emulador com KVM (acelerado) segfaulta** nesta maquina (kernel 7.2.6, emulator 37.2.12): o boot
+inicia e o processo morre com SIGSEGV. Sem `-no-accel` o boot nao termina em tempo util.
+O emulador NAO foi usado para validar o app aqui; a validacao instrumentada continua
+sendo passo manual no aparelho do dono (`docs/uso.md`).
