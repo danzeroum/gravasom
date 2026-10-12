@@ -30,6 +30,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -98,6 +99,7 @@ fun RecordContent(
                 Controls(state, callbacks)
                 if (state.justSaved && state.status == RecordStatus.Ready) SavedNotice(callbacks.onOpenLibrary)
                 FormatChips(state, callbacks.onFormat)
+                TranscribeToggle(state, callbacks.onTranscribe)
                 Where(state.privateMode)
             }
         }
@@ -116,6 +118,33 @@ private fun SavedNotice(onOpenLibrary: () -> Unit) {
         OutlinedButton(onClick = onOpenLibrary, modifier = Modifier.heightIn(min = GravasomSizes.alvoToqueMin).testTag("ver_gravacoes")) {
             Text(stringResource(R.string.record_see_library), style = MaterialTheme.typography.labelLarge)
         }
+    }
+}
+
+/**
+ * "Transcrever ao gravar" (Onda 3, ADR-016): a promessa de offline tem de estar visivel ANTES de ligar.
+ * Nao muda durante a gravacao (a escolha vale para a proxima), entao fica desabilitado quando ocupado.
+ */
+@Composable
+private fun TranscribeToggle(state: RecordUiState, onTranscribe: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().testTag("toggle_transcrever"),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.record_transcribe), style = MaterialTheme.typography.titleSmall)
+            Text(
+                stringResource(R.string.record_transcribe_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(
+            checked = state.transcribeEnabled,
+            onCheckedChange = onTranscribe,
+            enabled = !state.isBusy,
+            modifier = Modifier.testTag("toggle_transcrever_switch"),
+        )
     }
 }
 

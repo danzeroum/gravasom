@@ -57,6 +57,8 @@ data class RecordUiState(
     val lowSpace: LowSpaceWarning? = null,
     /** Marcadores feitos na gravacao em curso. */
     val markerCount: Int = 0,
+    /** "Transcrever ao gravar" (Onda 3, ADR-016). Quando ligado, a gravacao concluida entra na fila de transcricao. */
+    val transcribeEnabled: Boolean = false,
 ) {
     val isBusy: Boolean get() = status != RecordStatus.Ready && status !is RecordStatus.Failed
 
@@ -99,6 +101,7 @@ class RecordViewModel @Inject constructor(
         refreshInputs()
         viewModelScope.launch { prefs.format.collect { f -> _state.update { it.copy(format = f) } } }
         viewModelScope.launch { prefs.privateVault.collect { v -> _state.update { it.copy(privateMode = v) } } }
+        viewModelScope.launch { prefs.transcribeEnabled.collect { v -> _state.update { it.copy(transcribeEnabled = v) } } }
         viewModelScope.launch { prefs.preferredInputId.collect { refreshInputs() } }
         viewModelScope.launch { RecordingServiceState.state.collect(::onServiceState) }
         viewModelScope.launch { RecordingServiceState.levelDb.collect { db -> _state.update { it.copy(levelDb = db) } } }
@@ -154,6 +157,15 @@ class RecordViewModel @Inject constructor(
 
     fun selectInput(option: InputOption?) = viewModelScope.launch {
         prefs.setPreferredInputId(option?.id ?: PreferencesRepository.NO_INPUT)
+    }
+
+    /**
+     * Liga/desliga "Transcrever ao gravar". Se ligar e o modelo do idioma nao estiver baixado,
+     * a tela mostra o aviso (o download acontece fora do app, ADR-016 secao 2).
+     */
+    fun selectTranscribe(enabled: Boolean) = viewModelScope.launch {
+        prefs.setTranscribeEnabled(enabled)
+        if (enabled) metrics.record(UsageEventType.TRANSCRICAO_LIGADA)
     }
 
     /** Ponto de entrada do botao Gravar: avisa se o espaco livre e baixo; senao grava. */

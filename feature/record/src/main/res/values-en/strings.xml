@@ -36,6 +36,10 @@
     <string name="record_low_space_confirm">Record anyway</string>
     <string name="record_low_space_cancel">Cancel</string>
     <string name="record_btn_marker">Mark</string>
+    <string name="record_transcribe">Transcribe while recording</string>
+    <string name="record_transcribe_hint">Text stays on the device, no internet</string>
+    <string name="record_transcribe_needs_model">Download the Portuguese model to transcribe</string>
+    <string name="record_transcribe_download">Download</string>
     <plurals name="record_markers">
         <item quantity="one">%d marker</item>
         <item quantity="other">%d markers</item>

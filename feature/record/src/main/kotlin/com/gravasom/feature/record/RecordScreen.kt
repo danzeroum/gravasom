@@ -94,6 +94,7 @@ fun RecordScreen(
             onRecord = onRecord, onPause = viewModel::pause, onResume = viewModel::resume, onStop = viewModel::stop,
             onMarker = viewModel::addMarker,
             onFormat = viewModel::selectFormat, onInput = viewModel::selectInput,
+            onTranscribe = viewModel::selectTranscribe,
             onOpenSettings = { openAppSettings(context) }, onOpenLibrary = onOpenLibrary,
         ),
         modifier = modifier,
@@ -170,6 +171,7 @@ data class RecordCallbacks(
     val onMarker: () -> Unit = {},
     val onFormat: (RecordingFormat) -> Unit,
     val onInput: (InputOption?) -> Unit,
+    val onTranscribe: (Boolean) -> Unit = {},
     val onOpenSettings: () -> Unit,
     val onOpenLibrary: () -> Unit = {},
 )

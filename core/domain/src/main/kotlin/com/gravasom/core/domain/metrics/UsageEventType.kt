@@ -16,6 +16,9 @@ enum class UsageEventType {
     IMPORTADO,
     FORMATO_ALTERADO,
     NUMEROS_ABERTO,
+    TRANSCRICAO_LIGADA,
+    TRANSCRICAO_CONCLUIDA,
+    TRANSCRICAO_FALHOU,
 }
 
 /** Canais de compartilhamento (rotulo de COMPARTILHADO). */
