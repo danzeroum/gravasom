@@ -3,6 +3,7 @@ package com.gravasom.feature.transcribe.worker
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.gravasom.core.data.db.GravasomDatabase
 import com.gravasom.core.data.db.TranscriptEntity
@@ -41,11 +42,21 @@ class TranscriptionWorker @AssistedInject constructor(
     private val progresso: TranscriptionProgress,
 ) : CoroutineWorker(appContext, params) {
 
+    /** Foreground com "Transcrevendo..." e botao Cancelar; o WorkManager mostra enquanto o trabalho roda. */
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        TranscriptionNotification.ensureChannel(applicationContext)
+        return TranscriptionNotification.foregroundInfo(applicationContext, id.toString(), null)
+    }
+
     override suspend fun doWork(): Result {
         val recordingId = inputData.getLong(KEY_RECORDING, -1L)
         val langTag = inputData.getString(KEY_LANG) ?: return Result.failure()
         val lang = TranscriptionLang.fromTag(langTag) ?: return Result.failure()
         if (recordingId <= 0) return Result.failure()
+
+        // Foreground: mantem a transcricao viva com a tela apagada e da o botao Cancelar.
+        runCatching { setForeground(getForegroundInfo()) }
+            .onFailure { Timber.w(it, "nao conseguiu entrar em foreground; segue em segundo plano") }
 
         val dao = db.transcriptDao()
         val agora = System.currentTimeMillis()
