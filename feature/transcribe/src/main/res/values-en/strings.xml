@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transcribe_titulo">Transcription</string>
+    <string name="transcribe_offline_hint">Done on the device, no internet</string>
+    <string name="transcribe_vazio">No transcription yet.</string>
+    <string name="transcribe_acao">Transcribe</string>
+    <string name="transcribe_rodando">Transcribing…</string>
+    <string name="transcribe_cancelar">Cancel</string>
+    <string name="transcribe_falhou">Could not transcribe: %1$s</string>
+    <string name="transcribe_tentar_novamente">Try again</string>
+    <string name="transcribe_copiar">Copy all</string>
+    <string name="transcribe_exportar_txt">Export .txt</string>
+    <string name="transcribe_exportar_vtt">Export .vtt</string>
+    <string name="transcribe_exportar_srt">Export .srt</string>
+    <string name="transcribe_exportado">Transcription saved</string>
+    <string name="transcribe_exportar_falhou">Could not save the transcription</string>
+    <string name="transcribe_preparando">Preparing…</string>
+    <string name="transcribe_consent_title">Transcribe without internet</string>
+    <string name="transcribe_consent_body">Transcription happens inside the device. The audio and the text are sent nowhere.\n\nTo start, Gravasom needs the language model (~57 MB). Download it once; after that, it works offline.</string>
+    <string name="transcribe_consent_ok">Got it</string>
+
+    <string name="transcribe_notif_canal">Transcription</string>
+    <string name="transcribe_notif_titulo">Transcribing…</string>
+    <string name="transcribe_notif_texto">The text stays on the device, no internet</string>
+    <string name="transcribe_notif_cancelar">Cancel</string>
+
+    <string name="models_title">Manage language models</string>
+    <string name="models_hint">Download once; after that, transcription works without internet.</string>
+    <string name="models_tamanho">Model ~%1$s</string>
+    <string name="models_baixar">Import model</string>
+    <string name="models_remover">Remove</string>
+    <string name="models_baixado">Downloaded</string>
+    <string name="models_ausente">Not downloaded</string>
+    <string name="models_corrompido">Corrupted file</string>
+    <string name="models_removido">Model removed</string>
+    <string name="models_importado">Model imported</string>
+    <string name="models_hash_invalido">The file does not match the expected model</string>
+    <string name="models_importe_hint">Select the ggml-base-q5_1.bin file downloaded from the official whisper.cpp repository (or your own copy).</string>
+    <string name="models_fechar">Close</string>
+</resources>

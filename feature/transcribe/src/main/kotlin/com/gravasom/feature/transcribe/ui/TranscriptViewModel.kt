@@ -1,20 +1,29 @@
 package com.gravasom.feature.transcribe.ui
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gravasom.core.domain.transcript.ModelManager
 import com.gravasom.core.domain.transcript.ModelState
 import com.gravasom.core.domain.transcript.Transcript
+import com.gravasom.core.domain.transcript.TranscriptFormat
 import com.gravasom.core.domain.transcript.TranscriptRepository
+import com.gravasom.core.domain.transcript.TranscriptSegment
 import com.gravasom.core.domain.transcript.TranscriptStatus
 import com.gravasom.core.domain.transcript.TranscriptionLang
 import com.gravasom.core.domain.transcript.TranscriptionScheduler
+import com.gravasom.feature.transcribe.model.TranscriptFormats
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 /** Estado da aba Transcricao de uma gravacao. */
@@ -34,10 +43,15 @@ data class TranscriptUiState(
  */
 @HiltViewModel
 class TranscriptViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val transcripts: TranscriptRepository,
     private val models: ModelManager,
     private val scheduler: TranscriptionScheduler,
 ) : ViewModel() {
+
+    /** Resultado de uma exportacao (Snackbar curto). */
+    private val _exportEvent = MutableStateFlow<Boolean?>(null)
+    val exportEvent: StateFlow<Boolean?> = _exportEvent.asStateFlow()
 
     private val _state = MutableStateFlow(TranscriptUiState())
     val state: StateFlow<TranscriptUiState> = _state.asStateFlow()
@@ -66,5 +80,41 @@ class TranscriptViewModel @Inject constructor(
     fun cancelar() {
         if (recordingId <= 0) return
         scheduler.cancel(recordingId)
+    }
+
+    /**
+     * Exporta a transcricao concluida para o [destino] (SAF). O formato vem do nome escolhido no
+     * seletor; sem tempos persistidos, VTT/SRT reconstroem segmentos com 1 s por frase.
+     */
+    fun exportar(destino: Uri, formato: TranscriptFormat) = viewModelScope.launch {
+        val t = _state.value.atual ?: return@launch
+        if (t.status != TranscriptStatus.DONE) return@launch
+        val texto = TranscriptFormats.render(formato, segmentosDe(t.text.orEmpty(), formato))
+        val ok = runCatching {
+            withContext(Dispatchers.IO) {
+                context.contentResolver.openOutputStream(destino)?.use { saida ->
+                    saida.write(texto.toByteArray(Charsets.UTF_8))
+                } ?: return@withContext false
+                true
+            }
+        }.getOrElse {
+            Timber.w(it, "falha ao exportar transcricao")
+            false
+        }
+        _exportEvent.value = ok
+    }
+
+    fun exportEventConsumido() {
+        _exportEvent.value = null
+    }
+
+    private fun segmentosDe(texto: String, formato: TranscriptFormat): List<TranscriptSegment> {
+        if (formato == TranscriptFormat.PLAIN) return listOf(TranscriptSegment(0, 0, texto))
+        var t = 0L
+        return texto.lineSequence().filter { it.isNotBlank() }.map { linha ->
+            val seg = TranscriptSegment(t, t + 1_000, linha)
+            t += 1_000
+            seg
+        }.toList()
     }
 }

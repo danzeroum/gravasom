@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Aba Transcricao no detalhe/player -->
+    <string name="transcribe_titulo">Transcrição</string>
+    <string name="transcribe_offline_hint">Feita no aparelho, sem internet</string>
+    <string name="transcribe_vazio">Sem transcrição ainda.</string>
+    <string name="transcribe_acao">Transcrever</string>
+    <string name="transcribe_rodando">Transcrevendo…</string>
+    <string name="transcribe_cancelar">Cancelar</string>
+    <string name="transcribe_falhou">Não foi possível transcrever: %1$s</string>
+    <string name="transcribe_tentar_novamente">Tentar novamente</string>
+    <string name="transcribe_copiar">Copiar tudo</string>
+    <string name="transcribe_exportar_txt">Exportar .txt</string>
+    <string name="transcribe_exportar_vtt">Exportar .vtt</string>
+    <string name="transcribe_exportar_srt">Exportar .srt</string>
+    <string name="transcribe_exportado">Transcrição salva</string>
+    <string name="transcribe_exportar_falhou">Não foi possível salvar a transcrição</string>
+    <string name="transcribe_preparando">Preparando…</string>
+    <string name="transcribe_consent_title">Transcrever sem internet</string>
+    <string name="transcribe_consent_body">A transcrição acontece dentro do aparelho. O áudio e o texto não são enviados para lugar nenhum.\n\nPara começar, o Gravasom precisa do modelo do idioma (~57 MB). Baixe uma vez; depois funciona offline.</string>
+    <string name="transcribe_consent_ok">Entendi</string>
+
+    <!-- Notificacao do worker -->
+    <string name="transcribe_notif_canal">Transcrição</string>
+    <string name="transcribe_notif_titulo">Transcrevendo…</string>
+    <string name="transcribe_notif_texto">O texto fica no aparelho, sem internet</string>
+    <string name="transcribe_notif_cancelar">Cancelar</string>
+
+    <!-- Gerenciar modelos -->
+    <string name="models_title">Gerenciar modelos de idioma</string>
+    <string name="models_hint">Baixe uma vez; depois a transcrição funciona sem internet.</string>
+    <string name="models_tamanho">Modelo ~%1$s</string>
+    <string name="models_baixar">Importar modelo</string>
+    <string name="models_remover">Remover</string>
+    <string name="models_baixado">Baixado</string>
+    <string name="models_ausente">Não baixado</string>
+    <string name="models_corrompido">Arquivo corrompido</string>
+    <string name="models_removido">Modelo removido</string>
+    <string name="models_importado">Modelo importado</string>
+    <string name="models_hash_invalido">O arquivo não bate com o modelo esperado</string>
+    <string name="models_importe_hint">Selecione o arquivo ggml-base-q5_1.bin baixado do repositório oficial do whisper.cpp (ou de uma cópia sua).</string>
+    <string name="models_fechar">Fechar</string>
+</resources>
