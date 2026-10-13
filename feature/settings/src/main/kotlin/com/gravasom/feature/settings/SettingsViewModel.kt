@@ -11,6 +11,8 @@ import com.gravasom.core.domain.metrics.LibraryStats
 import com.gravasom.core.domain.metrics.UsageEventType
 import com.gravasom.core.domain.preset.FormatPreset
 import com.gravasom.core.domain.repository.RecordingRepository
+import com.gravasom.core.domain.transcript.TranscriptFormat
+import com.gravasom.core.domain.transcript.TranscriptionLang
 import com.gravasom.core.service.backup.BackupResult
 import com.gravasom.core.service.backup.BackupService
 import com.gravasom.core.service.backup.RestoreResult
@@ -36,6 +38,10 @@ data class SettingsUiState(
     val numbersOptIn: Boolean = false,
     /** Preset de formato escolhido; null = personalizado. */
     val preset: FormatPreset? = null,
+    // Transcricao (Onda 3, ADR-016). Desligada por padrao; pt-BR e PLAIN sao o ponto de partida.
+    val transcribeEnabled: Boolean = false,
+    val transcribeLang: TranscriptionLang = TranscriptionLang.PT_BR,
+    val transcribeFormat: TranscriptFormat = TranscriptFormat.PLAIN,
 )
 
 /** Contadores de uso (so existem com opt-in) mais as estatisticas da biblioteca (sempre disponiveis, locais). */
@@ -72,9 +78,23 @@ class SettingsViewModel @Inject constructor(
     private val backup: BackupService,
 ) : ViewModel() {
 
-    val settings: StateFlow<SettingsUiState> = combine(
+    private val transcricao = combine(
+        prefs.transcribeEnabled, prefs.transcriptionLang, prefs.transcriptionFormat,
+    ) { on, lang, format ->
+        Triple(
+            on,
+            TranscriptionLang.fromTag(lang) ?: TranscriptionLang.PT_BR,
+            TranscriptFormat.entries.firstOrNull { it.name == format } ?: TranscriptFormat.PLAIN,
+        )
+    }
+
+    private val base = combine(
         prefs.format, prefs.bitrate, prefs.privateVault, prefs.telemetryOptIn, prefs.preset,
     ) { f, b, p, n, preset -> SettingsUiState(f, b, p, n, preset) }
+
+    val settings: StateFlow<SettingsUiState> = combine(base, transcricao) { s, (on, lang, format) ->
+        s.copy(transcribeEnabled = on, transcribeLang = lang, transcribeFormat = format)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SettingsUiState())
 
     private val counters = combine(
@@ -93,6 +113,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setBitrate(kbps: Int) = viewModelScope.launch { prefs.setBitrate(kbps) }
+    fun setTranscribeEnabled(enabled: Boolean) = viewModelScope.launch { prefs.setTranscribeEnabled(enabled) }
+    fun setTranscribeLang(lang: TranscriptionLang) = viewModelScope.launch { prefs.setTranscriptionLang(lang.tag) }
+    fun setTranscribeFormat(format: TranscriptFormat) = viewModelScope.launch { prefs.setTranscriptionFormat(format.name) }
     fun setPreset(preset: FormatPreset) = viewModelScope.launch { prefs.setPreset(preset) }
     fun setPrivate(enabled: Boolean) = viewModelScope.launch { prefs.setPrivateVault(enabled) }
     fun setNumbersOptIn(enabled: Boolean) = viewModelScope.launch { prefs.setTelemetryOptIn(enabled) }

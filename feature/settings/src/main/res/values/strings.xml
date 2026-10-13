@@ -70,4 +70,13 @@
     </plurals>
     <string name="backup_wrong_password">Senha errada: nada foi restaurado.</string>
     <string name="backup_failed">Falha: %1$s</string>
+    <string name="settings_section_transcription">Transcrição</string>
+    <string name="settings_transcribe_enabled">Transcrever ao gravar</string>
+    <string name="settings_transcribe_enabled_desc">O texto fica no aparelho, sem internet.</string>
+    <string name="settings_transcribe_lang">Idioma da transcrição</string>
+    <string name="settings_transcribe_format">Formato de saída</string>
+    <string name="settings_transcribe_format_plain">Texto simples (.txt)</string>
+    <string name="settings_transcribe_format_vtt">Legenda WebVTT (.vtt)</string>
+    <string name="settings_transcribe_format_srt">Legenda SubRip (.srt)</string>
+    <string name="settings_manage_models">Gerenciar modelos de idioma</string>
 </resources>

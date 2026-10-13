@@ -33,6 +33,7 @@ import com.gravasom.feature.library.LibraryScreen
 import com.gravasom.feature.record.RecordScreen
 import com.gravasom.feature.settings.NumbersScreen
 import com.gravasom.feature.settings.SettingsScreen
+import com.gravasom.feature.transcribe.ui.ModelsScreen
 
 private data class Tab(val route: String, val label: Int, val icon: ImageVector, val tag: String)
 
@@ -86,8 +87,14 @@ fun GravasomApp(
             composable(MainActivity.ROUTE_LIBRARY) {
                 LibraryScreen(onOpenEnhance = { id -> nav.navigate("melhorar/$id") })
             }
-            composable(MainActivity.ROUTE_SETTINGS) { SettingsScreen(onOpenNumbers = { nav.navigate(MainActivity.ROUTE_NUMBERS) }) }
+            composable(MainActivity.ROUTE_SETTINGS) {
+                SettingsScreen(
+                    onOpenNumbers = { nav.navigate(MainActivity.ROUTE_NUMBERS) },
+                    onOpenModels = { nav.navigate(MainActivity.ROUTE_MODELS) },
+                )
+            }
             composable(MainActivity.ROUTE_NUMBERS) { NumbersScreen() }
+            composable(MainActivity.ROUTE_MODELS) { ModelsScreen() }
             composable(
                 MainActivity.ROUTE_ENHANCE,
                 arguments = listOf(navArgument("recordingId") { type = NavType.LongType }),

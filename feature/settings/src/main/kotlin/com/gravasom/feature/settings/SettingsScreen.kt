@@ -42,7 +42,12 @@ private val Bitrates = listOf(64, 128, 192)
 private val MIN_TOUCH_TARGET = 48.dp
 
 @Composable
-fun SettingsScreen(onOpenNumbers: () -> Unit, modifier: Modifier = Modifier, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    onOpenNumbers: () -> Unit,
+    onOpenModels: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val s by viewModel.settings.collectAsStateWithLifecycle()
     var showLicenses by remember { mutableStateOf(false) }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -73,6 +78,16 @@ fun SettingsScreen(onOpenNumbers: () -> Unit, modifier: Modifier = Modifier, vie
         }
         HorizontalDivider()
         BackupSection(viewModel)
+        HorizontalDivider()
+        TranscriptionSettingsSection(
+            habilitado = s.transcribeEnabled,
+            lang = s.transcribeLang,
+            format = s.transcribeFormat,
+            onHabilitado = viewModel::setTranscribeEnabled,
+            onLang = viewModel::setTranscribeLang,
+            onFormat = viewModel::setTranscribeFormat,
+            onOpenModels = onOpenModels,
+        )
         HorizontalDivider()
         Section(R.string.settings_section_about)
         Text(stringResource(R.string.settings_no_internet), style = MaterialTheme.typography.bodyMedium)
