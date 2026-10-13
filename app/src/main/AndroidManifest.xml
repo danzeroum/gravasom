@@ -11,6 +11,15 @@
     <!-- So ate a API 28: a copia publica em Music/Recordings precisa dela. A partir da API 29 o MediaStore dispensa permissao. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
 
+    <!--
+      O app NAO usa internet. O WorkManager (que roda a transcricao) traz ACCESS_NETWORK_STATE
+      por padrao para checar restricoes de rede; a transcricao e offline, entao a permissao e
+      removida. INTERNET tambem e removida (defesa em profundidade: se alguma dependencia a
+      trouxer, o merge falha em vez de o app ganhar rede silenciosamente).
+    -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+
     <application
         android:name=".GravasomApplication"
         android:allowBackup="false"
