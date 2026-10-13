@@ -21,6 +21,9 @@ interface TranscriptDao {
     @Query("UPDATE transcripts SET text = :text, status = :status, updatedAtMillis = :updatedAtMillis WHERE id = :id")
     suspend fun updateText(id: Long, text: String?, status: String, updatedAtMillis: Long)
 
+    @Query("UPDATE transcripts SET text = :text, segments = :segments, status = :status, updatedAtMillis = :updatedAtMillis WHERE id = :id")
+    suspend fun updateTextComSegmentos(id: Long, text: String?, segments: String?, status: String, updatedAtMillis: Long)
+
     @Query(
         "UPDATE transcripts SET status = :status, errorMessage = :errorMessage, updatedAtMillis = :updatedAtMillis " +
             "WHERE recordingId = :recordingId AND language = :language",

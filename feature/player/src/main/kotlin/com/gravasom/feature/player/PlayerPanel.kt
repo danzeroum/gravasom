@@ -73,8 +73,9 @@ fun PlayerPanel(
     maxHeight: Dp,
     modifier: Modifier = Modifier,
     // Slot injetavel: os testes de UI renderizam o painel sem grafo Hilt. Em producao o padrao
-    // (PlayerDock) passa a secao real; nos testes passa um stub vazio.
-    transcriptionSection: @Composable (Long) -> Unit = {},
+    // (PlayerDock) passa a secao real; nos testes passa um stub vazio. Recebe a posicao atual
+    // e um callback de seek para o player sincronizado (frase destacada, toque pula).
+    transcriptionSection: @Composable (recordingId: Long, positionMillis: Long, onSeek: (Long) -> Unit) -> Unit = { _, _, _ -> },
 ) {
     val recording = state.recording ?: return
     val duration = maxOf(recording.durationMillis, controller.durationMillis.value)
@@ -94,7 +95,8 @@ fun PlayerPanel(
             if (state.selecting) SelectionBar(state, callbacks.selection)
             MarkerList(state.markers, controller, callbacks.markers)
             // Aba Transcricao (Onda 3, ADR-016). Fica no fim do painel para nao empurrar o player.
-            transcriptionSection(recording.id)
+            val posicaoAtual by controller.positionMillis.collectAsStateWithLifecycle()
+            transcriptionSection(recording.id, posicaoAtual) { millis -> controller.seekToAndPlay(millis) }
         }
     }
 }

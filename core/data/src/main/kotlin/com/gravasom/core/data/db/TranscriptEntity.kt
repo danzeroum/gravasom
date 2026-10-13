@@ -31,6 +31,8 @@ data class TranscriptEntity(
     val format: String,
     val status: String,
     val text: String?,
+    /** Frases com tempo, codificadas (ver TranscriptMapper). Nulo em transcricoes PLAIN ou antigas. */
+    val segments: String? = null,
     val errorMessage: String?,
     val createdAtMillis: Long,
     val updatedAtMillis: Long,

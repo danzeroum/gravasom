@@ -2,6 +2,7 @@ package com.gravasom.feature.transcribe.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +56,8 @@ fun TranscriptSection(
     recordingId: Long,
     language: TranscriptionLang,
     modifier: Modifier = Modifier,
+    positionMillis: Long = 0L,
+    onSeek: (Long) -> Unit = {},
     onOpenModels: () -> Unit = {},
     viewModel: TranscriptViewModel = hiltViewModel(),
 ) {
@@ -100,7 +104,11 @@ fun TranscriptSection(
                 Acao(stringResource(R.string.transcribe_tentar_novamente), Icons.Filled.Refresh, viewModel::transcrever, "tentar")
             }
             t.status == TranscriptStatus.DONE -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(t.text.orEmpty(), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("texto_transcricao"))
+                if (t.segments.isNotEmpty()) {
+                    SegmentosComTempo(t.segments, positionMillis, onSeek)
+                } else {
+                    Text(t.text.orEmpty(), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("texto_transcricao"))
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     AssistChip(
                         onClick = { clipboard.setText(AnnotatedString(t.text.orEmpty())) },
@@ -171,6 +179,29 @@ private fun Acao(rotulo: String, icone: androidx.compose.ui.graphics.vector.Imag
         label = { Text(rotulo) },
         modifier = Modifier.testTag("acao_transcricao_$tag"),
     )
+}
+
+/**
+ * Frases com tempo: a atual fica destacada e o toque pula o player para ela (player sincronizado,
+ * ADR-016 secao 7). O destaque usa negrito + cor de destaque (nao so cor: funciona para daltonicos).
+ */
+@Composable
+private fun SegmentosComTempo(
+    segments: List<com.gravasom.core.domain.transcript.TranscriptSegment>,
+    positionMillis: Long,
+    onSeek: (Long) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.testTag("segmentos_transcricao")) {
+        segments.forEach { s ->
+            val atual = positionMillis in s.startMillis until s.endMillis
+            Text(
+                text = s.text,
+                style = if (atual) MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyMedium,
+                color = if (atual) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth().clickable { onSeek(s.startMillis) }.testTag("segmento_${s.startMillis}"),
+            )
+        }
+    }
 }
 
 /** Deduz o formato pela extensao do nome escolhido no seletor (padrao: PLAIN). */

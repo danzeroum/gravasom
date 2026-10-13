@@ -96,8 +96,11 @@ class TranscriptionWorker @AssistedInject constructor(
 
             val acumulado = StringBuilder()
             var frases = 0
-            val resultado = transcriber.transcribe(pcmTemp, lang, timestamps = false) { segmento ->
+            val segmentos = ArrayList<com.gravasom.core.domain.transcript.TranscriptSegment>()
+            // Com tempos: o player sincronizado usa os segmentos (ADR-016 secao 7).
+            val resultado = transcriber.transcribe(pcmTemp, lang, timestamps = true) { segmento ->
                 acumulado.append(segmento.text).append('\n')
+                segmentos += segmento
                 frases++
                 if (frases % TranscriptionProgress.FLUSH_FRASES == 0) {
                     // Flush do cache transitorio (ADR-016 secao 4): a cada 10 frases, grava o texto
@@ -107,9 +110,11 @@ class TranscriptionWorker @AssistedInject constructor(
                 }
             }
 
-            dao.updateText(
-                id = dao.find(recordingId, lang.tag)?.id ?: 0L,
+            val id = dao.find(recordingId, lang.tag)?.id ?: 0L
+            dao.updateTextComSegmentos(
+                id = id,
                 text = resultado.text,
+                segments = com.gravasom.core.data.db.encodeSegments(segmentos),
                 status = TranscriptStatus.DONE.name,
                 updatedAtMillis = System.currentTimeMillis(),
             )

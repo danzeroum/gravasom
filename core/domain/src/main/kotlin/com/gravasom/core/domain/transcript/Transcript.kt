@@ -52,6 +52,11 @@ data class Transcript(
     val format: TranscriptFormat,
     val status: TranscriptStatus,
     val text: String? = null,
+    /**
+     * Frases com tempo (start/end em ms do arquivo). Vazio em PLAIN ou em transcricoes antigas.
+     * O player usa para destacar a frase atual e pular ao toque (ADR-016 secao 7).
+     */
+    val segments: List<TranscriptSegment> = emptyList(),
     val errorMessage: String? = null,
     val createdAtMillis: Long,
     val updatedAtMillis: Long,

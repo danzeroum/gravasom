@@ -74,8 +74,13 @@ internal fun PlayerDock(
     BoxWithConstraints {
         PlayerPanel(
             player, state, callbacks, maxHeight = maxHeight * PANEL_FRACTION, modifier = Modifier.padding(12.dp),
-            transcriptionSection = { recordingId ->
-                TranscriptSection(recordingId = recordingId, language = TranscriptionLang.PT_BR)
+            transcriptionSection = { recordingId, positionMillis, onSeek ->
+                TranscriptSection(
+                    recordingId = recordingId,
+                    language = TranscriptionLang.PT_BR,
+                    positionMillis = positionMillis,
+                    onSeek = onSeek,
+                )
             },
         )
     }
