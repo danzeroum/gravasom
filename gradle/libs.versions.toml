@@ -74,6 +74,7 @@ media3-common = { module = "androidx.media3:media3-common", version.ref = "media
 media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltNavigationCompose" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }

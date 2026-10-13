@@ -68,6 +68,7 @@ dependencies {
     androidTestImplementation(libs.room.ktx)
 
     testImplementation(libs.junit4)
+    testImplementation(libs.work.testing)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
