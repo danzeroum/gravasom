@@ -91,6 +91,7 @@ dependencies {
 
     androidTestImplementation(project(":core:audio-engine"))
     androidTestImplementation(project(":core:audio-android"))
+    androidTestImplementation(project(":feature:transcribe"))
     androidTestImplementation(project(":core:data"))
     androidTestImplementation(project(":core:dsp"))
     androidTestImplementation(libs.room.runtime)
