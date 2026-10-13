@@ -16,6 +16,7 @@ import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.analysis.RecordingAnalyzer
 import com.gravasom.core.service.library.MediaStorePublisher
 import com.gravasom.core.service.library.RecordingFiles
+import com.gravasom.core.domain.transcript.TranscriptionScheduler
 import com.gravasom.core.service.library.RecordingIngestor
 import com.gravasom.core.service.library.VaultStore
 import kotlinx.coroutines.flow.first

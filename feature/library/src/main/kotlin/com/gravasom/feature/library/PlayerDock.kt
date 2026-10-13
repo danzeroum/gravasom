@@ -20,6 +20,7 @@ import com.gravasom.core.domain.marker.MarkerNote
 import com.gravasom.core.domain.marker.MarkerRejection
 import com.gravasom.core.domain.marker.MarkerResult
 import com.gravasom.core.domain.model.Recording
+import com.gravasom.core.domain.transcript.TranscriptionLang
 import com.gravasom.feature.player.MarkerCallbacks
 import com.gravasom.feature.player.MarkerDialog
 import com.gravasom.feature.player.MarkerDialogTarget
@@ -28,6 +29,7 @@ import com.gravasom.feature.player.PlayerCallbacks
 import com.gravasom.feature.player.PlayerController
 import com.gravasom.feature.player.PlayerEvent
 import com.gravasom.feature.player.PlayerPanel
+import com.gravasom.feature.transcribe.ui.TranscriptSection
 import com.gravasom.feature.player.PlayerViewModel
 import com.gravasom.feature.player.SelectionCallbacks
 import com.gravasom.feature.player.SkipCallbacks
@@ -70,7 +72,12 @@ internal fun PlayerDock(
         skip = SkipCallbacks(onEnabled = vm::setSkipEnabled, onSensitivity = vm::setSensitivity),
     )
     BoxWithConstraints {
-        PlayerPanel(player, state, callbacks, maxHeight = maxHeight * PANEL_FRACTION, modifier = Modifier.padding(12.dp))
+        PlayerPanel(
+            player, state, callbacks, maxHeight = maxHeight * PANEL_FRACTION, modifier = Modifier.padding(12.dp),
+            transcriptionSection = { recordingId ->
+                TranscriptSection(recordingId = recordingId, language = TranscriptionLang.PT_BR)
+            },
+        )
     }
     target?.let { dialogTarget ->
         val marker = when (dialogTarget) {

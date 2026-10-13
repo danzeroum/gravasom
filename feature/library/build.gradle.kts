@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:service"))
     implementation(project(":feature:player"))
+    implementation(project(":feature:transcribe"))
     implementation(project(":core:audio-engine"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

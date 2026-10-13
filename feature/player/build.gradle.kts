@@ -15,7 +15,6 @@ dependencies {
     implementation(project(":core:audio-engine"))
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(project(":core:ui"))
-    implementation(project(":feature:transcribe"))
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.hilt.navigation.compose)

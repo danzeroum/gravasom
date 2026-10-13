@@ -16,4 +16,10 @@ interface TranscriptionScheduler {
 
     /** Cancela o trabalho pendente da gravacao (se houver). Idempotente. */
     fun cancel(recordingId: Long)
+
+    /** Sem efeito: usado onde a transcricao nao existe (testes de outras features, builds sem a feature). */
+    object NoOp : TranscriptionScheduler {
+        override fun enqueue(recordingId: Long, lang: TranscriptionLang) = Unit
+        override fun cancel(recordingId: Long) = Unit
+    }
 }
