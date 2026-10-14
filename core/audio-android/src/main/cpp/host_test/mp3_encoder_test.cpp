@@ -147,7 +147,52 @@ static void TestaQuadroDeTag() {
   }
 }
 
+// Contrato de `frames`: amostras POR CANAL. Em estereo intercalado, N frames consomem 2N shorts.
+// Regressao do bug do PcmMp3Recorder, que passava o total de shorts lidos (L+R) como `frames`.
+static void TestaEstereoContratoDeFrames() {
+  const int taxa = 44100;
+  auto mono = Seno(2.0, taxa);                       // 2 s = 88200 frames
+  std::vector<int16_t> estereo(mono.size() * 2);     // L = R intercalado: 176400 shorts
+  for (size_t i = 0; i < mono.size(); ++i) { estereo[2 * i] = mono[i]; estereo[2 * i + 1] = mono[i]; }
+
+  auto codifica = [&](int frames) {
+    auto enc = Mp3Encoder::Create(taxa, 2, 128, 5);
+    std::vector<uint8_t> saida, buf(1 << 20);
+    if (!enc) return saida;
+    int w = enc->Encode(estereo.data(), frames, buf.data(), static_cast<int>(buf.size()));
+    if (w < 0) return std::vector<uint8_t>{};
+    saida.insert(saida.end(), buf.begin(), buf.begin() + w);
+    w = enc->Flush(buf.data(), static_cast<int>(buf.size()));
+    if (w > 0) saida.insert(saida.end(), buf.begin(), buf.begin() + w);
+    return saida;
+  };
+
+  Quadros certo = ParseQuadros(codifica(static_cast<int>(mono.size())));
+  double dur = certo.quantos * 1152.0 * 1000.0 / (certo.taxa ? certo.taxa : 1);
+  std::printf("medida: estereo frames corretos -> %.1f ms\n", dur);
+  VERIFICA(std::fabs(dur - 2000.0) <= 100.0, "duracao estereo %.1f ms fora de 2000 +-100", dur);
+  // Passar o total de shorts como frames faz o LAME ler alem do buffer: o ASan acusa; nao executamos isso aqui.
+  // A protecao esperada fica no JNI (GetArrayLength(pcm) >= frames * channels) e e verificada no teste instrumentado.
+}
+
+// Encode com `frames` negativo ou ponteiro nulo nunca pode escrever nem travar.
+static void TestaEntradasInvalidasNaoEscrevem() {
+  auto enc = Mp3Encoder::Create(44100, 1, 128, 5);
+  VERIFICA(enc != nullptr, "create");
+  if (!enc) return;
+  uint8_t out[64];
+  std::memset(out, 0xAB, sizeof out);
+  int16_t pcm[4] = {0, 0, 0, 0};
+  int w = enc->Encode(pcm, -1, out, sizeof out);
+  VERIFICA(w <= 0, "frames negativo deveria falhar ou nao escrever, retornou %d", w);
+  for (size_t i = 0; i < sizeof out; ++i) VERIFICA(out[i] == 0xAB, "escreveu fora do esperado em out[%zu]", i);
+  w = enc->Encode(pcm, 0, out, sizeof out);
+  VERIFICA(w >= 0, "frames=0 deveria ser no-op, retornou %d", w);
+}
+
 int main() {
+  TestaEstereoContratoDeFrames();
+  TestaEntradasInvalidasNaoEscrevem();
   TestaQuadroDeTag();
   TestaParametrosInvalidos();
   TestaDuracaoETamanho();

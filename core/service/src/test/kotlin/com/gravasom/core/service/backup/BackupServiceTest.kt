@@ -233,4 +233,91 @@ class BackupServiceTest {
         assertEquals(0, (restore as RestoreResult.Done).restored)
         assertTrue(saver.saved.isEmpty())
     }
+
+    // ---- Cabecalho hostil / pacote truncado: restaurar NUNCA lanca, nunca trava e nunca deixa lixo. ----
+    // Layout: MAGIC(4) versao(1) saltLen(int@5) salt(16 @9) iteracoes(int@25) wrappedLen(int@29) wrapped(...)
+
+    private fun pacoteValido(bytes: Int = 20_000): File {
+        runBlocking { gravacao(7, "Aula", arquivo("h$bytes.wav", bytes)) }
+        val pacote = tmp.newFile("p_${System.nanoTime()}.gravasom")
+        runBlocking { pacote.outputStream().use { service.create(it, "certa".toCharArray()) } }
+        return pacote
+    }
+
+    private fun File.patchInt(offset: Int, valor: Int): File = apply {
+        val b = readBytes()
+        java.nio.ByteBuffer.wrap(b).putInt(offset, valor)
+        writeBytes(b)
+    }
+
+    private fun restaurarSemExcecao(pacote: File): RestoreResult = runBlocking {
+        pacote.inputStream().use { service.restore(it, "certa".toCharArray()) }
+    }
+
+    private fun assertFalhaLimpa(r: RestoreResult) {
+        assertTrue("esperava Failed/WrongPassword, veio $r", r is RestoreResult.Failed || r == RestoreResult.WrongPassword)
+        assertTrue("nada deveria ser restaurado", saver.saved.isEmpty())
+        val resto = File(ApplicationProvider.getApplicationContext<Context>().cacheDir, "restaurar")
+        assertTrue("pasta temporaria de restauracao nao foi limpa", !resto.exists() || resto.listFiles().isNullOrEmpty())
+    }
+
+    @Test
+    fun `iteracoes PBKDF2 gigantes no cabecalho falham rapido em vez de travar`() {
+        val pacote = pacoteValido().patchInt(25, Int.MAX_VALUE)
+        val t0 = System.nanoTime()
+        val r = restaurarSemExcecao(pacote)
+        val ms = (System.nanoTime() - t0) / 1_000_000
+        assertFalhaLimpa(r)
+        assertTrue("levou ${ms}ms: iteracoes sem teto", ms < 5_000)
+    }
+
+    @Test
+    fun `iteracoes zero ou negativas no cabecalho falham sem excecao`() {
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido().patchInt(25, 0)))
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido(21_000).patchInt(25, -5)))
+    }
+
+    @Test
+    fun `tamanho de sal negativo ou gigante no cabecalho falha sem excecao nem OOM`() {
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido().patchInt(5, -1)))
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido(22_000).patchInt(5, Int.MAX_VALUE)))
+    }
+
+    @Test
+    fun `tamanho do keyset embrulhado menor que o IV falha sem excecao`() {
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido().patchInt(29, 3)))
+        assertFalhaLimpa(restaurarSemExcecao(pacoteValido(23_000).patchInt(29, -1)))
+    }
+
+    @Test
+    fun `pacote truncado em qualquer ponto falha sem excecao`() {
+        val inteiro = pacoteValido(30_000).readBytes()
+        for (corte in listOf(0, 3, 4, 5, 20, 28, 33, 60, inteiro.size / 2, inteiro.size - 1)) {
+            val parcial = tmp.newFile("corte_$corte.gravasom").apply { writeBytes(inteiro.copyOf(corte)) }
+            assertFalhaLimpa(restaurarSemExcecao(parcial))
+        }
+    }
+
+    @Test
+    fun `senha vazia no restore devolve senha errada sem excecao`() = runBlocking {
+        val pacote = pacoteValido()
+        val r = pacote.inputStream().use { service.restore(it, CharArray(0)) }
+        assertTrue(r.toString(), r == RestoreResult.WrongPassword || r is RestoreResult.Failed)
+        assertTrue(saver.saved.isEmpty())
+    }
+
+    @Test
+    fun `create nao deixa o repositorio nem os arquivos originais alterados quando o destino falha`() = runBlocking {
+        val original = gravacao(7, "Aula", arquivo("orig.wav", 40_000))
+        val hash = sha256(File(original.path))
+        val quebrado = object : java.io.OutputStream() {
+            private var n = 0
+            override fun write(b: Int) { if (++n > 200) throw java.io.IOException("disco cheio") }
+        }
+        val r = service.create(quebrado, "senha".toCharArray())
+        assertTrue(r.toString(), r is BackupResult.Failed)
+        assertEquals(hash, sha256(File(original.path)))
+        assertEquals(1, repo.recordings.size)
+        assertEquals(0, repo.foreverDeleted)
+    }
 }
