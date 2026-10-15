@@ -28,10 +28,12 @@ class ClipService(
 ) {
 
     suspend fun export(recording: Recording, startMillis: Long, endMillis: Long): ClipOutcome = withContext(Dispatchers.IO) {
-        val source = runCatching { File(files.playablePath(recording)) }.getOrNull()
+        // Copia em claro de uso unico: apagada logo apos o corte (antes ficava em cache/vault-play ate a proxima abertura do app).
+        val plain = runCatching { files.openPlain(recording) }.getOrNull()
             ?: return@withContext ClipOutcome.Failed("origem ilegivel")
         val target = File(RecordingStorage.dir(context), "trecho_${System.currentTimeMillis()}.${recording.format.extension}")
-        when (val r = exporter.export(source, recording.format, startMillis, endMillis, target)) {
+        val exported = plain.use { exporter.export(it.file, recording.format, startMillis, endMillis, target) }
+        when (val r = exported) {
             is ClipResult.Failed -> ClipOutcome.Failed(r.reason)
             is ClipResult.Done -> {
                 val title = ClipTitle.build(recording.title, startMillis, endMillis, pt = Locale.getDefault().language == "pt")

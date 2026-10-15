@@ -54,6 +54,9 @@ class RecordingFiles(
         vaultStore.openPlain(recording).use { block(it.file) }
     }
 
+    /** Copia em claro de uso unico para quem precisa dela ao longo de varias etapas; quem pede DEVE fechar (`use`). */
+    suspend fun openPlain(recording: Recording): VaultStore.PlainCopy = withContext(Dispatchers.IO) { vaultStore.openPlain(recording) }
+
     /** Apaga as copias em claro que sobraram no cache (chamado ao abrir o app). */
     fun clearTemp() = vaultStore.clearTemp()
 

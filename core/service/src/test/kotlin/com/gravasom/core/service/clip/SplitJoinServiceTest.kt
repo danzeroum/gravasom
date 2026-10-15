@@ -51,22 +51,27 @@ class SplitJoinServiceTest {
     private lateinit var db: GravasomDatabase
     private lateinit var splits: SplitService
     private lateinit var joins: JoinService
+    private lateinit var clips: ClipService
+    private lateinit var vault: VaultStore
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         db = GravasomDatabase.create(context)
         repo = RoomRecordingRepository(db.recordingDao())
         val prefs = PreferencesRepository(context)
         val metrics = UsageMetrics(db.usageEventDao(), prefs.telemetryOptIn)
         val publisher = MediaStorePublisher(context)
-        val vault = VaultStore(context, lazy { VaultCrypto(VaultCrypto.newStreamingAead()) })
+        vault = VaultStore(context, lazy { VaultCrypto(VaultCrypto.newStreamingAead()) })
+        vault.clearTemp()
         val markers = RoomMarkerRepository(db.markerDao())
         val analyzer = RecordingAnalyzer(AnalysisStore(db.analysisDao()))
         val ingestor = RecordingIngestor(repo, prefs, metrics, publisher, vault, markers, analyzer)
         val files = RecordingFiles(context, repo, publisher, vault)
         splits = SplitService(context, repo, files, ingestor)
         joins = JoinService(context, repo, files, ingestor)
+        clips = ClipService(context, repo, files, ingestor)
     }
 
     @After
@@ -165,6 +170,85 @@ class SplitJoinServiceTest {
         val outcome = joins.join(listOf(ra, rb))
         assertTrue(outcome.toString(), outcome is JoinOutcome.Failed)
         assertEquals(2, repo.observeAll().first().size)
+    }
+
+    // ---- Cofre: Clip, Join e Split usam copia em claro de uso unico e nao deixam nada no cache. ----
+
+    /** Gravacao PRIVADA: o WAV claro vai para o cofre (cifrado) e a duracao e calculada antes. */
+    private suspend fun gravacaoPrivada(title: String, plain: File): Recording {
+        val duracao = (plain.length() - HEADER_BYTES) / 2 * 1_000 / rate
+        val cifrado = vault.protect(plain)!!
+        val r = Recording(
+            id = 0, title = title, path = cifrado.path, format = RecordingFormat.WAV,
+            durationMillis = duracao, sizeBytes = cifrado.length(), createdAtMillis = 1,
+        )
+        return r.copy(id = repo.insert(r))
+    }
+
+    private fun semClaroNoCache() {
+        for (pasta in listOf("vault-play", "vault-op", "vault-share")) {
+            val sobras = File(context.cacheDir, pasta).listFiles().orEmpty().toList()
+            assertTrue("sobrou claro em $pasta: $sobras", sobras.isEmpty())
+        }
+    }
+
+    /** PCM de uma gravacao do cofre, lido por uma copia de uso unico. */
+    private fun pcmDoCofre(r: Recording): ByteArray = vault.openPlain(r).use { data(it.file) }
+
+    @Test
+    fun `dividir gravacao privada nao deixa copia em claro e as partes continuam no cofre`() = runBlocking {
+        val origem = wav("priv_div.wav", 20_000, base = 5)
+        val pcm = data(origem)
+        val r = gravacaoPrivada("Segredo", origem)
+        val outcome = splits.split(r, (r.durationMillis / 2).coerceAtLeast(201L))
+        assertTrue(outcome.toString(), outcome is SplitOutcome.Saved)
+        outcome as SplitOutcome.Saved
+        val depois = repo.observeAll().first()
+        val p1 = depois.first { it.id == outcome.firstId }
+        val p2 = depois.first { it.id == outcome.secondId }
+        assertTrue("parte 1 saiu do cofre", p1.isPrivate)
+        assertTrue("parte 2 saiu do cofre", p2.isPrivate)
+        assertArrayEquals(pcm, pcmDoCofre(p1) + pcmDoCofre(p2))
+        semClaroNoCache()
+    }
+
+    @Test
+    fun `juntar gravacoes privadas nao deixa copia em claro e a juncao fica no cofre`() = runBlocking {
+        val a = wav("priv_a.wav", rate * 2, base = 10)
+        val b = wav("priv_b.wav", rate, base = 200)
+        val pcmA = data(a)
+        val pcmB = data(b)
+        val ra = gravacaoPrivada("A", a)
+        val rb = gravacaoPrivada("B", b)
+        val outcome = joins.join(listOf(ra, rb))
+        assertTrue(outcome.toString(), outcome is JoinOutcome.Saved)
+        outcome as JoinOutcome.Saved
+        val juncao = repo.observeAll().first().first { it.id == outcome.recordingId }
+        assertTrue("juncao saiu do cofre", juncao.isPrivate)
+        assertArrayEquals(pcmA + pcmB, pcmDoCofre(juncao))
+        semClaroNoCache()
+    }
+
+    @Test
+    fun `exportar trecho de gravacao privada nao deixa copia em claro e o trecho fica no cofre`() = runBlocking {
+        val origem = wav("priv_clip.wav", rate * 2, base = 1)
+        val r = gravacaoPrivada("Reuniao", origem)
+        val outcome = clips.export(r, startMillis = 500L, endMillis = 1_000L)
+        assertTrue(outcome.toString(), outcome is ClipOutcome.Saved)
+        outcome as ClipOutcome.Saved
+        val trecho = repo.observeAll().first().first { it.id == outcome.recordingId }
+        assertTrue("trecho saiu do cofre", trecho.isPrivate)
+        assertEquals(rate / 2 * 2, pcmDoCofre(trecho).size) // 0,5 s de PCM16 mono
+        semClaroNoCache()
+    }
+
+    @Test
+    fun `dividir gravacao nao privada continua sem tocar no cache do cofre`() = runBlocking {
+        val origem = wav("pub_div.wav", 20_000, base = 7)
+        val r = gravacao("Publica", origem)
+        splits.split(r, (r.durationMillis / 2).coerceAtLeast(201L))
+        semClaroNoCache()
+        assertTrue("o original nao pode ser apagado pela copia de uso unico", origem.exists())
     }
 
     private companion object {

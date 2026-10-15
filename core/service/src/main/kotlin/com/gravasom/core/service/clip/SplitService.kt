@@ -37,25 +37,28 @@ class SplitService(
         if (atMillis <= MIN_PART_MILLIS || atMillis >= duration - MIN_PART_MILLIS) {
             return@withContext SplitOutcome.Failed("o ponto de divisao precisa ter audio dos dois lados")
         }
-        val source = runCatching { File(files.playablePath(recording)) }.getOrNull()
+        // Uma unica copia em claro de uso unico para as duas partes, apagada assim que o ultimo corte termina.
+        val plain = runCatching { files.openPlain(recording) }.getOrNull()
             ?: return@withContext SplitOutcome.Failed("origem ilegivel")
         val stamp = System.currentTimeMillis()
         val first = File(RecordingStorage.dir(context), "parte_${stamp}_1.${recording.format.extension}")
         val second = File(RecordingStorage.dir(context), "parte_${stamp}_2.${recording.format.extension}")
-        val r1 = exporter.export(source, recording.format, 0L, atMillis, first)
-        if (r1 !is ClipResult.Done) {
+        val cut = plain.use { copy ->
+            val r1 = exporter.export(copy.file, recording.format, 0L, atMillis, first)
+            if (r1 !is ClipResult.Done) {
+                SplitCut.FirstFailed
+            } else if (exporter.export(copy.file, recording.format, atMillis, duration, second) !is ClipResult.Done) {
+                SplitCut.SecondFailed
+            } else {
+                SplitCut.Done
+            }
+        }
+        if (cut != SplitCut.Done) {
             first.delete()
             second.delete()
-            return@withContext SplitOutcome.Failed("primeira parte nao saiu")
+            return@withContext SplitOutcome.Failed(if (cut == SplitCut.FirstFailed) "primeira parte nao saiu" else "segunda parte nao saiu")
         }
-        val r2 = exporter.export(source, recording.format, atMillis, duration, second)
-        if (r2 !is ClipResult.Done) {
-            first.delete()
-            second.delete()
-            return@withContext SplitOutcome.Failed("segunda parte nao saiu")
-        }
-        val outcome = ingest(recording, first, second)
-        outcome
+        ingest(recording, first, second)
     }
 
     /** Guarda as duas partes; em falha total nada entra, em falha na parte 2 so ela nao entra. */
@@ -81,6 +84,8 @@ class SplitService(
         }
         return SplitOutcome.Saved(id1, id2, title1 to title2)
     }
+
+    private enum class SplitCut { Done, FirstFailed, SecondFailed }
 
     private companion object {
         const val MIN_PART_MILLIS = 200L

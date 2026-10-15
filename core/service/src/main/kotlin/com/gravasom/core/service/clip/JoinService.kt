@@ -7,6 +7,7 @@ import com.gravasom.core.domain.model.Recording
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.RecordingStorage
 import com.gravasom.core.service.library.RecordingFiles
+import com.gravasom.core.service.library.VaultStore
 import com.gravasom.core.service.library.RecordingIngestor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,11 +37,18 @@ class JoinService(
         val distinctFormats = recordings.map { it.format }.distinct()
         if (distinctFormats.size > 1) return@withContext JoinOutcome.Failed("so da para juntar gravacoes do mesmo formato")
         val format = distinctFormats.single()
-        val sources = recordings.map { r ->
-            runCatching { File(files.playablePath(r)) }.getOrNull() ?: return@withContext JoinOutcome.Failed("origem ilegivel")
-        }
         val target = File(RecordingStorage.dir(context), "juncao_${System.currentTimeMillis()}.${format.extension}")
-        val outcome = when (val r = exporter.join(sources, format, target)) {
+        // Copias em claro de uso unico: todas apagadas ao fim da juncao, mesmo se uma das origens falhar ao abrir.
+        val copies = mutableListOf<VaultStore.PlainCopy>()
+        val joined = try {
+            for (r in recordings) {
+                copies += runCatching { files.openPlain(r) }.getOrNull() ?: return@withContext JoinOutcome.Failed("origem ilegivel")
+            }
+            exporter.join(copies.map { it.file }, format, target)
+        } finally {
+            copies.forEach { it.close() }
+        }
+        val outcome = when (val r = joined) {
             is ClipResult.Failed -> JoinOutcome.Failed(r.reason)
             is ClipResult.Done -> save(recordings, r.file)
         }
