@@ -33,16 +33,21 @@ class PcmMp3Recorder(
 
     private val levelFlow = MutableStateFlow(LevelMeter.MIN_DB)
     private var handle: Long = 0L
+    private var channels: Int = 1
     private var job: Job? = null
     private var capture: PcmCapture? = null
     private var file: RandomAccessFile? = null
     private var outputPath: String = ""
+
+    /** Protege `handle` e `file`: a captura (thread de E/S) codifica e escreve; release()/stop() fecham. Sem isto, close() corria com nativeEncode. */
+    private val encoderLock = Any()
 
     override suspend fun prepare(config: RecordingConfig, outputPath: String): Result<Unit> = runCatching {
         if (!LameBridge.ensureLoaded()) throw Mp3NotAvailable()
         handle = LameBridge.nativeInit(config.sampleRateHz, config.channels, config.bitrateKbps, QUALITY)
         if (handle == 0L) throw Mp3NotAvailable()
         this.outputPath = outputPath
+        channels = config.channels
         val tmp = File("$outputPath.tmp")
         tmp.parentFile?.mkdirs()
         file = RandomAccessFile(tmp, "rw").also { it.setLength(0) }
@@ -60,37 +65,42 @@ class PcmMp3Recorder(
                 val read = record.read(pcm, 0, pcm.size)
                 if (read > 0) {
                     levelFlow.value = LevelMeter.rmsDb(pcm.copyOf(read))
-                    val written = LameBridge.nativeEncode(handle, pcm, read, mp3)
-                    if (written > 0) file?.write(mp3, 0, written)
+                    // read conta SHORTS (L+R intercalados); o LAME espera amostras por canal.
+                    val frames = read / channels
+                    synchronized(encoderLock) {
+                        if (handle == 0L) return@launch
+                        val written = LameBridge.nativeEncode(handle, pcm, frames, mp3)
+                        if (written > 0) file?.write(mp3, 0, written)
+                    }
                 }
             }
         }
     }
 
     override suspend fun pause(): Result<Unit> = runCatching {
-        job?.cancel()
-        capture?.close()
+        stopWriter()
     }
 
     override suspend fun resume(): Result<Unit> = start()
 
     override suspend fun stop(): Result<String> = runCatching {
-        job?.cancelAndJoinQuietly()
-        capture?.close()
-        val raf = requireNotNull(file) { "prepare() nao chamado" }
-        val tail = ByteArray(FLUSH_BUFFER)
-        val flushed = LameBridge.nativeFlush(handle, tail)
-        if (flushed > 0) raf.write(tail, 0, flushed)
-        val tag = ByteArray(TAG_BUFFER)
-        val tagSize = LameBridge.nativeTagFrame(handle, tag)
-        if (tagSize > 0) {
-            raf.seek(0)
-            raf.write(tag, 0, tagSize)
+        stopWriter()
+        synchronized(encoderLock) {
+            val raf = requireNotNull(file) { "prepare() nao chamado" }
+            val tail = ByteArray(FLUSH_BUFFER)
+            val flushed = LameBridge.nativeFlush(handle, tail)
+            if (flushed > 0) raf.write(tail, 0, flushed)
+            val tag = ByteArray(TAG_BUFFER)
+            val tagSize = LameBridge.nativeTagFrame(handle, tag)
+            if (tagSize > 0) {
+                raf.seek(0)
+                raf.write(tag, 0, tagSize)
+            }
+            raf.close()
+            file = null
+            LameBridge.nativeClose(handle)
+            handle = 0L
         }
-        raf.close()
-        file = null
-        LameBridge.nativeClose(handle)
-        handle = 0L
         capture = null
         check(File("$outputPath.tmp").renameTo(File(outputPath))) { "falha ao finalizar $outputPath" }
         outputPath
@@ -101,15 +111,25 @@ class PcmMp3Recorder(
     override fun release() {
         job?.cancel()
         capture?.close()
-        runCatching { file?.close() }
-        file = null
-        if (handle != 0L && LameBridge.ensureLoaded()) runCatching { LameBridge.nativeClose(handle) }
-        handle = 0L
+        // Entra na trava: se a captura esta dentro de nativeEncode, espera terminar antes do `delete` nativo (use-after-free).
+        synchronized(encoderLock) {
+            runCatching { file?.close() }
+            file = null
+            if (handle != 0L && LameBridge.ensureLoaded()) runCatching { LameBridge.nativeClose(handle) }
+            handle = 0L
+        }
     }
 
-    private suspend fun Job.cancelAndJoinQuietly() = withContext(Dispatchers.IO) {
-        cancel()
-        join()
+    /**
+     * Para a captura e ESPERA o escritor terminar (mesmo padrao do PcmWavRecorder). `capture.close()` vem antes do join porque
+     * destrava o `AudioRecord.read()` bloqueado. Sem a espera, pause()->resume() rodava dois jobs no mesmo encoder LAME.
+     */
+    private suspend fun stopWriter() {
+        val writer = job
+        writer?.cancel()
+        capture?.close()
+        withContext(Dispatchers.IO) { writer?.join() }
+        job = null
     }
 
     private companion object {

@@ -1,6 +1,8 @@
 package com.gravasom.core.service.widget
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.LocalContext
@@ -11,6 +13,7 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartService
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -42,7 +45,15 @@ class RecordWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetContent() {
         val context = LocalContext.current
-        val startAction = actionStartService(serviceIntent(context, RecordingService.ACTION_START), isForegroundService = true)
+        // Sem RECORD_AUDIO nao ha como subir o servico em primeiro plano (o sistema derrubaria o app): o toque abre o app para conceder.
+        val temMicrofone = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val startAction = if (temMicrofone) {
+            actionStartService(serviceIntent(context, RecordingService.ACTION_START), isForegroundService = true)
+        } else {
+            context.packageManager.getLaunchIntentForPackage(context.packageName)
+                ?.let { actionStartActivity(it) }
+                ?: actionStartService(serviceIntent(context, RecordingService.ACTION_START), isForegroundService = true)
+        }
         // Marcar passa por um callback: sem gravacao em curso mostra um aviso curto (antes o toque era ignorado em silencio).
         val markerAction = actionRunCallback<MarkerActionCallback>()
         Row(modifier = GlanceModifier.fillMaxSize().background(Color(0xFF12151A))) {

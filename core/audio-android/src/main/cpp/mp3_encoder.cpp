@@ -75,6 +75,8 @@ int Mp3Encoder::GetTagFrame(uint8_t* out, int out_capacity) {
   return static_cast<int>(n);
 }
 
+int Mp3Encoder::Channels() const { return impl_ ? impl_->channels : 0; }
+
 int Mp3Encoder::LiveInstances() { return g_instancias.load(); }
 
 }  // namespace gravasom

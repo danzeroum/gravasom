@@ -20,6 +20,9 @@ class Mp3Encoder {
   // Retorna bytes escritos, 0 se nao houver, ou <0 em erro.
   int GetTagFrame(uint8_t* out, int out_capacity);
 
+  // Canais de entrada (1 ou 2): o chamador usa para validar o tamanho do buffer PCM (frames * canais).
+  int Channels() const;
+
   // Instancias vivas: contador para provar ausencia de vazamento.
   static int LiveInstances();
 

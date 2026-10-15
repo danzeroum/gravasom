@@ -61,7 +61,11 @@ class BackupCipher private constructor(
         /** Deriva a chave de envolvimento da senha (PBKDF2-HMAC-SHA256). */
         fun deriveKey(password: CharArray, salt: Salt): SecretKey {
             val spec = PBEKeySpec(password, salt.bytes, salt.iterations, KEY_BITS)
-            return SecretKeySpec(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded, "AES")
+            try {
+                return SecretKeySpec(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded, "AES")
+            } finally {
+                spec.clearPassword() // zera a copia da senha mantida pelo PBEKeySpec
+            }
         }
 
         /** Pacote novo: keyset de fluxo fresco. */

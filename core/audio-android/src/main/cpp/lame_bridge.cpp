@@ -36,6 +36,8 @@ Java_com_gravasom_core_audio_android_mp3_LameBridge_nativeEncode(
     JNIEnv* env, jobject, jlong handle, jshortArray pcm, jint frames, jbyteArray out) {
   Mp3Encoder* enc = From(handle);
   if (enc == nullptr || pcm == nullptr || frames < 0) return -1;
+  // `frames` = amostras por canal: o array precisa ter frames * canais shorts, senao o LAME leria alem dele.
+  if (static_cast<jlong>(env->GetArrayLength(pcm)) < static_cast<jlong>(frames) * enc->Channels()) return -1;
   jshort* samples = env->GetShortArrayElements(pcm, nullptr);
   if (samples == nullptr) return -1;
   const jint written = WithBytes(env, out, [&](uint8_t* buf, jint cap) {

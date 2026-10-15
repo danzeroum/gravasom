@@ -4,6 +4,7 @@ import android.content.Context
 import com.gravasom.core.audio.engine.edit.EditCodec
 import com.gravasom.core.data.backup.BackupCipher
 import com.gravasom.core.data.db.EditProjectStore
+import com.gravasom.core.domain.audio.RecordingFormat
 import com.gravasom.core.domain.marker.Marker
 import com.gravasom.core.domain.marker.MarkerColor
 import com.gravasom.core.domain.marker.MarkerRepository
@@ -12,10 +13,12 @@ import com.gravasom.core.domain.preset.FormatPreset
 import com.gravasom.core.domain.repository.RecordingRepository
 import com.gravasom.core.service.RecordingStorage
 import com.gravasom.core.service.library.RecordingFiles
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -92,19 +95,25 @@ class BackupService(
         val salt = BackupCipher.newSalt()
         val cipher = BackupCipher.newCipher()
         val wrapped = cipher.wrappedKeyset(BackupCipher.deriveKey(password, salt))
-        writeHeader(output, salt, wrapped)
-        val out = DataOutputStream(cipher.encrypting(output))
+        var out: DataOutputStream? = null
         var bytes = 0L
         try {
+            writeHeader(output, salt, wrapped)
+            out = DataOutputStream(cipher.encrypting(output))
             for ((i, r) in recordings.withIndex()) {
                 bytes += writeEntry(out, r)
                 onProgress(i + 1, recordings.size)
             }
             writeEnd(out)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: IOException) {
             return@withContext BackupResult.Failed(e.message ?: "erro de E/S")
+        } catch (e: IllegalStateException) {
+            // ex.: "o arquivo mudou durante o backup" (check em writeEntry): falha com mensagem, sem derrubar o app.
+            return@withContext BackupResult.Failed(e.message ?: "falha ao gerar o pacote")
         } finally {
-            runCatching { out.close() }
+            runCatching { out?.close() }
         }
         BackupResult.Done(recordings.size, bytes)
     }
@@ -121,15 +130,24 @@ class BackupService(
             return@withContext RestoreResult.WrongPassword
         } catch (_: IOException) {
             return@withContext RestoreResult.Failed("pacote ilegivel")
+        } catch (_: RuntimeException) {
+            return@withContext RestoreResult.Failed("pacote ilegivel")
         }
         val temp = File(context.cacheDir, "restaurar").apply { deleteRecursively(); mkdirs() }
         try {
             val entries = readEntries(cipher.decrypting(input), temp, onProgress)
             RestoreResult.Done(commit(entries))
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: GeneralSecurityException) {
             RestoreResult.Failed("pacote adulterado")
         } catch (_: IOException) {
             RestoreResult.Failed("erro de E/S ao ler o pacote")
+        } catch (_: JSONException) {
+            RestoreResult.Failed("pacote corrompido")
+        } catch (_: RuntimeException) {
+            // check() do SHA-256, tamanhos invalidos etc.: um pacote ruim nunca pode derrubar o app nem restaurar pela metade.
+            RestoreResult.Failed("pacote corrompido")
         } finally {
             temp.deleteRecursively()
         }
@@ -156,10 +174,11 @@ class BackupService(
         if (!magic.contentEquals(MAGIC)) throw IOException("nao e um pacote do Gravasom")
         val version = raw.readByte().toInt()
         if (version != VERSION) throw IOException("versao de pacote desconhecida: $version")
-        val salt = ByteArray(raw.readInt())
+        // O cabecalho vem de um arquivo nao confiavel e e lido ANTES da senha ser verificada: limita tudo.
+        val salt = ByteArray(boundedInt(raw.readInt(), MIN_SALT, MAX_SALT, "sal"))
         raw.readFully(salt)
-        val iterations = raw.readInt()
-        val wrapped = ByteArray(raw.readInt())
+        val iterations = boundedInt(raw.readInt(), MIN_ITERATIONS, MAX_ITERATIONS, "iteracoes")
+        val wrapped = ByteArray(boundedInt(raw.readInt(), MIN_WRAPPED, MAX_WRAPPED, "chave embrulhada"))
         raw.readFully(wrapped)
         return BackupCipher.open(wrapped, BackupCipher.deriveKey(password, BackupCipher.Salt(salt, iterations)))
     }
@@ -208,11 +227,20 @@ class BackupService(
 
     /** Le o proximo cabecalho; null no fim do pacote. */
     private fun nextMeta(stream: DataInputStream): EntryMeta? {
-        val header = ByteArray(stream.readInt())
+        val header = ByteArray(boundedInt(stream.readInt(), 2, MAX_ENTRY_HEADER, "cabecalho da gravacao"))
         stream.readFully(header)
         val json = JSONObject(String(header, Charsets.UTF_8))
         if (json.optString(KIND) != KIND_FILE) return null
-        return metaFromJson(json)
+        val meta = metaFromJson(json)
+        if (meta.size < 0) throw IOException("tamanho invalido no pacote")
+        // O formato vira extensao de arquivo: so os conhecidos.
+        if (RecordingFormat.entries.none { it.name == meta.format }) throw IOException("formato desconhecido no pacote")
+        return meta
+    }
+
+    private fun boundedInt(value: Int, min: Int, max: Int, what: String): Int {
+        if (value !in min..max) throw IOException("pacote invalido: $what fora do limite")
+        return value
     }
 
     /** Fase 2: grava cada gravacao conferida como uma NOVA gravacao da biblioteca, com marcadores e etiquetas. */
@@ -354,6 +382,13 @@ class BackupService(
     companion object {
         private val MAGIC = byteArrayOf('G'.code.toByte(), 'S'.code.toByte(), 'B'.code.toByte(), 'K'.code.toByte())
         private const val VERSION = 1
+        private const val MIN_SALT = 8
+        private const val MAX_SALT = 64
+        private const val MIN_ITERATIONS = 100_000
+        private const val MAX_ITERATIONS = 2_000_000
+        private const val MIN_WRAPPED = 28 // IV de 12 bytes + tag GCM de 16
+        private const val MAX_WRAPPED = 4_096
+        private const val MAX_ENTRY_HEADER = 1 shl 20
         private const val KIND = "kind"
         private const val KIND_FILE = "file"
         private const val KIND_END = "end"

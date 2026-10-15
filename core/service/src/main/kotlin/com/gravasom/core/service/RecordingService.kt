@@ -84,10 +84,20 @@ class RecordingService : Service() {
         // Primeiro plano com tipo microfone exige RECORD_AUDIO concedida; sem ela o sistema lanca SecurityException.
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             RecordingServiceState.error(RecordingError.PERMISSION_DENIED)
-            stopSelf()
+            // Quem chamou startForegroundService() tem poucos segundos para chamar startForeground(); sem isso o app cai
+            // (ForegroundServiceDidNotStartInTimeException). Tentamos; se o tipo microfone for negado, o teardown encerra mesmo assim.
+            runCatching { startForegroundCompat() }
+            teardown()
             return
         }
-        machine.transition(RecordingEvent.Start)
+        // START repetido (Tile/widget/atalhos so enviam START) com gravacao em curso: ignora. Sem isto criava-se um segundo
+        // gravador, o primeiro vazava (microfone aberto, .tmp orfao) e a maquina de estados divergia do real.
+        // Instancia reaproveitada apos Saved/Error: volta a Idle antes de aceitar um novo START.
+        if (machine.state is RecordingState.Saved || machine.state is RecordingState.Error) machine.transition(RecordingEvent.Recover)
+        if (machine.transition(RecordingEvent.Start) !is TransitionResult.Ok) {
+            startForegroundCompat() // cada startForegroundService() exige um startForeground(); a gravacao em curso segue intacta
+            return
+        }
         RecordingServiceState.update(machine.state)
         focus?.request()
         startForegroundCompat()
