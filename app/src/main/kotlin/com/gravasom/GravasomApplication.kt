@@ -8,6 +8,7 @@ import com.gravasom.core.service.RecordingStorage
 import com.gravasom.core.service.library.RecordingFiles
 import com.gravasom.core.service.library.RecordingIngestor
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,7 +32,10 @@ class GravasomApplication : Application() {
     @Inject lateinit var markers: com.gravasom.core.domain.marker.MarkerRepository
     @Inject lateinit var clips: com.gravasom.core.service.clip.ClipService
 
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    // Sem handler, qualquer excecao numa etapa de inicializacao derrubava o processo e as etapas seguintes nem rodavam.
+    private val appScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, e -> Timber.e(e, "falha em tarefa de segundo plano do app") },
+    )
 
     override fun onCreate() {
         super.onCreate()
@@ -40,9 +44,20 @@ class GravasomApplication : Application() {
         }
         ingestor.start(appScope)
         appScope.launch {
-            files.clearTemp() // copias em claro do cofre que sobraram de uma sessao anterior
-            recoverInterrupted()
-            purgeOldTrash()
+            // Cada etapa isolada: a falha de uma nao impede as outras.
+            step("limpar copias em claro do cofre") { files.clearTemp() }
+            step("recuperar gravacoes interrompidas") { recoverInterrupted() }
+            step("esvaziar lixeira antiga") { purgeOldTrash() }
+        }
+    }
+
+    private suspend fun step(nome: String, block: suspend () -> Unit) {
+        try {
+            block()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "falha ao %s", nome)
         }
     }
 
@@ -52,7 +67,7 @@ class GravasomApplication : Application() {
             tempDir = RecordingStorage.dir(this),
             isPlayable = MediaProbe::isPlayable,
             minAgeMillis = RECOVERY_MIN_AGE_MS,
-        ) { file -> appScope.launch { ingestor.ingest(file) } }.run()
+        ) { file -> appScope.launch { step("ingerir ${file.name} recuperada") { ingestor.ingest(file) } } }.run()
     }
 
     /** Lixeira de 30 dias: depois disso o audio some de verdade (arquivo, copia publica e linha). */

@@ -22,7 +22,8 @@ object WavRepair {
         bitsPerSample: Int = 16,
     ): Header? {
         if (totalFileBytes < WavHeaderWriter.HEADER_SIZE) return null
-        val dataSize = WavHeaderWriter.dataSizeFor(totalFileBytes)
+        // Arquivo maior que 4 GiB: declara so o que o RIFF comporta (o resto nao seria lido de qualquer forma).
+        val dataSize = minOf(WavHeaderWriter.dataSizeFor(totalFileBytes), WavHeaderWriter.MAX_DATA_BYTES)
         return Header(
             bytes = WavHeaderWriter.build(sampleRate, channels, bitsPerSample, dataSize),
             dataSizeBytes = dataSize,

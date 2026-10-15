@@ -24,13 +24,14 @@ import org.robolectric.annotation.Config
 class AudioFocusControllerTest {
 
     private var pausas = 0
+    private var retomadas = 0
     private val erros = mutableListOf<String>()
     private lateinit var listener: AudioManager.OnAudioFocusChangeListener
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val controller = AudioFocusController(context, onPause = { pausas++ }, onStopWithError = { erros += it })
+        val controller = AudioFocusController(context, onPause = { pausas++ }, onStopWithError = { erros += it }, onResume = { retomadas++ })
         assertTrue("pedido de foco deve ser concedido", controller.request())
         val pedido = shadowOf(context.getSystemService(AudioManager::class.java)).lastAudioFocusRequest
         assertNotNull("controller nao registrou pedido de foco", pedido)
@@ -48,10 +49,16 @@ class AudioFocusControllerTest {
     fun `dado perda transiente quando o foco volta entao pausa uma vez`() {
         listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
         assertEquals(1, pausas)
-        // Retomar: o contrato ainda nao existe no controller; este teste fixa o comportamento esperado quando for
-        // adicionado um callback onResume (ver relatorio A6). Hoje GAIN so deve ser tolerado, sem erro.
         listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        assertEquals("deve retomar quando o foco volta", 1, retomadas)
         assertTrue(erros.isEmpty())
+    }
+
+    @Test
+    fun `dado ganho de foco sem pausa causada pelo foco quando acontece entao nao retoma`() {
+        // ex.: o usuario pausou manualmente; um GAIN avulso nao pode desfazer a pausa dele
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        assertEquals(0, retomadas)
     }
 
     @Test

@@ -43,7 +43,7 @@ object AudioToWav {
         } finally {
             runCatching { sink.close() }
         }
-        if (!ok || !sink.valid || sink.bytes == 0L) {
+        if (!ok || !sink.valid || sink.bytes == 0L || sink.bytes > WavHeaderWriter.MAX_DATA_BYTES) {
             tmp.delete()
             return null
         }

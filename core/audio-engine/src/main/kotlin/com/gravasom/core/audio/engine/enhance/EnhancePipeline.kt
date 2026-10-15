@@ -68,6 +68,11 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         } catch (e: IllegalArgumentException) {
             File(destination.path + ".tmp").delete()
             EnhanceResult.Failed(e.message ?: "arquivo invalido")
+        } catch (e: IllegalStateException) {
+            // DSP nativo indisponivel/falha no processamento (CancellationException continua subindo).
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            File(destination.path + ".tmp").delete()
+            EnhanceResult.Failed(e.message ?: "falha no processamento")
         } finally {
             ctx.created.forEach { it.delete() }
         }
@@ -195,7 +200,7 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
                     return SearchOutcome.Stopped(finish(r, EnhanceReport(lufsBefore, null, null, 0.0, passes)))
                 }
                 val attempt = Attempt(out, LoudnessAnalyzer.measure(out), gain)
-                if (isBetter(attempt, best, ceiling)) best = attempt
+                if (isBetter(attempt, best, ceiling, params.target)) best = attempt
                 if (converged(attempt)) break
                 refine(attempt)
             }
@@ -235,16 +240,19 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
     }
 
     /** Prefere quem respeita o teto de pico; entre iguais, quem erra menos o alvo (ou, sem alvo, o de menor pico). */
-    private fun isBetter(a: Attempt, b: Attempt?, ceiling: Double): Boolean {
+    private fun isBetter(a: Attempt, b: Attempt?, ceiling: Double, target: Double): Boolean {
         if (b == null) return true
         val aOk = a.report.truePeakDbtp <= ceiling + TP_TOLERANCE
         val bOk = b.report.truePeakDbtp <= ceiling + TP_TOLERANCE
         return when {
             aOk != bOk -> aOk
             !aOk -> a.report.truePeakDbtp < b.report.truePeakDbtp
-            else -> abs(a.report.lufs ?: Double.MAX_VALUE) < abs(b.report.lufs ?: Double.MAX_VALUE)
+            else -> loudnessError(a, target) < loudnessError(b, target)
         }
     }
+
+    /** Distancia ate o alvo em LU; sem loudness medido (silencio) fica por ultimo. Antes comparava |LUFS| absoluto, ou seja, a distancia a 0 LUFS. */
+    private fun loudnessError(a: Attempt, target: Double): Double = a.report.lufs?.let { abs(target - it) } ?: Double.MAX_VALUE
 
     /** Copia para `<destino>.tmp` e renomeia: nunca deixa um destino pela metade. */
     private fun replace(from: File, destination: File) {

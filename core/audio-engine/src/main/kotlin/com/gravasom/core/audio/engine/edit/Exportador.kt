@@ -51,6 +51,12 @@ class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -
         } catch (e: IllegalArgumentException) {
             tmp.delete()
             ExportResult.Failed(e.message ?: "arquivo invalido")
+        } catch (e: IllegalStateException) {
+            // DSP nativo indisponivel, taxa recusada ou falha no processamento: falha com mensagem, sem .tmp e sem derrubar o app.
+            // CancellationException tambem e IllegalStateException e precisa continuar subindo.
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            tmp.delete()
+            ExportResult.Failed(e.message ?: "falha no processamento")
         }
     }
 
@@ -63,12 +69,14 @@ class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -
         cancelled: () -> Boolean,
         onProgress: (Float) -> Unit,
     ): ExportResult {
-        val processors = List(info.channels) { processorFor(project, info.sampleRate) }
+        val processors = ArrayList<AudioBlockProcessor>(info.channels)
         try {
+            // Um a um: se o do canal 2 falhar, o do canal 1 (cadeia nativa) ainda precisa ser fechado.
+            repeat(info.channels) { processors += processorFor(project, info.sampleRate) }
             if (!stream(original, tmp, info, processors, cancelled, onProgress)) return ExportResult.Cancelled
             return ExportResult.Done(destination, info.frames)
         } finally {
-            processors.forEach { it.close() }
+            processors.forEach { runCatching { it.close() } }
         }
     }
 
@@ -98,7 +106,7 @@ class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -
         cancelled: () -> Boolean,
         onProgress: (Float) -> Unit,
     ): Boolean {
-        val block = info.sampleRate / BLOCKS_PER_SECOND
+        val block = maxOf(1, info.sampleRate / BLOCKS_PER_SECOND)
         val latency = processors.maxOf { it.latencySamples }.toLong()
         val floats = Array(info.channels) { FloatArray(block) }
         val raw = ByteArray(block * info.channels * WavInfo.BYTES_PER_SAMPLE)

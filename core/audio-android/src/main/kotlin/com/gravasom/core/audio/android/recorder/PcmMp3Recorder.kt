@@ -72,6 +72,8 @@ class PcmMp3Recorder(
                         val written = LameBridge.nativeEncode(handle, pcm, frames, mp3)
                         if (written > 0) file?.write(mp3, 0, written)
                     }
+                } else if (read < 0) {
+                    kotlinx.coroutines.delay(RETRY_MS) // evita o laco apertado quando o AudioRecord morre (fone desconectado)
                 }
             }
         }
@@ -134,6 +136,7 @@ class PcmMp3Recorder(
 
     private companion object {
         const val QUALITY = 5
+        const val RETRY_MS = 20L
         const val FLUSH_BUFFER = 16_384
         const val TAG_BUFFER = 4_096
     }

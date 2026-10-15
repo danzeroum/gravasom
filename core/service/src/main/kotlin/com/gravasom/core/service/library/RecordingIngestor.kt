@@ -14,6 +14,7 @@ import com.gravasom.core.domain.tags.AutoTitle
 import com.gravasom.core.service.MediaProbe
 import com.gravasom.core.service.RecordingServiceState
 import com.gravasom.core.service.analysis.RecordingAnalyzer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
+import timber.log.Timber
 
 /**
  * Leva cada gravacao finalizada para a biblioteca: Room + copia publica no MediaStore (cofre desligado)
@@ -41,7 +43,18 @@ class RecordingIngestor(
 
     fun start(scope: CoroutineScope) {
         this.scope = scope
-        scope.launch { RecordingServiceState.saved.collect { path -> runCatching { ingest(File(path), preset = prefs.preset.first()) } } }
+        scope.launch {
+            RecordingServiceState.saved.collect { path ->
+                try {
+                    ingest(File(path), preset = prefs.preset.first())
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // O audio ja esta em disco: registra a falha (antes sumia sem rastro) e segue ouvindo as proximas gravacoes.
+                    Timber.e(e, "falha ao colocar a gravacao na biblioteca: %s", path)
+                }
+            }
+        }
     }
 
     /**

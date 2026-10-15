@@ -11,12 +11,17 @@ object WavHeaderWriter {
 
     const val HEADER_SIZE = 44
 
+    /** Maior area de dados que o RIFF de 32 bits consegue declarar (o campo e sem sinal). */
+    const val MAX_DATA_BYTES = 0xFFFF_FFFFL - 36
+
     fun build(
         sampleRate: Int,
         channels: Int,
         bitsPerSample: Int,
         dataSizeBytes: Long,
     ): ByteArray {
+        // Acima do limite o campo daria a volta (toInt) e o leitor perderia o fim da gravacao em silencio.
+        require(dataSizeBytes in 0..MAX_DATA_BYTES) { "dados WAV fora do limite de 4 GiB: $dataSizeBytes bytes" }
         val byteRate = sampleRate * channels * bitsPerSample / 8
         val blockAlign = channels * bitsPerSample / 8
         val riffSize = (36 + dataSizeBytes).toInt()

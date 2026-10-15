@@ -25,10 +25,13 @@ class BootRecovery(
         val temporaries = tempDir.listFiles { f -> f.name.endsWith(".tmp") && agora - f.lastModified() >= minAgeMillis } ?: return
         for (tmp in temporaries) {
             val finalFile = File(tmp.parentFile, tmp.name.removeSuffix(".tmp"))
-            when {
+            val renamed = when {
                 finalFile.name.endsWith(".wav") -> repairWav(tmp, finalFile)
                 else -> finalizeOther(tmp, finalFile)
             }
+            // Rename falhou (disco cheio, destino ocupado): o .tmp e o unico exemplar do audio. Mantem para a proxima inicializacao
+            // em vez de cair no ramo que apaga.
+            if (!renamed) continue
             when {
                 finalFile.exists() && isPlayable(finalFile) -> onRecovered(finalFile)
                 else -> {
@@ -40,7 +43,7 @@ class BootRecovery(
         }
     }
 
-    private fun repairWav(tmp: File, target: File) {
+    private fun repairWav(tmp: File, target: File): Boolean {
         RandomAccessFile(tmp, "rw").use { raf ->
             val total = raf.length()
             if (total > WavHeaderWriter.HEADER_SIZE) {
@@ -60,15 +63,13 @@ class BootRecovery(
                 }
             }
         }
-        tmp.renameTo(target)
+        return tmp.renameTo(target)
     }
 
     private fun blockAlign(header: java.nio.ByteBuffer): Int =
         (header.getShort(CHANNELS_OFFSET) * header.getShort(BITS_OFFSET) / BITS_PER_BYTE).coerceAtLeast(1)
 
-    private fun finalizeOther(tmp: File, target: File) {
-        tmp.renameTo(target)
-    }
+    private fun finalizeOther(tmp: File, target: File): Boolean = tmp.renameTo(target)
 
     private companion object {
         const val CHANNELS_OFFSET = 22

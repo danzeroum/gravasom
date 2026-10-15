@@ -28,7 +28,10 @@ import com.gravasom.core.domain.audio.RecordingConfig
 import com.gravasom.core.domain.audio.RecordingFormat
 import com.gravasom.core.service.marker.Haptics
 import com.gravasom.core.service.marker.SystemHaptics
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -50,6 +53,12 @@ class RecordingService : Service() {
     private var focus: AudioFocusController? = null
     private var startedAtMillis: Long = 0L
 
+    /** Coroutine da partida (le preferencias, prepara e inicia o gravador); o STOP a cancela e espera. */
+    private var startJob: Job? = null
+
+    /** true quando o gravador chegou a iniciar: so entao stop() tem arquivo para finalizar. */
+    private var recorderStarted = false
+
     /** Tempo de gravacao sem pausas = posicao no arquivo; cada marcador e gravado na hora num arquivo lateral. */
     private val clock = RecordingClock(SystemClock::elapsedRealtime)
     private var sidecar: MarkerSidecar? = null
@@ -66,6 +75,7 @@ class RecordingService : Service() {
             context = this,
             onPause = { pause() },
             onStopWithError = { stopRecording(RecordingError.MIC_IN_USE) },
+            onResume = { resume() },
         )
     }
 
@@ -101,39 +111,53 @@ class RecordingService : Service() {
         RecordingServiceState.update(machine.state)
         focus?.request()
         startForegroundCompat()
-        scope.launch {
-            val prefs = PreferencesRepository(applicationContext)
-            val format = formatName?.let { runCatching { RecordingFormat.valueOf(it) }.getOrNull() } ?: prefs.format.first()
-            InputRouting.preferred = AudioInputs.deviceById(applicationContext, prefs.preferredInputId.first())
-            val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
-            sidecar = MarkerSidecar.forAudio(File(path)).also { it.delete() }
-            markerCount = 0
-            lastMarkerMillis = null
-            RecordingServiceState.updateMarkerCount(0)
-            val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
-            val rec = factory.create(format)
-            recorder = rec
-            val config = RecordingConfig(
-                format = format,
-                sampleRateHz = prefs.sampleRate.first(),
-                bitrateKbps = prefs.bitrate.first(),
-                channels = prefs.channels.first(),
-            )
-            val started = rec.prepare(config, path).mapCatching { rec.start().getOrThrow() }
-            started
-                .onSuccess {
-                    machine.transition(RecordingEvent.Prepared)
-                    RecordingServiceState.update(machine.state)
-                    startedAtMillis = System.currentTimeMillis()
-                    clock.start()
-                    refreshNotification(paused = false)
-                    observeLevel(rec)
-                }
-                .onFailure {
-                    machine.transition(RecordingEvent.Fail(RecordingError.ENCODER_FAILURE))
-                    RecordingServiceState.update(machine.state)
-                }
+        recorderStarted = false
+        startJob = scope.launch {
+            try {
+                val prefs = PreferencesRepository(applicationContext)
+                val format = formatName?.let { runCatching { RecordingFormat.valueOf(it) }.getOrNull() } ?: prefs.format.first()
+                InputRouting.preferred = AudioInputs.deviceById(applicationContext, prefs.preferredInputId.first())
+                val path = File(RecordingStorage.dir(this@RecordingService), "gravacao_${System.currentTimeMillis()}.${format.extension}").path
+                sidecar = MarkerSidecar.forAudio(File(path)).also { it.delete() }
+                markerCount = 0
+                lastMarkerMillis = null
+                RecordingServiceState.updateMarkerCount(0)
+                val factory = DefaultRecorderFactoryHolder.factory ?: DefaultAudioRecorderFactory(scope)
+                val rec = factory.create(format)
+                recorder = rec
+                val config = RecordingConfig(
+                    format = format,
+                    sampleRateHz = prefs.sampleRate.first(),
+                    bitrateKbps = prefs.bitrate.first(),
+                    channels = prefs.channels.first(),
+                )
+                val started = rec.prepare(config, path).mapCatching { rec.start().getOrThrow() }
+                started
+                    .onSuccess {
+                        recorderStarted = true
+                        // STOP chegou durante a preparacao: a maquina ja esta em Stopping e stopRecording() finaliza este gravador.
+                        if (machine.transition(RecordingEvent.Prepared) !is TransitionResult.Ok) return@onSuccess
+                        RecordingServiceState.update(machine.state)
+                        startedAtMillis = System.currentTimeMillis()
+                        clock.start()
+                        refreshNotification(paused = false)
+                        observeLevel(rec)
+                    }
+                    .onFailure { failStart() }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Prefs/DataStore, factory ou RecordingConfig invalida: sem handler isto derrubava o processo.
+                failStart()
+            }
         }
+    }
+
+    /** Falha na partida: erro visivel, gravador liberado e servico encerrado (antes ficava a notificacao "Gravando" presa). */
+    private fun failStart() {
+        machine.transition(RecordingEvent.Fail(RecordingError.ENCODER_FAILURE))
+        RecordingServiceState.update(machine.state)
+        teardown()
     }
 
     private fun pause() {
@@ -164,12 +188,18 @@ class RecordingService : Service() {
         RecordingServiceState.update(machine.state)
         clock.stop()
         scope.launch {
-            val path: String = recorder?.stop()?.getOrNull() ?: ""
-            recorder?.release()
+            // Espera a partida terminar (ou cancela): sem isso o gravador podia iniciar depois do STOP, com o microfone aberto.
+            startJob?.cancelAndJoin()
+            val rec = recorder
+            val result = if (rec != null && recorderStarted) rec.stop() else null
+            val path: String = result?.getOrNull() ?: ""
+            rec?.release()
             recorder = null
             if (path.isNotEmpty()) RecordingServiceState.emitSaved(path)
-            if (cause != null) {
-                machine.transition(RecordingEvent.Fail(cause))
+            // stop() que falhou nao e "salvo": vira erro (o .tmp fica para o BootRecovery) em vez de Saved("") silencioso.
+            val failure = cause ?: if (result?.isFailure == true) RecordingError.ENCODER_FAILURE else null
+            if (failure != null) {
+                machine.transition(RecordingEvent.Fail(failure))
             } else {
                 machine.transition(RecordingEvent.Saved(path))
             }

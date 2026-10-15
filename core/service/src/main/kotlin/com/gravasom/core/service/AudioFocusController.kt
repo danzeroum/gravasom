@@ -13,17 +13,28 @@ class AudioFocusController(
     context: Context,
     private val onPause: () -> Unit,
     private val onStopWithError: (String) -> Unit,
+    private val onResume: () -> Unit = {},
 ) {
 
     private val audioManager = context.getSystemService(AudioManager::class.java)
     private var request: AudioFocusRequest? = null
 
+    /** So retoma no ganho de foco se foi ESTE controller que pausou (uma pausa manual do usuario nao pode ser desfeita). */
+    private var pausedByFocus = false
+
     private val listener = AudioManager.OnAudioFocusChangeListener { change ->
         when (change) {
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> onPause()
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                pausedByFocus = true
+                onPause()
+            }
             AudioManager.AUDIOFOCUS_LOSS -> onStopWithError("Microfone em uso por outro app")
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> onPause()
-            AudioManager.AUDIOFOCUS_GAIN -> Unit
+            // Ducking (notificacao, navegacao) so pede para baixar o volume de quem TOCA; o microfone segue livre.
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> Unit
+            AudioManager.AUDIOFOCUS_GAIN -> if (pausedByFocus) {
+                pausedByFocus = false
+                onResume()
+            }
         }
     }
 

@@ -22,8 +22,9 @@ import java.io.File
 class MediaStorePublisher(private val context: Context) {
 
     /** Retorna a Uri (texto) da copia publicada, ou null se nao foi possivel publicar. */
-    fun publish(file: File, displayName: String, mimeType: String): String? {
+    fun publish(file: File, rawDisplayName: String, mimeType: String): String? {
         if (!file.exists()) return null
+        val displayName = safeDisplayName(rawDisplayName)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return publishLegacy(file, displayName, mimeType)
         val uri = insertPending(displayName, mimeType) ?: return null
         val copied = runCatching { copyAndRelease(uri, file) }
@@ -35,7 +36,10 @@ class MediaStorePublisher(private val context: Context) {
     private fun publishLegacy(file: File, displayName: String, mimeType: String): String? {
         val dir = legacyDir() ?: return null
         val target = uniqueFile(dir, displayName)
-        if (runCatching { file.copyTo(target) }.isFailure) return null
+        if (runCatching { file.copyTo(target) }.isFailure) {
+            target.delete() // copia interrompida deixaria um arquivo parcial na pasta publica
+            return null
+        }
         val uri = insertLegacyRow(target, mimeType)
         if (uri == null) target.delete() else MediaScannerConnection.scanFile(context, arrayOf(target.path), arrayOf(mimeType), null)
         return uri?.toString()
@@ -62,6 +66,17 @@ class MediaStorePublisher(private val context: Context) {
             put(MediaStore.Audio.Media.IS_MUSIC, 1)
         }
         return runCatching { context.contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values) }.getOrNull()
+    }
+
+    /**
+     * O titulo padrao em pt-BR e "dd/MM/yyyy HH:mm · ...": "/" vira subpasta inexistente no armazenamento legado (a copia falhava
+     * sempre) e ":" e invalido em varios sistemas de arquivos. Mantem a extensao e limita o tamanho (ENAMETOOLONG).
+     */
+    private fun safeDisplayName(name: String): String {
+        val ext = name.substringAfterLast('.', "").takeIf { it.length in 1..5 && it.all(Char::isLetterOrDigit) }
+        val base = if (ext == null) name else name.dropLast(ext.length + 1)
+        val safe = base.replace(Regex("[^\\p{L}\\p{N} ._()-]"), "_").trim().take(MAX_NAME).ifBlank { "gravacao" }
+        return if (ext == null) safe else "$safe.$ext"
     }
 
     private fun uniqueFile(dir: File, displayName: String): File {
@@ -114,5 +129,6 @@ class MediaStorePublisher(private val context: Context) {
 
     companion object {
         const val PASTA = "Music/Recordings"
+        private const val MAX_NAME = 120
     }
 }

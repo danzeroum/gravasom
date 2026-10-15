@@ -1,6 +1,9 @@
 package com.gravasom.core.data.preferences
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -9,35 +12,45 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.gravasom.core.domain.audio.RecordingFormat
 import com.gravasom.core.domain.preset.FormatPreset
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
-private val Context.dataStore by preferencesDataStore(name = "gravasom_prefs")
+private val Context.dataStore by preferencesDataStore(
+    name = "gravasom_prefs",
+    // Arquivo corrompido: recomeca com os padroes em vez de derrubar quem le (RecordingService.first() na partida).
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
+
+/** Leitura segura: falha de E/S no DataStore vira "tudo padrao" (os `?:` de cada campo cuidam dos valores). */
+private val Context.prefsData: Flow<Preferences>
+    get() = dataStore.data.catch { if (it is IOException) emit(emptyPreferences()) else throw it }
 
 /** Preferencias do usuario (formato, qualidade, privacidade, telemetria). */
 class PreferencesRepository(private val context: Context) {
 
-    val format: Flow<RecordingFormat> = context.dataStore.data.map { prefs ->
+    val format: Flow<RecordingFormat> = context.prefsData.map { prefs ->
         runCatching { RecordingFormat.valueOf(prefs[KEY_FORMAT] ?: "M4A") }
             .getOrDefault(RecordingFormat.M4A)
     }
 
-    val sampleRate: Flow<Int> = context.dataStore.data.map { it[KEY_SAMPLE_RATE] ?: 44_100 }
-    val bitrate: Flow<Int> = context.dataStore.data.map { it[KEY_BITRATE] ?: 128 }
-    val channels: Flow<Int> = context.dataStore.data.map { it[KEY_CHANNELS] ?: 1 }
+    val sampleRate: Flow<Int> = context.prefsData.map { it[KEY_SAMPLE_RATE] ?: 44_100 }
+    val bitrate: Flow<Int> = context.prefsData.map { it[KEY_BITRATE] ?: 128 }
+    val channels: Flow<Int> = context.prefsData.map { it[KEY_CHANNELS] ?: 1 }
 
     /** Preset de formato escolhido (Voz, Aula, Entrevista, Musica); null = ajustes manuais ("personalizado"). */
-    val preset: Flow<FormatPreset?> = context.dataStore.data.map { FormatPreset.fromId(it[KEY_PRESET]) }
-    val mp3Enabled: Flow<Boolean> = context.dataStore.data.map { it[KEY_MP3] ?: false }
-    val privateVault: Flow<Boolean> = context.dataStore.data.map { it[KEY_VAULT] ?: false }
-    val telemetryOptIn: Flow<Boolean> = context.dataStore.data.map { it[KEY_TELEMETRY] ?: false }
+    val preset: Flow<FormatPreset?> = context.prefsData.map { FormatPreset.fromId(it[KEY_PRESET]) }
+    val mp3Enabled: Flow<Boolean> = context.prefsData.map { it[KEY_MP3] ?: false }
+    val privateVault: Flow<Boolean> = context.prefsData.map { it[KEY_VAULT] ?: false }
+    val telemetryOptIn: Flow<Boolean> = context.prefsData.map { it[KEY_TELEMETRY] ?: false }
 
     /** "Pular silencio" ao ouvir (ADR-014). Desligado por padrao: o usuario liga no player e a escolha fica. */
-    val skipSilence: Flow<Boolean> = context.dataStore.data.map { it[KEY_SKIP_SILENCE] ?: false }
+    val skipSilence: Flow<Boolean> = context.prefsData.map { it[KEY_SKIP_SILENCE] ?: false }
 
     /** Sensibilidade do pulo = modo do VAD (1 suave, 2 normal, 3 forte). */
-    val skipSensitivity: Flow<Int> = context.dataStore.data.map { it[KEY_SKIP_SENSITIVITY] ?: DEFAULT_SKIP_SENSITIVITY }
+    val skipSensitivity: Flow<Int> = context.prefsData.map { it[KEY_SKIP_SENSITIVITY] ?: DEFAULT_SKIP_SENSITIVITY }
 
-    val preferredInputId: Flow<Int> = context.dataStore.data.map { it[KEY_INPUT] ?: NO_INPUT }
+    val preferredInputId: Flow<Int> = context.prefsData.map { it[KEY_INPUT] ?: NO_INPUT }
 
     suspend fun setPreferredInputId(id: Int) = context.dataStore.edit { it[KEY_INPUT] = id }
     /** Ajuste manual: sai do preset (vira "personalizado"), porque o formato ja nao e o do preset. */

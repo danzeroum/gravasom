@@ -18,6 +18,8 @@ class WavInfo(val sampleRate: Int, val channels: Int, val dataOffset: Long, val 
 object WavReader {
 
     private const val FMT_BASE = 16L
+    private const val MIN_RATE = 100L
+    private const val MAX_RATE = 384_000L
 
     private class Fmt(val rate: Int, val channels: Int)
 
@@ -45,7 +47,7 @@ object WavReader {
                     val bytes = minOf(size, raf.length() - raf.filePointer) / frameBytes * frameBytes
                     return WavInfo(f.rate, f.channels, raf.filePointer, bytes)
                 }
-                else -> raf.skipBytes((size + (size and 1L)).toInt())
+                else -> skipChunk(raf, size)
             }
         }
     }
@@ -53,16 +55,27 @@ object WavReader {
     private fun readFmt(raf: RandomAccessFile, size: Long): Fmt {
         val format = le16(raf)
         val channels = le16(raf)
-        val rate = le32(raf).toInt()
+        val rateLong = le32(raf)
         le32(raf)
         le16(raf)
         val bits = le16(raf)
         require(format == 1 && bits == WavInfo.BITS && channels in 1..2) { "so PCM 16 bits mono/estereo" }
-        raf.skipBytes((size - FMT_BASE).toInt().coerceAtLeast(0))
-        return Fmt(rate, channels)
+        // Taxa fora da faixa: 0 dividia por zero, <100 Hz zerava o bloco de 10 ms do export (laco infinito) e >= 2^31 virava negativa.
+        require(rateLong in MIN_RATE..MAX_RATE) { "taxa de amostragem invalida: $rateLong Hz" }
+        if (size > FMT_BASE) skipChunk(raf, size - FMT_BASE, padding = false)
+        if (size % 2 == 1L) skipChunk(raf, 1, padding = false)
+        return Fmt(rateLong.toInt(), channels)
     }
 
-    private fun le16(raf: RandomAccessFile): Int = raf.read() or (raf.read() shl 8)
+    /** Pula [size] bytes (+1 de preenchimento RIFF se impar), recusando o que passa do fim do arquivo (size >= 2^31 virava negativo em toInt). */
+    private fun skipChunk(raf: RandomAccessFile, size: Long, padding: Boolean = true) {
+        val total = if (padding) size + (size and 1L) else size
+        require(total <= raf.length() - raf.filePointer) { "chunk WAV maior que o arquivo" }
+        raf.seek(raf.filePointer + total)
+    }
+
+    /** EOF vira EOFException (traduzida em "WAV truncado"); read() devolvia -1 e o erro aparecia como formato errado. */
+    private fun le16(raf: RandomAccessFile): Int = raf.readUnsignedByte() or (raf.readUnsignedByte() shl 8)
 
     private fun le32(raf: RandomAccessFile): Long = le16(raf).toLong() or (le16(raf).toLong() shl 16)
 

@@ -70,6 +70,8 @@ class PcmWavRecorder(
         while (isActive) {
             val read = record.read(buffer, 0, buffer.size)
             if (read > 0 && !writeBlock(buffer, bytes, read)) return
+            // read < 0 (ERROR_DEAD_OBJECT, ex.: fone Bluetooth desconectado): sem pausa o laco girava a 100% de CPU sem gravar nada.
+            if (read < 0) Thread.sleep(RETRY_MS)
         }
     }
 
@@ -98,7 +100,7 @@ class PcmWavRecorder(
         val raf = file
         if (raf != null) {
             val total = raf.length()
-            val dataSize = WavHeaderWriter.dataSizeFor(total)
+            val dataSize = minOf(WavHeaderWriter.dataSizeFor(total), WavHeaderWriter.MAX_DATA_BYTES)
             raf.seek(0)
             raf.write(
                 WavHeaderWriter.build(
@@ -140,5 +142,6 @@ class PcmWavRecorder(
 
     private companion object {
         fun tempPathFor(path: String): String = "$path.tmp"
+        const val RETRY_MS = 20L
     }
 }

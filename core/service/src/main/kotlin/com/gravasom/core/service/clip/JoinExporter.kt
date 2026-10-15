@@ -65,6 +65,7 @@ class JoinExporter {
             throw IOException("taxas ou canais diferentes entre as gravacoes")
         }
         val totalBytes = infos.sumOf { it.dataBytes }
+        if (totalBytes > WavHeaderWriter.MAX_DATA_BYTES) throw IOException("juncao passa do limite de 4 GiB do WAV")
         RandomAccessFile(tmp, "rw").use { out ->
             out.write(WavHeaderWriter.build(rate, channels, BITS, totalBytes))
             for (i in sources.indices) {

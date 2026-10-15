@@ -35,7 +35,7 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
     fun playable(recording: Recording): File {
         if (!isEncrypted(recording)) return File(recording.path)
         val target = File(tempDir(PLAY), "${recording.id}.${recording.format.extension}")
-        if (!target.isFile || target.length() == 0L) vault.value.decryptFile(File(recording.path), target)
+        decryptOnce(File(recording.path), target)
         return target
     }
 
@@ -43,16 +43,43 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
     fun forSharing(recording: Recording): File {
         if (!isEncrypted(recording)) return File(recording.path)
         val safe = recording.title.replace(Regex("[^\\p{L}\\p{N} ._-]"), "_").ifBlank { "gravacao" }
-        val target = File(tempDir(SHARE), "$safe.${recording.format.extension}")
-        vault.value.decryptFile(File(recording.path), target)
+        // Nome limitado: titulo com mais de ~255 bytes daria ENAMETOOLONG.
+        val target = File(tempDir(SHARE), "${safe.take(MAX_SHARE_NAME)}.${recording.format.extension}")
+        decryptOnce(File(recording.path), target)
         return target
     }
 
     fun decryptTo(recording: Recording, out: OutputStream) = vault.value.decryptTo(File(recording.path), out)
 
     fun forget(recording: Recording) {
-        File(tempDir(PLAY), "${recording.id}.${recording.format.extension}").delete()
+        val target = File(tempDir(PLAY), "${recording.id}.${recording.format.extension}")
+        synchronized(lockFor(target)) {
+            target.delete()
+            marker(target).delete()
+        }
     }
+
+    /**
+     * Decifra [source] para [target] uma unica vez, mesmo com varios consumidores (player, backup, clip, join) pedindo ao mesmo tempo:
+     * sem a trava os dois escreviam o mesmo `.tmp` e renomeavam um arquivo corrompido. O marcador guarda o tamanho final; uma copia
+     * que sobrou truncada (decifragem interrompida) nao bate com ele e e refeita, em vez de ser reaproveitada.
+     */
+    private fun decryptOnce(source: File, target: File) {
+        synchronized(lockFor(target)) {
+            val ok = marker(target)
+            val pronta = target.isFile && ok.isFile && ok.readText().trim() == target.length().toString()
+            if (pronta) return
+            ok.delete()
+            vault.value.decryptFile(source, target)
+            ok.writeText(target.length().toString())
+        }
+    }
+
+    private fun marker(target: File) = File(target.path + ".ok")
+
+    private fun lockFor(target: File): Any = locks.getOrPut(target.path) { Any() }
+
+    private val locks = java.util.concurrent.ConcurrentHashMap<String, Any>()
 
     /** Apaga qualquer copia em claro que tenha sobrado no cache. */
     fun clearTemp() {
@@ -62,6 +89,7 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
     private fun tempDir(name: String): File = File(context.cacheDir, name).apply { mkdirs() }
 
     companion object {
+        private const val MAX_SHARE_NAME = 100
         const val EXTENSION = "gvs"
         private const val DIR = "vault"
         private const val PLAY = "vault-play"
