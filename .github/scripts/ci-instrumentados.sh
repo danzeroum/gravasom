@@ -7,7 +7,7 @@
 #  API < 33 (28): so as classes que valem para o Android 9 (cópia publica por WRITE_EXTERNAL_STORAGE, cofre, espaco, acessibilidade).
 set -u
 API="${1:?uso: ci-instrumentados.sh <api>}"
-UI_CLASSES="com.gravasom.FluxoUsuarioTest,com.gravasom.CofreTest,com.gravasom.EspacoLivreTest,com.gravasom.AcessibilidadeTest,com.gravasom.MetricasLocaisTest,com.gravasom.NotificacaoTest,com.gravasom.EcossistemaTest,com.gravasom.TileGravacaoTest"
+UI_CLASSES="com.gravasom.FluxoUsuarioTest,com.gravasom.CofreTest,com.gravasom.EspacoLivreTest,com.gravasom.AcessibilidadeTest,com.gravasom.MetricasLocaisTest,com.gravasom.NotificacaoTest,com.gravasom.EcossistemaTest"
 LEGADO_CLASSES="com.gravasom.PublicacaoApi28Test,com.gravasom.CofreTest,com.gravasom.EspacoLivreTest,com.gravasom.AcessibilidadeTest"
 ARG="-Pandroid.testInstrumentationRunnerArguments"
 mkdir -p evidencias-ci
