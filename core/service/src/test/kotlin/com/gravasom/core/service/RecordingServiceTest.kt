@@ -49,6 +49,7 @@ class RecordingServiceTest {
         var stops = 0
         var releases = 0
         @Volatile var liberarPrepare = !atrasoPrepare
+        val falhas = kotlinx.coroutines.flow.MutableSharedFlow<Throwable>(extraBufferCapacity = 1)
         private lateinit var caminho: String
 
         override suspend fun prepare(config: RecordingConfig, outputPath: String): Result<Unit> {
@@ -68,6 +69,7 @@ class RecordingServiceTest {
             return Result.success(caminho)
         }
         override fun level(): Flow<Float> = emptyFlow()
+        override fun failures(): Flow<Throwable> = falhas
         override fun release() { releases++ }
     }
 
@@ -183,5 +185,35 @@ class RecordingServiceTest {
         val g = criados.single()
         assertEquals("gravador iniciou depois do STOP", 0, g.starts)
         assertTrue("gravador ficou sem release", g.releases >= 1)
+    }
+
+    @Test
+    fun `dado disco cheio durante a gravacao quando o gravador avisa entao salva o que existe e sinaliza falta de espaco`() {
+        conceder()
+        enviar(RecordingService.ACTION_START)
+        assertTrue(aguardar { RecordingServiceState.state.value is RecordingState.Recording })
+        // da tempo da coleta de falhas (iniciada depois do Prepared) comecar antes de emitir
+        aguardar({ false }, ms = 300)
+
+        criados.single().falhas.tryEmit(java.io.IOException("No space left on device"))
+
+        assertTrue("estado: ${RecordingServiceState.state.value}", aguardar {
+            RecordingServiceState.state.value == RecordingState.Error(com.gravasom.core.audio.engine.RecordingError.NO_SPACE)
+        })
+        assertEquals("o arquivo ja gravado precisa ser finalizado", 1, criados.single().stops)
+    }
+
+    @Test
+    fun `dado microfone que morreu durante a gravacao quando o gravador avisa entao sinaliza microfone em uso`() {
+        conceder()
+        enviar(RecordingService.ACTION_START)
+        assertTrue(aguardar { RecordingServiceState.state.value is RecordingState.Recording })
+        aguardar({ false }, ms = 300)
+
+        criados.single().falhas.tryEmit(IllegalStateException("AudioRecord sem dados"))
+
+        assertTrue("estado: ${RecordingServiceState.state.value}", aguardar {
+            RecordingServiceState.state.value == RecordingState.Error(com.gravasom.core.audio.engine.RecordingError.MIC_IN_USE)
+        })
     }
 }

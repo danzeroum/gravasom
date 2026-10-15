@@ -184,17 +184,18 @@ class BackupService(
     }
 
     /** Escreve uma gravacao (cabecalho JSON + bytes do audio) e devolve o tamanho escrito. */
-    private suspend fun writeEntry(out: DataOutputStream, recording: Recording): Long {
-        val source = runCatching { File(files.playablePath(recording)) }.getOrNull()
-        if (source == null || !source.isFile) throw IOException("nao foi possivel ler ${recording.title}")
-        val meta = metaOf(recording, source)
-        val header = meta.toJson().toString().toByteArray(Charsets.UTF_8)
-        out.writeInt(header.size)
-        out.write(header)
-        val written = copy(source, out)
-        check(written == meta.size) { "o arquivo mudou durante o backup" }
-        return written
-    }
+    private suspend fun writeEntry(out: DataOutputStream, recording: Recording): Long =
+        // Copia em claro de uso unico, apagada ao fim de CADA gravacao: o backup da biblioteca privada inteira nao deixa o claro no cache.
+        files.withPlain(recording) { source ->
+            if (!source.isFile) throw IOException("nao foi possivel ler ${recording.title}")
+            val meta = metaOf(recording, source)
+            val header = meta.toJson().toString().toByteArray(Charsets.UTF_8)
+            out.writeInt(header.size)
+            out.write(header)
+            val written = copy(source, out)
+            check(written == meta.size) { "o arquivo mudou durante o backup" }
+            written
+        }
 
     private fun writeEnd(out: DataOutputStream) {
         val header = JSONObject().put(KIND, KIND_END).toString().toByteArray(Charsets.UTF_8)

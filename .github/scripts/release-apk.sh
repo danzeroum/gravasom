@@ -38,6 +38,18 @@ fi
 APKSIGNER="$(ls -d "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/root/android-sdk}}"/build-tools/*/apksigner | sort -V | tail -1)"
 "$APKSIGNER" verify --verbose --print-certs "$APK" | tee "$SAIDA/apk-release-certificado.txt"
 
+# Segredo trocado/errado geraria um APK assinado por OUTRA chave, que nao instala por cima da versao anterior.
+# Com GRAVASOM_CERT_SHA256 definido, confere o certificado do signatario antes de seguir.
+if [ -n "${GRAVASOM_CERT_SHA256:-}" ]; then
+  obtido="$(grep -m1 -E "certificate SHA-256 digest" "$SAIDA/apk-release-certificado.txt" | sed 's/.*: *//' | tr -d ': ' | tr 'A-F' 'a-f')"
+  esperado="$(printf '%s' "$GRAVASOM_CERT_SHA256" | tr -d ': ' | tr 'A-F' 'a-f')"
+  if [ "$obtido" != "$esperado" ]; then
+    echo "::error title=Certificado inesperado::assinado com ${obtido:-<nenhum>}, esperado ${esperado}" >&2
+    exit 1
+  fi
+  echo "certificado confere com o esperado"
+fi
+
 BYTES="$(stat -c %s "$APK")"
 {
   echo "arquivo=$APK"

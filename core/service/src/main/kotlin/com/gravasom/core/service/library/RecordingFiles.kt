@@ -49,6 +49,11 @@ class RecordingFiles(
     /** Arquivo que o player pode abrir: o original ou, no cofre, uma copia em claro no cache privado. */
     suspend fun playablePath(recording: Recording): String = withContext(Dispatchers.IO) { vaultStore.playable(recording).path }
 
+    /** Copia em claro de uso unico (apagada ao fim do [block]); para backup e outras operacoes em lote sobre o cofre. */
+    suspend fun <T> withPlain(recording: Recording, block: suspend (File) -> T): T = withContext(Dispatchers.IO) {
+        vaultStore.openPlain(recording).use { block(it.file) }
+    }
+
     /** Apaga as copias em claro que sobraram no cache (chamado ao abrir o app). */
     fun clearTemp() = vaultStore.clearTemp()
 

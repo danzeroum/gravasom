@@ -106,6 +106,28 @@ class VaultStoreTest {
     }
 
     @Test
+    fun `dado copia de uso unico quando fecha entao o claro some e o player nao e afetado`() {
+        val original = claro("g.wav", 50_000)
+        val bytes = original.readBytes()
+        val rec = gravacao(6, vault.protect(original)!!)
+        val daPlayer = vault.playable(rec) // copia compartilhada do player
+        val usada = vault.openPlain(rec).use { copia ->
+            assertArrayEquals(bytes, copia.file.readBytes())
+            copia.file
+        }
+        assertFalse("a copia de uso unico ficou no disco", usada.exists())
+        assertTrue("fechar a copia de uso unico nao pode apagar a do player", daPlayer.exists())
+    }
+
+    @Test
+    fun `dado gravacao fora do cofre quando abre copia de uso unico entao devolve o original e nao o apaga`() {
+        val arquivo = claro("h.wav", 1_000)
+        val rec = gravacao(7, arquivo)
+        vault.openPlain(rec).use { assertEquals(arquivo.path, it.file.path) }
+        assertTrue(arquivo.exists())
+    }
+
+    @Test
     fun `dado titulo com barras, dois pontos e 300 caracteres quando prepara para compartilhar entao o nome e valido`() {
         val rec = gravacao(5, vault.protect(claro("e.wav", 5_000))!!, titulo = "08/10/2026 14:32 · " + "x".repeat(300))
         val arquivo = vault.forSharing(rec)

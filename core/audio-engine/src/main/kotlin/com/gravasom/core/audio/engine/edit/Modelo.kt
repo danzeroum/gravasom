@@ -41,6 +41,15 @@ data class EditProject(
         get() = bypass || intensity <= 0f || steps.none { it.enabled && !it.isNoOp }
 }
 
+/**
+ * Processador que enxerga TODOS os canais ao mesmo tempo (limitador estereo com ganho ligado entre canais).
+ * O exportador o prefere ao um-por-canal quando o audio tem mais de um canal.
+ */
+interface LinkedBlockProcessor : AudioBlockProcessor {
+    /** [blocks] tem um array por canal, todos com [length] amostras validas; processa in-place. */
+    fun processLinked(blocks: Array<FloatArray>, length: Int)
+}
+
 /** Processa blocos de amostras float [-1, 1] in-place. Um por canal. */
 interface AudioBlockProcessor : AutoCloseable {
     /** Atraso em amostras que o processador introduz (look-ahead). */

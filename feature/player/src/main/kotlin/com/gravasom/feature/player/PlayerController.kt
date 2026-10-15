@@ -63,9 +63,12 @@ class PlayerController(context: Context) : PlayerPort {
         val metadata = MediaMetadata.Builder()
             .setTitle(title ?: appContext.getString(R.string.player_notification_private_title))
             .build()
+        // Tocar de novo a gravacao que ja esta aberta nao pode desligar o "pular silencio": o painel nao reaplica o plano
+        // (o estado dele nao mudou) e o chip continuava marcado sem pular nada.
+        val sameMedia = player.currentMediaItem?.localConfiguration?.uri?.toString() == path
         player.setMediaItem(MediaItem.Builder().setUri(path).setMediaMetadata(metadata).build())
         player.prepare()
-        PlaybackHub.skipper.reset()
+        if (sameMedia) PlaybackHub.skipper.restart() else PlaybackHub.skipper.reset()
         _durationMillis.value = 0L
         _positionMillis.value = 0L
         _skippedMillis.value = 0L
@@ -75,7 +78,12 @@ class PlayerController(context: Context) : PlayerPort {
     /** Define o plano de pulo e se ele vale (guardado no [PlaybackHub]: continua valendo com o painel fechado). */
     override fun setSkip(plan: SkipPlan?, enabled: Boolean) = PlaybackHub.skipper.configure(plan, enabled)
 
-    override fun play() = player.play()
+    override fun play() {
+        // Apos o fim o ExoPlayer nao recomeca sozinho no play(), e o PlaybackService ja se encerrou (STATE_ENDED -> stopSelf).
+        if (player.playbackState == Player.STATE_ENDED) player.seekTo(0)
+        PlaybackService.ensureRunning(appContext)
+        player.play()
+    }
     override fun pause() = player.pause()
     override fun seekTo(millis: Long) {
         player.seekTo(millis.coerceAtLeast(0L))

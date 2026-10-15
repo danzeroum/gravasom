@@ -9,7 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -32,6 +34,7 @@ class PcmMp3Recorder(
     override val format: RecordingFormat = RecordingFormat.MP3
 
     private val levelFlow = MutableStateFlow(LevelMeter.MIN_DB)
+    private val failureFlow = MutableSharedFlow<Throwable>(extraBufferCapacity = 1)
     private var handle: Long = 0L
     private var channels: Int = 1
     private var job: Job? = null
@@ -61,19 +64,34 @@ class PcmMp3Recorder(
         job = scope.launch(Dispatchers.IO) {
             val pcm = ShortArray(cap.bufferSizeBytes / 2)
             val mp3 = ByteArray(LameBridge.outputCapacityFor(pcm.size))
+            var semDadosDesde = 0L
             while (isActive) {
                 val read = record.read(pcm, 0, pcm.size)
                 if (read > 0) {
+                    semDadosDesde = 0L
                     levelFlow.value = LevelMeter.rmsDb(pcm.copyOf(read))
                     // read conta SHORTS (L+R intercalados); o LAME espera amostras por canal.
                     val frames = read / channels
-                    synchronized(encoderLock) {
-                        if (handle == 0L) return@launch
-                        val written = LameBridge.nativeEncode(handle, pcm, frames, mp3)
-                        if (written > 0) file?.write(mp3, 0, written)
+                    try {
+                        synchronized(encoderLock) {
+                            if (handle == 0L) return@launch
+                            val written = LameBridge.nativeEncode(handle, pcm, frames, mp3)
+                            if (written > 0) file?.write(mp3, 0, written)
+                        }
+                    } catch (e: java.io.IOException) {
+                        // Disco cheio: avisa o servico (salva o que ja foi escrito) em vez de lancar no escopo compartilhado.
+                        if (isActive) failureFlow.tryEmit(e)
+                        return@launch
                     }
                 } else if (read < 0) {
-                    kotlinx.coroutines.delay(RETRY_MS) // evita o laco apertado quando o AudioRecord morre (fone desconectado)
+                    // AudioRecord morreu (ex.: fone desconectado): pausa o laco e, se persiste, avisa em vez de gravar silencio.
+                    val agora = System.nanoTime()
+                    if (semDadosDesde == 0L) semDadosDesde = agora
+                    if (agora - semDadosDesde > DEAD_AFTER_NANOS) {
+                        failureFlow.tryEmit(IllegalStateException("AudioRecord sem dados (codigo $read)"))
+                        return@launch
+                    }
+                    kotlinx.coroutines.delay(RETRY_MS)
                 }
             }
         }
@@ -110,6 +128,8 @@ class PcmMp3Recorder(
 
     override fun level(): Flow<Float> = levelFlow.asStateFlow()
 
+    override fun failures(): Flow<Throwable> = failureFlow.asSharedFlow()
+
     override fun release() {
         job?.cancel()
         capture?.close()
@@ -137,6 +157,7 @@ class PcmMp3Recorder(
     private companion object {
         const val QUALITY = 5
         const val RETRY_MS = 20L
+        const val DEAD_AFTER_NANOS = 1_500_000_000L
         const val FLUSH_BUFFER = 16_384
         const val TAG_BUFFER = 4_096
     }

@@ -33,10 +33,13 @@ android {
         val keystorePath = System.getenv("GRAVASOM_KEYSTORE_FILE")
         if (!keystorePath.isNullOrBlank()) {
             create("release") {
+                // Caminho definido e senha/alias ausentes davam null e um erro de assinatura obscuro no fim do build.
+                fun obrigatoria(nome: String): String =
+                    requireNotNull(System.getenv(nome)?.takeIf { it.isNotBlank() }) { "$nome nao definida (GRAVASOM_KEYSTORE_FILE foi)" }
                 storeFile = file(keystorePath)
-                storePassword = System.getenv("GRAVASOM_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("GRAVASOM_KEY_ALIAS")
-                keyPassword = System.getenv("GRAVASOM_KEY_PASSWORD")
+                storePassword = obrigatoria("GRAVASOM_KEYSTORE_PASSWORD")
+                keyAlias = obrigatoria("GRAVASOM_KEY_ALIAS")
+                keyPassword = obrigatoria("GRAVASOM_KEY_PASSWORD")
             }
         }
     }

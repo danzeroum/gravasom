@@ -39,6 +39,30 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
         return target
     }
 
+    /** Copia em claro de uso unico: [close] a apaga (so se foi criada aqui; gravacao fora do cofre devolve o proprio arquivo). */
+    class PlainCopy(val file: File, private val temporary: Boolean) : AutoCloseable {
+        override fun close() {
+            if (temporary) file.delete()
+        }
+    }
+
+    /**
+     * Copia em claro PROPRIA para operacoes em lote (backup da biblioteca inteira). Usar [playable] deixava no cache a copia em claro de
+     * TODAS as gravacoes privadas ate a proxima abertura do app. O player continua usando [playable] (compartilhada, vive enquanto ele
+     * toca); esta aqui nao pode ser apagada por baixo dele. Quem pede deve fechar (`use`).
+     */
+    fun openPlain(recording: Recording): PlainCopy {
+        if (!isEncrypted(recording)) return PlainCopy(File(recording.path), temporary = false)
+        val copy = File.createTempFile("op-", ".${recording.format.extension}", tempDir(OPERATION))
+        try {
+            vault.value.decryptFile(File(recording.path), copy)
+        } catch (e: Exception) {
+            copy.delete()
+            throw e
+        }
+        return PlainCopy(copy, temporary = true)
+    }
+
     /** Copia em claro, com nome legivel, para o FileProvider entregar a outro app. */
     fun forSharing(recording: Recording): File {
         if (!isEncrypted(recording)) return File(recording.path)
@@ -83,7 +107,7 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
 
     /** Apaga qualquer copia em claro que tenha sobrado no cache. */
     fun clearTemp() {
-        listOf(PLAY, SHARE).forEach { name -> File(context.cacheDir, name).deleteRecursively() }
+        listOf(PLAY, SHARE, OPERATION).forEach { name -> File(context.cacheDir, name).deleteRecursively() }
     }
 
     private fun tempDir(name: String): File = File(context.cacheDir, name).apply { mkdirs() }
@@ -94,5 +118,6 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
         private const val DIR = "vault"
         private const val PLAY = "vault-play"
         private const val SHARE = "vault-share"
+        private const val OPERATION = "vault-op"
     }
 }

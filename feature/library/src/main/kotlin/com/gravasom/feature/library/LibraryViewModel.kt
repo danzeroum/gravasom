@@ -105,8 +105,9 @@ class LibraryViewModel @Inject constructor(
     /** Caminho que o player consegue abrir (decifra para o cache privado se a gravacao estiver no cofre). */
     suspend fun playablePath(recording: Recording): String = files.playablePath(recording)
 
-    fun saveTo(recording: Recording, destination: Uri): Boolean {
-        val ok = files.copyTo(recording, destination)
+    /** Copia (e decifra, se for do cofre) o arquivo inteiro: E/S fora da thread principal (antes rodava no Main e dava ANR com gravacoes longas). */
+    suspend fun saveTo(recording: Recording, destination: Uri): Boolean {
+        val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { files.copyTo(recording, destination) }
         if (ok) viewModelScope.launch { metrics.record(UsageEventType.COMPARTILHADO, label = ShareChannel.SALVAR_EM) }
         return ok
     }

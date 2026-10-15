@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gravasom.core.domain.model.Recording
 import com.gravasom.core.service.clip.JoinOutcome
+import com.gravasom.core.service.library.LibraryNotices
 import com.gravasom.feature.player.PlayerController
 import com.gravasom.feature.player.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
@@ -119,6 +120,7 @@ fun LibraryScreen(
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     PlayerEventsEffect(playerViewModel, snackbar)
+    VaultFailureNotice(snackbar)
     renaming?.let { RenameDialog(it, onDismiss = { renaming = null }, onConfirm = { t -> viewModel.rename(it, t); renaming = null }) }
     JuncaoPendente(confirmandoJuncao, selecao, viewModel, snackbar) {
         confirmandoJuncao = false
@@ -249,6 +251,7 @@ private fun rememberRowActions(
     var saving by remember { mutableStateOf<Recording?>(null) }
     val savedOk = stringResource(R.string.library_saved_ok)
     val savedFail = stringResource(R.string.library_saved_fail)
+    val shareFail = stringResource(R.string.library_share_fail)
     val playFail = stringResource(R.string.library_play_fail)
     val deletedText = stringResource(R.string.library_deleted)
     val undoText = stringResource(R.string.library_undo)
@@ -271,7 +274,19 @@ private fun rememberRowActions(
         onEnhance = { r -> onEnhance(r.id) },
         onRename = onRename,
         onFavorite = viewModel::toggleFavorite,
-        onShare = { r -> scope.launch { runCatching { viewModel.shareIntent(r) }.onSuccess(context::startActivity) } },
+        onShare = { r ->
+            scope.launch {
+                // Falha ao preparar (decifrar do cofre) ou app de destino ausente avisam o usuario; antes o toque nao fazia nada
+                // e ActivityNotFoundException (fora do runCatching) derrubava o app.
+                try {
+                    context.startActivity(viewModel.shareIntent(r))
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    snackbar.showSnackbar(shareFail)
+                }
+            }
+        },
         onSaveAs = { r -> saving = r; saveLauncher.launch("${r.title}.${r.format.extension}" to r.format.mimeType) },
         onDelete = { r ->
             if (slot.currentId() == r.id) {
@@ -486,3 +501,16 @@ private fun RenameDialog(recording: Recording, onDismiss: () -> Unit, onConfirm:
     )
 }
 
+
+/** Cofre ligado, mas a cifragem falhou: a gravacao ficou em claro. Avisa (a UI pode nao estar aberta quando acontece). */
+@Composable
+private fun VaultFailureNotice(snackbar: SnackbarHostState) {
+    val falhas by LibraryNotices.vaultFailures.collectAsStateWithLifecycle()
+    val texto = stringResource(R.string.library_vault_fail)
+    LaunchedEffect(falhas) {
+        if (falhas > 0) {
+            LibraryNotices.acknowledgeVaultFailures()
+            snackbar.showSnackbar(texto)
+        }
+    }
+}

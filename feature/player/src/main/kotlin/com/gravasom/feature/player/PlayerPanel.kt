@@ -38,6 +38,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,7 +76,9 @@ fun PlayerPanel(
     modifier: Modifier = Modifier,
 ) {
     val recording = state.recording ?: return
-    val duration = maxOf(recording.durationMillis, controller.durationMillis.value)
+    // Reativo: a duracao do ExoPlayer chega depois da do banco; lida com .value a tela nao recompunha.
+    val playerDuration by controller.durationMillis.collectAsState()
+    val duration = maxOf(recording.durationMillis, playerDuration)
     var window by remember(recording.id, duration) { mutableStateOf(ViewWindow.full(duration)) }
     FollowPlayhead(controller, recording.id, { window }) { window = it }
     LaunchedEffect(state.plan, state.skipEnabled) { controller.setSkip(state.plan, state.skipEnabled) }
@@ -97,10 +101,14 @@ fun PlayerPanel(
 /** Com zoom, a janela acompanha a reproducao. */
 @Composable
 private fun FollowPlayhead(controller: PlayerPort, recordingId: Long, window: () -> ViewWindow, onWindow: (ViewWindow) -> Unit) {
+    // O efeito vive por gravacao, mas `window` (state recriado quando a duracao muda) e o callback mudam: sem isto o efeito
+    // seguia lendo e escrevendo o estado velho e a janela parava de acompanhar a reproducao.
+    val currentWindow by rememberUpdatedState(window)
+    val currentOnWindow by rememberUpdatedState(onWindow)
     LaunchedEffect(recordingId) {
         controller.positionMillis.collect { p ->
-            val w = window()
-            if (controller.isPlaying.value && w.spanMillis < w.durationMillis) onWindow(w.follow(p))
+            val w = currentWindow()
+            if (controller.isPlaying.value && w.spanMillis < w.durationMillis) currentOnWindow(w.follow(p))
         }
     }
 }

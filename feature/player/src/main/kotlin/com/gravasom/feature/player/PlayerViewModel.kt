@@ -121,10 +121,16 @@ class PlayerViewModel @Inject constructor(
         }
         markersJob = viewModelScope.launch { markerRepo.observe(recording.id).collect { m -> _state.update { it.copy(markers = m) } } }
         loading = viewModelScope.launch {
-            val analysis = runCatching {
+            // Cancelar (abrir outra gravacao / fechar) NAO e falha de analise: runCatching engolia a cancelacao e este job zerava
+            // `analyzing` e emitia AnalysisFailed no estado da gravacao seguinte.
+            val analysis = try {
                 val audio = java.io.File(files.playablePath(recording))
                 analyzer.ensure(recording.id, audio, persist = !recording.isPrivate)
-            }.getOrNull()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
             if (analysis == null) {
                 _state.update { it.copy(analyzing = false) }
                 _events.tryEmit(PlayerEvent.AnalysisFailed)

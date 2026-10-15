@@ -210,7 +210,11 @@ class EnhancePipeline(private val noiseReducer: (intensity: Float, sampleRate: I
         private fun exportPass(out: File): ExportResult {
             val g = gain
             val c = ceiling
-            val exporter = ProjectExporter { _, rate -> NormalizeProcessor(rate, g, c) }
+            // Estereo: limitador com ganho ligado entre canais (um por canal deslocava a imagem estereo ao limitar um lado so).
+            val exporter = ProjectExporter(
+                processorFor = { _, rate -> NormalizeProcessor(rate, g, c) },
+                linkedProcessorFor = { _, rate, channels -> NormalizeProcessor(rate, g, c, channels) },
+            )
             return exporter.export(source, EditProject(listOf(step)), out, ctx.cancelled) {
                 ctx.onProgress(HALF + it * HALF / MAX_PASSES)
             }

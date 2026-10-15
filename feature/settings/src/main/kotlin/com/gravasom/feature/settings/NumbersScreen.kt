@@ -46,7 +46,14 @@ fun NumbersScreen(modifier: Modifier = Modifier, viewModel: SettingsViewModel = 
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri: Uri? ->
         if (uri != null) scope.launch {
             val csv = viewModel.exportCsv()
-            runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray()) } }
+            // Escrita no SAF fora do Main.
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray()) }
+                } catch (_: java.io.IOException) {
+                    // destino indisponivel: nada a recuperar aqui
+                }
+            }
         }
     }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

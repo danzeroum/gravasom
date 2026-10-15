@@ -88,7 +88,13 @@ class RecordingIngestor(
 
     /** Insere a gravacao. Cofre ligado: cifra e apaga o claro; se a cifragem falhar, o claro fica no app, sem copia publica. */
     private suspend fun store(file: File, base: Recording, vaultOn: Boolean): Long {
-        val stored = if (vaultOn) vaultStore.protect(file) ?: file else file
+        val protegido = if (vaultOn) vaultStore.protect(file) else null
+        if (vaultOn && protegido == null) {
+            // O claro fica no app (sem copia publica), mas o usuario ligou o cofre: precisa saber que esta gravacao NAO esta cifrada.
+            Timber.w("cofre ligado, mas a cifragem falhou: %s ficou em claro", file.name)
+            LibraryNotices.vaultProtectFailed()
+        }
+        val stored = protegido ?: file
         return repo.insert(base.copy(path = stored.path))
     }
 

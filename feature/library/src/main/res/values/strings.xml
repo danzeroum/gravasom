@@ -24,6 +24,8 @@
     <string name="library_import_invalid">Não foi possível ler esse áudio</string>
     <string name="library_saved_ok">Arquivo salvo</string>
     <string name="library_saved_fail">Não foi possível salvar o arquivo</string>
+    <string name="library_vault_fail">O cofre falhou: esta gravação ficou sem criptografia no aparelho</string>
+    <string name="library_share_fail">Não foi possível compartilhar a gravação</string>
     <string name="library_published">Também em Músicas/Recordings</string>
     <string name="library_play_fail">Não foi possível abrir esta gravação.</string>
     <string name="library_private_badge">No cofre</string>

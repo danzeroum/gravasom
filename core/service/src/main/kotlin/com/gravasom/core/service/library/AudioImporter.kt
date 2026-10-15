@@ -32,9 +32,11 @@ class AudioImporter(
 ) {
 
     suspend fun import(uri: Uri): ImportResult = withContext(Dispatchers.IO) {
+        // file:// de outro app faria o Gravasom ler arquivos dele com as permissoes do proprio app (confused deputy).
+        if (uri.scheme != "content") return@withContext ImportResult.Unsupported
         val name = displayName(uri)
         val format = formatFor(context.contentResolver.getType(uri), name) ?: return@withContext ImportResult.Unsupported
-        val target = File(RecordingStorage.dir(context), "importada_${System.currentTimeMillis()}.${format.extension}")
+        val target = File(RecordingStorage.dir(context), "importada_${System.currentTimeMillis()}_${java.util.UUID.randomUUID().toString().take(8)}.${format.extension}")
         val duration = if (copyInto(uri, target)) MediaProbe.durationMillis(target) else null
         if (duration == null || duration <= 0L) {
             target.delete()
@@ -43,7 +45,10 @@ class AudioImporter(
         val now = System.currentTimeMillis()
         val title = name?.substringBeforeLast('.')?.takeIf { it.isNotBlank() } ?: RecordingIngestor.defaultTitle(now)
         val size = target.length()
-        val stored = if (prefs.privateVault.first()) vaultStore.protect(target) ?: target else target
+        val vaultOn = prefs.privateVault.first()
+        val protegido = if (vaultOn) vaultStore.protect(target) else null
+        if (vaultOn && protegido == null) LibraryNotices.vaultProtectFailed() // ficou em claro: avisar o usuario
+        val stored = protegido ?: target
         val id = repo.insert(
             Recording(
                 title = title, path = stored.path, format = format, durationMillis = duration,

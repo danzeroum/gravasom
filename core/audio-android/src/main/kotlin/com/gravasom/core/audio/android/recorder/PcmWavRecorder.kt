@@ -10,7 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -32,6 +34,7 @@ class PcmWavRecorder(
     override val format: RecordingFormat = RecordingFormat.WAV
 
     private val levelFlow = MutableStateFlow(LevelMeter.MIN_DB)
+    private val failureFlow = MutableSharedFlow<Throwable>(extraBufferCapacity = 1)
     private var job: Job? = null
     private var capture: PcmCapture? = null
     private var file: RandomAccessFile? = null
@@ -67,11 +70,23 @@ class PcmWavRecorder(
     private fun CoroutineScope.captureLoop(record: AudioRecord, bufferSizeBytes: Int) {
         val buffer = ShortArray(bufferSizeBytes / 2)
         val bytes = ByteArray(buffer.size * 2)
+        var semDadosDesde = 0L
         while (isActive) {
             val read = record.read(buffer, 0, buffer.size)
-            if (read > 0 && !writeBlock(buffer, bytes, read)) return
-            // read < 0 (ERROR_DEAD_OBJECT, ex.: fone Bluetooth desconectado): sem pausa o laco girava a 100% de CPU sem gravar nada.
-            if (read < 0) Thread.sleep(RETRY_MS)
+            if (read > 0) {
+                semDadosDesde = 0L
+                if (!writeBlock(buffer, bytes, read)) return
+            } else if (read < 0) {
+                // ERROR_DEAD_OBJECT (ex.: fone Bluetooth desconectado): sem pausa o laco girava a 100% de CPU sem gravar nada.
+                // Se persiste, avisa (o servico para e salva o que ja existe) em vez de seguir "gravando" silencio.
+                val agora = System.nanoTime()
+                if (semDadosDesde == 0L) semDadosDesde = agora
+                if (agora - semDadosDesde > DEAD_AFTER_NANOS) {
+                    failureFlow.tryEmit(IllegalStateException("AudioRecord sem dados (codigo $read)"))
+                    return
+                }
+                Thread.sleep(RETRY_MS)
+            }
         }
     }
 
@@ -87,7 +102,10 @@ class PcmWavRecorder(
             raf.write(bytes, 0, read * 2)
             true
         } catch (e: IOException) {
-            if (isActive) throw e else false
+            // Disco cheio etc. com a gravacao ativa: avisa o servico (que salva o que ja foi escrito) em vez de lancar no escopo
+            // compartilhado. Se ja foi cancelado, e so o fechamento do arquivo por stop()/release().
+            if (isActive) failureFlow.tryEmit(e)
+            false
         }
     }
 
@@ -133,6 +151,8 @@ class PcmWavRecorder(
 
     override fun level(): Flow<Float> = levelFlow.asStateFlow()
 
+    override fun failures(): Flow<Throwable> = failureFlow.asSharedFlow()
+
     override fun release() {
         job?.cancel()
         capture?.close()
@@ -143,5 +163,6 @@ class PcmWavRecorder(
     private companion object {
         fun tempPathFor(path: String): String = "$path.tmp"
         const val RETRY_MS = 20L
+        const val DEAD_AFTER_NANOS = 1_500_000_000L
     }
 }

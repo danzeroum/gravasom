@@ -235,6 +235,10 @@ class RecordingService : Service() {
 
     private fun observeLevel(rec: AudioRecorder) {
         rec.level().onEach { db -> RecordingServiceState.updateLevel(db) }.launchIn(scope)
+        // Disco cheio ou microfone que morreu no meio da gravacao: para e preserva o que ja foi gravado, com o erro certo na tela.
+        rec.failures().onEach { e ->
+            stopRecording(if (e is java.io.IOException) RecordingError.NO_SPACE else RecordingError.MIC_IN_USE)
+        }.launchIn(scope)
     }
 
     private fun startForegroundCompat() {

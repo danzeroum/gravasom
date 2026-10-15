@@ -192,6 +192,19 @@ class BackupServiceTest {
     }
 
     @Test
+    fun `backup de gravacao privada nao deixa copia em claro no cache`() = runBlocking {
+        gravacao(8, "Ideia da banda", arquivo("priv.wav", 60_000), noCofre = true)
+        val pacote = tmp.newFile("priv.gravasom")
+        val r = pacote.outputStream().use { service.create(it, "senha".toCharArray()) }
+        assertEquals(1, (r as BackupResult.Done).recordings)
+        val cache = ApplicationProvider.getApplicationContext<Context>().cacheDir
+        for (pasta in listOf("vault-play", "vault-op", "vault-share")) {
+            val sobras = File(cache, pasta).listFiles().orEmpty().toList()
+            assertTrue("sobrou claro em $pasta: $sobras", sobras.isEmpty())
+        }
+    }
+
+    @Test
     fun `senha errada nao restaura e nao apaga nada`() = runBlocking {
         gravacao(7, "Aula", arquivo("a.wav", 5_000))
         val pacote = tmp.newFile("backup.gravasom")

@@ -20,7 +20,12 @@ sealed interface ExportResult {
  * escrito em `.tmp` e renomeado ao fim. Cancelamento ou erro apagam o `.tmp`.
  * Duracao identica em amostras: o atraso (look-ahead) dos processadores e compensado.
  */
-class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -> AudioBlockProcessor) {
+class ProjectExporter(
+    /** Opcional: com mais de um canal, um unico processador que enxerga todos (ganho ligado). Tem prioridade sobre [processorFor]. */
+    private val linkedProcessorFor: ((EditProject, sampleRate: Int, channels: Int) -> LinkedBlockProcessor)? = null,
+    /** Por ultimo para que `ProjectExporter { p, rate -> ... }` (lambda final) continue sendo este. */
+    private val processorFor: (EditProject, sampleRate: Int) -> AudioBlockProcessor,
+) {
 
     fun export(
         original: File,
@@ -72,7 +77,11 @@ class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -
         val processors = ArrayList<AudioBlockProcessor>(info.channels)
         try {
             // Um a um: se o do canal 2 falhar, o do canal 1 (cadeia nativa) ainda precisa ser fechado.
-            repeat(info.channels) { processors += processorFor(project, info.sampleRate) }
+            if (info.channels > 1 && linkedProcessorFor != null) {
+                processors += linkedProcessorFor.invoke(project, info.sampleRate, info.channels)
+            } else {
+                repeat(info.channels) { processors += processorFor(project, info.sampleRate) }
+            }
             if (!stream(original, tmp, info, processors, cancelled, onProgress)) return ExportResult.Cancelled
             return ExportResult.Done(destination, info.frames)
         } finally {
@@ -118,7 +127,12 @@ class ProjectExporter(private val processorFor: (EditProject, sampleRate: Int) -
             val n = minOf(block.toLong(), info.frames - read + latency).toInt()
             PcmBlocos.ler(input, raw, floats, n, available = (info.frames - read).coerceAtLeast(0))
             read += n
-            processors.forEachIndexed { c, p -> p.process(floats[c], n) }
+            val linked = processors.singleOrNull() as? LinkedBlockProcessor
+            if (linked != null && info.channels > 1) {
+                linked.processLinked(floats, n)
+            } else {
+                processors.forEachIndexed { c, p -> p.process(floats[c], n) }
+            }
             val descartar = minOf(skip, n.toLong()).toInt()
             skip -= descartar
             val emitir = minOf((n - descartar).toLong(), info.frames - written).toInt()

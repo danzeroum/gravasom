@@ -12,6 +12,7 @@ import com.gravasom.core.service.enhance.EnhanceService
 import com.gravasom.core.service.enhance.EnhanceSettings
 import com.gravasom.core.service.enhance.PreparedRecording
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -165,8 +166,15 @@ class EnhanceViewModel @Inject constructor(
         _state.update { it.copy(settings = next) }
         invalidatePreview()
         val recording = prepared?.recording ?: return
-        viewModelScope.launch { service.saveSettings(recording, next) }
+        // Em fila: um launch por passo do slider podia gravar fora de ordem e persistir um valor que nao era o ultimo escolhido.
+        val previous = saveJob
+        saveJob = viewModelScope.launch {
+            previous?.join()
+            service.saveSettings(recording, next)
+        }
     }
+
+    private var saveJob: Job? = null
 
     private fun invalidatePreview() {
         preview = null
@@ -180,6 +188,9 @@ class EnhanceViewModel @Inject constructor(
             val s = _state.value
             val generated = service.preview(p, s.settings, s.previewStartMillis)
             _state.update { it.copy(previewBusy = false) }
+            // Ajustes mudaram durante a geracao: esta previa foi feita com os antigos e o A/B tocaria o som errado.
+            val agora = _state.value
+            if (agora.settings != s.settings || agora.previewStartMillis != s.previewStartMillis) return@launch
             if (generated == null) {
                 _state.update { it.copy(notice = R.string.enhance_fail_preview) }
                 return@launch

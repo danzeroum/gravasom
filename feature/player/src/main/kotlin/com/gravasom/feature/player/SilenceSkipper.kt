@@ -30,6 +30,11 @@ class SilenceSkipper(private val target: SkipTarget) {
         this.enabled = enabled
     }
 
+    /** Mesma gravacao recarregada (volta ao inicio): zera so o total pulado; o plano e o liga/desliga do usuario continuam. */
+    fun restart() {
+        skippedMillis = 0L
+    }
+
     /** Nova gravacao carregada: o plano e o total pulado da anterior nao valem mais. */
     fun reset() {
         plan = null
