@@ -26,6 +26,16 @@ class AppEnhanceHost(
         return File(path).takeIf { it.isFile }
     }
 
+    /** Copia em claro de uso unico (no cofre); fora do cofre devolve o proprio arquivo e `release` nao apaga nada. */
+    override suspend fun openPlayable(recording: Recording): PlayableSource? {
+        val plain = runCatching { files.openPlain(recording) }.getOrNull() ?: return null
+        if (!plain.file.isFile) {
+            plain.close()
+            return null
+        }
+        return PlayableSource(plain.file) { plain.close() }
+    }
+
     override suspend fun saveDerived(file: File, title: String, source: Recording): Long? =
         ingestor.ingest(file, title = title, forcePrivate = source.isPrivate, preset = null)
 

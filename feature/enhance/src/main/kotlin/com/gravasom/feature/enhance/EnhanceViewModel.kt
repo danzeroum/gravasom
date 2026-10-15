@@ -79,6 +79,11 @@ class EnhanceViewModel @Inject constructor(
                 _state.update { it.copy(status = EnhanceStatus.FAILED, failedReason = R.string.enhance_fail_decode) }
                 return@launch
             }
+            // O ViewModel foi limpo enquanto decodificava: ninguem vai fechar esta sessao, entao fecha aqui (apaga o claro do cofre).
+            if (coroutineContext[kotlinx.coroutines.Job]?.isActive == false) {
+                p.close()
+                return@launch
+            }
             prepared = p
             val window = minOf(EnhanceService.DEFAULT_WINDOW_MILLIS, p.wav.durationMillis)
             _state.update { it.copy(status = EnhanceStatus.READY, settings = service.settingsFor(recording), previewMillis = window) }
@@ -156,6 +161,9 @@ class EnhanceViewModel @Inject constructor(
     override fun onCleared() {
         cancelled.set(true)
         previewPlayer.stop()
+        // Gravacao privada: apaga do cache a copia em claro, o WAV decodificado e os trechos da previa desta sessao.
+        prepared?.close()
+        prepared = null
     }
 
     private fun updateSettings(change: (EnhanceSettings) -> EnhanceSettings) {

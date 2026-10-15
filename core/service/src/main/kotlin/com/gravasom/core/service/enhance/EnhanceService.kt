@@ -22,6 +22,12 @@ interface EnhanceHost {
     /** Arquivo legivel da gravacao (no cofre: copia em claro no cache privado). */
     suspend fun playableFile(recording: Recording): File?
 
+    /**
+     * Origem de uso da sessao de "Melhorar som": no cofre, uma copia em claro PROPRIA que [PlayableSource.release] apaga (a
+     * compartilhada em cache/vault-play ficava no disco ate a proxima abertura do app). O padrao reaproveita [playableFile].
+     */
+    suspend fun openPlayable(recording: Recording): PlayableSource? = playableFile(recording)?.let { PlayableSource(it) }
+
     /** Acrescenta [file] a biblioteca como gravacao nova derivada de [source]; devolve o id, ou null se falhou. */
     suspend fun saveDerived(file: File, title: String, source: Recording): Long?
 
@@ -33,8 +39,31 @@ interface EnhanceHost {
     val outputDir: File
 }
 
-/** Gravacao pronta para melhorar: o WAV de trabalho e a loudness da gravacao INTEIRA (base do ganho da previa). */
-class PreparedRecording(val recording: Recording, val wav: DecodedWav, val referenceLufs: Double?)
+/** Arquivo legivel de uma gravacao e como devolve-lo: [release] apaga a copia em claro de uso unico (no-op quando e o proprio arquivo). */
+class PlayableSource(val file: File, private val onRelease: () -> Unit = {}) {
+    fun release() = onRelease()
+}
+
+/**
+ * Gravacao pronta para melhorar: o WAV de trabalho e a loudness da gravacao INTEIRA (base do ganho da previa).
+ * [close] encerra a sessao: de gravacao privada, apaga tudo o que foi decifrado/decodificado para o cache (copia de origem, WAV
+ * decodificado, trechos da previa). Idempotente. Gravacao nao privada nao e afetada (o WAV decodificado e reaproveitado entre sessoes).
+ */
+class PreparedRecording(
+    val recording: Recording,
+    val wav: DecodedWav,
+    val referenceLufs: Double?,
+    private val cleanup: () -> Unit = {},
+) : AutoCloseable {
+    private var closed = false
+
+    @Synchronized
+    override fun close() {
+        if (closed) return
+        closed = true
+        cleanup()
+    }
+}
 
 /** Trechos de previa: o MESMO trecho do original (A) e melhorado (B), com a mesma duracao, para alternar sem corte. */
 class EnhancePreview(val original: File, val enhanced: File, val startMillis: Long, val durationMillis: Long, val gainDb: Double)
@@ -67,11 +96,19 @@ class EnhanceService(
 
     /** null se a gravacao nao abre ou nao decodifica (mais de 2 canais, por exemplo). */
     suspend fun prepare(recording: Recording, cancelled: () -> Boolean = { false }): PreparedRecording? = withContext(Dispatchers.IO) {
-        val source = host.playableFile(recording) ?: return@withContext null
-        val decoded = AudioToWav.convert(source, File(host.workDir, "dec_${recording.id}_${recording.sizeBytes}.wav"), cancelled)
-            ?: return@withContext null
+        val source = host.openPlayable(recording) ?: return@withContext null
+        val decoded = try {
+            AudioToWav.convert(source.file, File(host.workDir, "dec_${recording.id}_${recording.sizeBytes}.wav"), cancelled)
+        } catch (e: Throwable) {
+            source.release()
+            throw e
+        }
+        if (decoded == null) {
+            source.release()
+            return@withContext null
+        }
         val lufs = runCatching { LoudnessAnalyzer.measure(decoded.file).lufs }.getOrNull()
-        PreparedRecording(recording, decoded, lufs)
+        PreparedRecording(recording, decoded, lufs, cleanup = privateCleanup(recording, source, decoded))
     }
 
     /**
@@ -87,7 +124,7 @@ class EnhanceService(
         val total = prepared.wav.durationMillis
         val length = minOf(windowMillis, total)
         val start = startMillis.coerceIn(0L, (total - length).coerceAtLeast(0L))
-        val dir = File(host.workDir, "previa").apply { deleteRecursively(); mkdirs() }
+        val dir = File(host.workDir, PREVIEW_DIR).apply { deleteRecursively(); mkdirs() }
         val a = File(dir, "a.wav")
         val b = File(dir, "b.wav")
         val clip = WavClipper.clip(prepared.wav.file, start, start + length, a)
@@ -98,6 +135,17 @@ class EnhanceService(
         )
         if (result !is EnhanceResult.Done) return@withContext null
         EnhancePreview(a, b, start, length, fixedGain)
+    }
+
+    /** Limpeza de fim de sessao. So gravacao privada apaga o que gerou no cache; a origem de uso unico e sempre devolvida. */
+    private fun privateCleanup(recording: Recording, source: PlayableSource, decoded: DecodedWav): () -> Unit = {
+        if (recording.isPrivate) {
+            // O WAV decodificado so e nosso quando nao e a propria origem (WAV PCM16 e referenciado, nao copiado).
+            if (decoded.file != source.file) decoded.file.delete()
+            File(host.workDir, PREVIEW_DIR).deleteRecursively()
+            File(host.workDir, "export_${recording.id}").deleteRecursively()
+        }
+        source.release()
     }
 
     /** Exporta a copia melhorada (WAV) para a biblioteca. Cancelavel; nunca deixa arquivo pela metade. */
@@ -134,5 +182,6 @@ class EnhanceService(
 
     companion object {
         const val DEFAULT_WINDOW_MILLIS = 20_000L
+        private const val PREVIEW_DIR = "previa"
     }
 }

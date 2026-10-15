@@ -107,7 +107,9 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
 
     /** Apaga qualquer copia em claro que tenha sobrado no cache. */
     fun clearTemp() {
-        listOf(PLAY, SHARE, OPERATION).forEach { name -> File(context.cacheDir, name).deleteRecursively() }
+        // "melhorar": WAV decodificados e previas do "Melhorar som" (cache/melhorar). Se o processo morreu no meio de uma sessao com
+        // gravacao privada, o claro ficaria la; e cache descartavel (so custa decodificar de novo).
+        listOf(PLAY, SHARE, OPERATION, ENHANCE_CACHE).forEach { name -> File(context.cacheDir, name).deleteRecursively() }
     }
 
     private fun tempDir(name: String): File = File(context.cacheDir, name).apply { mkdirs() }
@@ -119,5 +121,6 @@ class VaultStore(private val context: Context, private val vault: Lazy<VaultCryp
         private const val PLAY = "vault-play"
         private const val SHARE = "vault-share"
         private const val OPERATION = "vault-op"
+        private const val ENHANCE_CACHE = "melhorar"
     }
 }

@@ -74,6 +74,20 @@ class EnhanceServiceTest {
         return f
     }
 
+    /** Host que entrega uma origem de uso unico e registra a devolucao (como o do cofre). */
+    private inner class HostUsoUnico(private val file: File) : EnhanceHost {
+        var released = 0
+        override suspend fun playableFile(recording: Recording): File? = file
+        override suspend fun openPlayable(recording: Recording) = PlayableSource(file) { released++ }
+        override suspend fun saveDerived(file: File, title: String, source: Recording): Long? = 1L
+        override suspend fun loadProject(recordingId: Long): EditProject? = null
+        override suspend fun saveProject(recordingId: Long, project: EditProject) = Unit
+        override val workDir = tmp.newFolder("work_uu")
+        override val outputDir = tmp.newFolder("saida_uu")
+    }
+
+    private fun recordingPrivada() = recording().copy(path = "/data/user/0/app/files/vault/a.wav.gvs")
+
     private fun recording(preset: FormatPreset? = null) = Recording(
         id = 7, title = "Aula de fisica", path = "/x/a.wav", format = RecordingFormat.WAV, durationMillis = 60_000, sizeBytes = 1,
         createdAtMillis = 1, tags = listOf("aula"), preset = preset,
@@ -220,5 +234,46 @@ class EnhanceServiceTest {
     fun `audio que nao decodifica nao prepara`() = runBlocking {
         val lixo = tmp.newFile("lixo.m4a").apply { writeText("nao e audio") }
         assertNull(service(Host(lixo)).prepare(recording()))
+    }
+
+    @Test
+    fun `fechar a sessao de gravacao privada devolve a origem e apaga previa e sobras do cache`() = runBlocking {
+        val host = HostUsoUnico(wav(10))
+        val s = service(host)
+        val p = s.prepare(recordingPrivada())!!
+        s.preview(p, settings(), startMillis = 0, windowMillis = 4_000)!!
+        val previa = File(host.workDir, "previa")
+        assertTrue("a previa deveria existir antes de fechar", previa.exists())
+        assertEquals(0, host.released)
+
+        p.close()
+
+        assertEquals("origem de uso unico nao foi devolvida", 1, host.released)
+        assertFalse("previa em claro ficou no cache", previa.exists())
+        p.close() // idempotente
+        assertEquals(1, host.released)
+    }
+
+    @Test
+    fun `fechar a sessao de gravacao nao privada devolve a origem mas mantem o cache reaproveitavel`() = runBlocking {
+        val host = HostUsoUnico(wav(10))
+        val s = service(host)
+        val p = s.prepare(recording())!!
+        s.preview(p, settings(), startMillis = 0, windowMillis = 4_000)!!
+
+        p.close()
+
+        assertEquals(1, host.released)
+        assertTrue("previa de gravacao publica nao precisa ser apagada", File(host.workDir, "previa").exists())
+    }
+
+    @Test
+    fun `quando a origem nao decodifica entao a copia de uso unico e devolvida`() = runBlocking {
+        val lixo = tmp.newFile("lixo.m4a").apply { writeText("nao e audio") }
+        val host = HostUsoUnico(lixo)
+        // Num teste JVM puro o MediaExtractor e um stub e pode lancar em vez de devolver null: nos dois casos a origem tem de voltar.
+        val p = runCatching { service(host).prepare(recordingPrivada().copy(format = RecordingFormat.M4A)) }.getOrNull()
+        assertNull(p)
+        assertEquals("a origem de uso unico vazou quando a decodificacao falhou", 1, host.released)
     }
 }
